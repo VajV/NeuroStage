@@ -1,0 +1,2926 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Neurostage // AI Hub</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Instrument Serif (Display) & Inter (Body) & JetBrains Mono (Terminal) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       DESIGN SYSTEM & CSS VARIABLES
+       ========================================================================== */
+    :root {
+      --background: 201 100% 13%; /* Deep navy fallback */
+      --foreground: 0 0% 100%;
+      --muted-foreground: 240 4% 66%;
+      --cyan: #00f0ff;
+      --cyan-glow: rgba(0, 240, 255, 0.45);
+      --cyan-dim: rgba(0, 240, 255, 0.08);
+      
+      --font-display: 'Instrument Serif', serif;
+      --font-body: 'Inter', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    body {
+      background-color: #030305;
+      color: hsl(var(--foreground));
+      font-family: var(--font-body);
+    }
+
+    h1, h2, h3, .font-display {
+      font-family: var(--font-display) !important;
+    }
+
+    /* Fullscreen background video contained inside the Hero section only */
+    .hero-video-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Global content layer on top of video */
+    .content-overlay {
+      position: relative;
+      z-index: 10;
+    }
+
+    /* ==========================================================================
+       LIQUID GLASS EFFECT (.liquid-glass)
+       ========================================================================== */
+    .liquid-glass {
+      background: rgba(8, 8, 11, 0.18);
+      background-blend-mode: luminosity;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border: none;
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.08);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .liquid-glass::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1.2px;
+      background: linear-gradient(180deg,
+        rgba(0, 240, 255, 0.25) 0%, rgba(255, 255, 255, 0.08) 20%,
+        rgba(255, 255, 255, 0) 40%, rgba(255, 255, 255, 0) 60%,
+        rgba(255, 255, 255, 0.08) 80%, rgba(0, 240, 255, 0.25) 100%);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    /* Custom Gradient Blur Overlays (from Motionsites) */
+    .blur-overlay {
+      position: absolute;
+      left: 0;
+      width: 100%;
+      height: 12vh;
+      z-index: 2;
+      pointer-events: none;
+      backdrop-filter: blur(25px) saturate(1.5);
+      -webkit-backdrop-filter: blur(25px) saturate(1.5);
+    }
+    
+    .blur-overlay-top {
+      top: 0;
+      mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+    }
+
+    /* Soft dark gradient fade to black at bottom of hero to blend sections seamlessly */
+    .hero-fade-bottom {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 16vh;
+      background: linear-gradient(to top, #030305 0%, transparent 100%);
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    /* ==========================================================================
+       KEYFRAMES & TRANSITIONS
+       ========================================================================== */
+    @keyframes fade-rise {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-rise { animation: fade-rise 0.8s ease-out both; }
+    .animate-fade-rise-delay { animation: fade-rise 0.8s ease-out 0.2s both; }
+    .animate-fade-rise-delay-2 { animation: fade-rise 0.8s ease-out 0.4s both; }
+
+    .scale-hover {
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .scale-hover:hover {
+      transform: scale(1.025);
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.15);
+      border-color: rgba(0, 240, 255, 0.3);
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #030305;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #14141e;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--cyan);
+    }
+
+    /* Modal active states & micro-animations */
+    .modal-active {
+      opacity: 1 !important;
+      pointer-events: auto !important;
+    }
+    .modal-active #category-modal-box,
+    .modal-active #admin-pin-card,
+    .modal-active #admin-portal-box {
+      transform: scale(1) !important;
+    }
+    
+    @keyframes modal-card-rise {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-modal-card {
+      animation: modal-card-rise 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    /* High-energy Steam full-body avatar hover, scale, brightness & neon drop-shadow keyframes */
+    @keyframes avatarGlowMotion {
+      0%, 100% {
+        transform: translateY(28px) scale(0.94) rotate(-2deg);
+        filter: brightness(0.40) contrast(1.1) drop-shadow(0 0 15px rgba(0, 240, 255, 0.2));
+      }
+      50% {
+        transform: translateY(-28px) scale(1.08) rotate(2deg);
+        filter: brightness(0.95) contrast(1.3) drop-shadow(0 0 65px rgba(0, 240, 255, 0.75));
+      }
+    }
+
+    /* BIOS Poster Girl eye-glow and cyber-sparks keyframe animations */
+    @keyframes biosGirlEyeGlow {
+      0%, 100% { opacity: 0.1; filter: drop-shadow(0 0 2px #00f0ff); }
+      45%, 55% { opacity: 1; filter: drop-shadow(0 0 8px #00f0ff); }
+      50% { opacity: 0.2; }
+    }
+
+    @keyframes biosCyberSparkle {
+      0%, 100% { transform: scale(0.8) translate(0, 0); opacity: 0.2; }
+      50% { transform: scale(1.15) translate(-5px, -8px); opacity: 0.9; }
+    }
+
+    /* Synergy pipeline arrow */
+    .synergy-arrow {
+      display: flex;
+      align-items: center;
+      color: rgba(0,240,255,0.4);
+      font-size: 18px;
+      flex-shrink: 0;
+      margin: 0 4px;
+    }
+
+    /* Hack category badge colors */
+    .hack-badge-FREE_TIER  { background: rgba(52,211,153,0.1); border-color: rgba(52,211,153,0.3); color: #34d399; }
+    .hack-badge-BYPASS     { background: rgba(251,191,36,0.1);  border-color: rgba(251,191,36,0.3);  color: #fbbf24; }
+    .hack-badge-COMBO      { background: rgba(167,139,250,0.1); border-color: rgba(167,139,250,0.3); color: #a78bfa; }
+    .hack-badge-AUTOMATION { background: rgba(0,240,255,0.1);   border-color: rgba(0,240,255,0.3);   color: #00f0ff; }
+
+    /* Hack status badge */
+    .hack-status-WORKING { color: #34d399; }
+    .hack-status-PATCHED { color: #fbbf24; }
+    .hack-status-RISKY   { color: #f87171; }
+
+    /* Active filter tab */
+    .active-filter {
+      border-color: rgba(0,240,255,0.4) !important;
+      color: #00f0ff !important;
+      background: rgba(0,240,255,0.1) !important;
+    }
+
+    /* Active dashboard sidebar tab */
+    .active-sidebar-tab {
+      background: rgba(255, 255, 255, 0.05) !important;
+      color: #ffffff !important;
+      border-color: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    /* 3D Coverflow Slider styles */
+    .coverflow-viewport {
+      perspective: 1200px;
+      transform-style: preserve-3d;
+    }
+
+    .coverflow-card {
+      position: absolute;
+      width: 280px;
+      height: 380px;
+      transition: all 0.65s cubic-bezier(0.25, 1, 0.3, 1);
+      transform-style: preserve-3d;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+
+    .editorial-glass {
+      width: 100%;
+      height: 100%;
+      background: rgba(8, 8, 10, 0.4);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.5s, box-shadow 0.5s, background-color 0.5s;
+    }
+
+    .editorial-glass::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1px;
+      background: linear-gradient(180deg,
+        rgba(255, 255, 255, 0.12) 0%,
+        rgba(255, 255, 255, 0.02) 50%,
+        rgba(255, 255, 255, 0.08) 100%);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    /* Active card specific styling when scaled up and highlighted */
+    .coverflow-card.active .editorial-glass {
+      border-color: rgba(255, 255, 255, 0.22) !important;
+      box-shadow: 0 25px 55px rgba(0, 0, 0, 0.75), 0 0 35px rgba(255, 255, 255, 0.04) !important;
+      background: rgba(14, 14, 18, 0.7) !important;
+    }
+
+    /* ==========================================================================
+       THEMED CARD & MODAL CUSTOM VARIABLES
+       ========================================================================== */
+    .coverflow-card.theme-all {
+      --theme-color: #e2e8f0; /* Platinum */
+      --theme-glow: rgba(226, 232, 240, 0.2);
+      --theme-glow-soft: rgba(226, 232, 240, 0.04);
+    }
+    .coverflow-card.theme-vibe {
+      --theme-color: #f59e0b; /* Amber */
+      --theme-glow: rgba(245, 158, 11, 0.22);
+      --theme-glow-soft: rgba(245, 158, 11, 0.04);
+    }
+    .coverflow-card.theme-video {
+      --theme-color: #ef4444; /* Crimson */
+      --theme-glow: rgba(239, 68, 68, 0.22);
+      --theme-glow-soft: rgba(239, 68, 68, 0.04);
+    }
+    .coverflow-card.theme-photo {
+      --theme-color: #c084fc; /* Violet */
+      --theme-glow: rgba(192, 132, 252, 0.22);
+      --theme-glow-soft: rgba(192, 132, 252, 0.04);
+    }
+    .coverflow-card.theme-text {
+      --theme-color: #3b82f6; /* Midnight Blue */
+      --theme-glow: rgba(59, 130, 246, 0.22);
+      --theme-glow-soft: rgba(59, 130, 246, 0.04);
+    }
+    .coverflow-card.theme-bots {
+      --theme-color: #ea580c; /* Copper */
+      --theme-glow: rgba(234, 88, 12, 0.22);
+      --theme-glow-soft: rgba(234, 88, 12, 0.04);
+    }
+    .coverflow-card.theme-agents {
+      --theme-color: #10b981; /* Emerald */
+      --theme-glow: rgba(16, 185, 129, 0.22);
+      --theme-glow-soft: rgba(16, 185, 129, 0.04);
+    }
+
+    /* Apply variables to editorial glass inside coverflow cards */
+    .coverflow-card .editorial-glass::before {
+      background: linear-gradient(180deg,
+        rgba(255, 255, 255, 0.12) 0%,
+        rgba(255, 255, 255, 0.02) 50%,
+        var(--theme-glow) 100%);
+    }
+
+    .coverflow-card.active .editorial-glass {
+      border-color: var(--theme-color) !important;
+      box-shadow: 0 25px 55px rgba(0, 0, 0, 0.75), 0 0 35px var(--theme-glow) !important;
+      background: rgba(14, 14, 18, 0.75) !important;
+    }
+
+    /* Target theme color highlights on card hover/active */
+    .coverflow-card .theme-text-color {
+      color: var(--theme-color);
+      transition: color 0.4s;
+    }
+    
+    .coverflow-card:hover .theme-text-color {
+      color: #fff;
+    }
+
+    .coverflow-card .theme-icon-container {
+      border-color: rgba(255, 255, 255, 0.04);
+      background: rgba(255, 255, 255, 0.01);
+      transition: all 0.4s;
+    }
+    
+    .coverflow-card:hover .theme-icon-container {
+      border-color: var(--theme-color);
+      background: var(--theme-glow-soft);
+      box-shadow: 0 0 15px var(--theme-glow-soft);
+    }
+
+    .coverflow-card .theme-button-highlight {
+      color: rgba(255, 255, 255, 0.4);
+      transition: color 0.4s, transform 0.4s;
+    }
+
+    .coverflow-card:hover .theme-button-highlight {
+      color: var(--theme-color);
+    }
+
+    .coverflow-card:hover .editorial-glass {
+      border-color: rgba(255, 255, 255, 0.12) !important;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7), 0 0 20px var(--theme-glow-soft);
+    }
+
+    /* ==========================================================================
+       MODAL DYNAMIC THEME INJECTOR
+       ========================================================================== */
+    #category-modal-box.theme-all {
+      --theme-color: #e2e8f0;
+      --theme-glow: rgba(226, 232, 240, 0.2);
+      --theme-glow-soft: rgba(226, 232, 240, 0.03);
+    }
+    #category-modal-box.theme-vibe {
+      --theme-color: #f59e0b;
+      --theme-glow: rgba(245, 158, 11, 0.2);
+      --theme-glow-soft: rgba(245, 158, 11, 0.03);
+    }
+    #category-modal-box.theme-video {
+      --theme-color: #e11d48;
+      --theme-glow: rgba(225, 29, 72, 0.2);
+      --theme-glow-soft: rgba(225, 29, 72, 0.03);
+    }
+    #category-modal-box.theme-photo {
+      --theme-color: #c084fc;
+      --theme-glow: rgba(192, 132, 252, 0.2);
+      --theme-glow-soft: rgba(192, 132, 252, 0.03);
+    }
+    #category-modal-box.theme-text {
+      --theme-color: #3b82f6;
+      --theme-glow: rgba(59, 130, 246, 0.2);
+      --theme-glow-soft: rgba(59, 130, 246, 0.03);
+    }
+    #category-modal-box.theme-bots {
+      --theme-color: #ea580c;
+      --theme-glow: rgba(234, 88, 12, 0.2);
+      --theme-glow-soft: rgba(234, 88, 12, 0.03);
+    }
+    #category-modal-box.theme-agents {
+      --theme-color: #10b981;
+      --theme-glow: rgba(16, 185, 129, 0.2);
+      --theme-glow-soft: rgba(16, 185, 129, 0.03);
+    }
+
+    #category-modal-box .theme-text-color {
+      color: var(--theme-color) !important;
+    }
+    #category-modal-box .theme-border-color {
+      border-color: var(--theme-color) !important;
+    }
+    #category-modal-box .theme-border-soft {
+      border-color: var(--theme-glow) !important;
+    }
+    #category-modal-box .theme-bg-soft {
+      background: var(--theme-glow-soft) !important;
+    }
+
+    /* ==========================================================================
+       SECTION 2 CINEMATIC BACKGROUND VIDEO
+       ========================================================================== --> */
+    .section-video-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.35; /* highly elegant and dark backdrop to keep cards pristine, increased for perfect presence */
+      transition: opacity 1s ease-in-out;
+    }
+
+    /* Soft dark gradient fades at the edges of Section 2 to blend sections seamlessly */
+    .section-fade-top {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 20vh;
+      background: linear-gradient(to bottom, #030305 0%, transparent 100%);
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .section-fade-bottom {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 20vh;
+      background: linear-gradient(to top, #030305 0%, transparent 100%);
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    /* Sound Wave Animation for Audio Player */
+    @keyframes soundwave {
+      0%, 100% { height: 4px; }
+      50% { height: 16px; }
+    }
+    .wave-bar {
+      animation: soundwave 1.0s ease-in-out infinite;
+    }
+    .wave-bar:nth-child(1) { animation-delay: 0.1s; }
+    .wave-bar:nth-child(2) { animation-delay: 0.2s; }
+    .wave-bar:nth-child(3) { animation-delay: 0.3s; }
+    .wave-bar:nth-child(4) { animation-delay: 0.4s; }
+    .wave-bar:nth-child(5) { animation-delay: 0.5s; }
+
+    /* Custom Styling for Volume Slider Input Range */
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 6px var(--cyan-glow);
+      transition: transform 0.2s;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.3);
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 6px var(--cyan-glow);
+      border: none;
+      transition: transform 0.2s;
+    }
+    input[type="range"]::-moz-range-thumb:hover {
+      transform: scale(1.3);
+    }
+
+    @media (max-width: 640px) {
+      .coverflow-card {
+        width: 220px;
+        height: 300px;
+      }
+    }
+  </style>
+</head>
+<body class="relative min-h-screen selection:bg-cyan-500/30 selection:text-cyan-200">
+
+  <!-- ==========================================================================
+       1. NAVIGATION BAR (Fixed Scroll Glass)
+       ========================================================================== -->
+  <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 w-full px-8 py-5 transition-all duration-300">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <!-- Logo -->
+      <a href="#" class="text-3xl tracking-tight text-white font-display select-none">
+        Neurostage<sup class="text-xs">®</sup>
+      </a>
+      
+      <!-- Nav Links -->
+      <div class="hidden md:flex items-center gap-8 font-medium">
+        <a href="#" class="text-sm text-white font-medium transition-colors">Home</a>
+        <a href="#hub" class="text-sm text-[#ababaf] hover:text-white transition-colors">NeuroHub</a>
+        <a href="#lab" class="text-sm text-[#ababaf] hover:text-white transition-colors">Labs</a>
+        <a href="#devlogs" class="text-sm text-[#ababaf] hover:text-white transition-colors">DevLogs</a>
+        <a href="#synergies" class="text-sm text-[#ababaf] hover:text-white transition-colors">Synergies</a>
+      </div>
+
+      <!-- CTA Action -->
+      <a href="#ai-abuse" class="liquid-glass rounded-full px-6 py-2.5 text-sm text-white hover:scale-[1.03] select-none active:scale-[0.98] transition-transform">
+        AI Abuse
+      </a>
+    </div>
+  </nav>
+
+  <!-- Content layers -->
+  <div class="content-overlay">
+
+    <!-- ==========================================================================
+         SECTION 1: HERO SECTION
+         ========================================================================== -->
+    <header class="relative min-h-screen flex flex-col justify-center items-center text-center px-6 pt-32 pb-20 overflow-hidden">
+      <!-- Fullscreen Background Video (Contained in Hero only) -->
+      <video autoplay loop muted playsinline class="hero-video-bg select-none">
+        <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260314_131748_f2ca2a28-fed7-44c8-b9a9-bd9acdd5ec31.mp4" type="video/mp4">
+      </video>
+
+      <!-- Local dark overlay to ensure cinematic contrast -->
+      <div class="absolute inset-0 bg-black/25 z-[1] pointer-events-none select-none"></div>
+
+      <!-- Top Blur & Bottom Soft Gradient Fade -->
+      <div class="blur-overlay blur-overlay-top"></div>
+      <div class="hero-fade-bottom"></div>
+      
+      <div class="max-w-7xl mx-auto flex flex-col items-center relative z-10">
+        
+        <!-- H1 main header -->
+        <h1 class="animate-fade-rise text-5xl sm:text-7xl md:text-8xl font-normal leading-[0.95] tracking-[-2.46px] text-white">
+          Laugh, and the world laughs with you. <br>
+          <em class="not-italic text-[#ababaf]">Weep, and you weep alone.</em>
+        </h1>
+
+        <!-- CTA scroll button -->
+        <a 
+          href="#hub" 
+          class="animate-fade-rise-delay-2 liquid-glass rounded-full px-14 py-5 text-base text-white mt-12 hover:scale-[1.03] select-none cursor-pointer active:scale-[0.98] transition-transform"
+        >
+          Begin Journey
+        </a>
+
+      </div>
+    </header>
+
+    <!-- ==========================================================================
+         SECTION 2: NEUROHUB (AI Base - Editorial Style)
+         ========================================================================== -->
+    <section id="hub" class="py-32 px-8 scroll-mt-20 overflow-hidden relative w-full">
+      
+      <!-- Background Video contained inside Section 2 only -->
+      <video autoplay loop muted playsinline class="section-video-bg select-none">
+        <source src="Section_2.mp4" type="video/mp4">
+      </video>
+
+      <!-- Smooth dark gradient fades at the top and bottom of Section 2 -->
+      <div class="section-fade-top"></div>
+      <div class="section-fade-bottom"></div>
+
+      <!-- Content Container constrained to max-width and centered -->
+      <div class="max-w-7xl mx-auto relative z-10">
+
+      <div class="mb-16 flex flex-col items-center text-center relative z-10">
+        <span class="text-[10px] font-mono text-white/45 tracking-[0.2em] uppercase">MODULE_02 // DIRECTORY</span>
+        <h2 class="text-5xl sm:text-7xl font-normal text-white mt-3 font-display">
+          Neuro<em class="italic font-serif text-white/60">Hub</em>
+        </h2>
+        <p class="text-[#ababaf] text-sm sm:text-base max-w-xl mt-4 leading-relaxed font-normal">
+          Курируемый список и авторские вердикты по главным нейросетям современности. <br>
+          <em class="italic font-serif text-white/50">Кликните на карточку в центре, чтобы заглянуть внутрь.</em>
+        </p>
+        <div class="text-[10px] font-mono text-zinc-300 mt-4 select-none tracking-wider bg-white/5 border border-white/10 px-3.5 py-1.5 rounded-full inline-block">
+          ? "What goes on four feet in the morning..."
+        </div>
+      </div>
+
+      <!-- 3D Coverflow Wrapper Container -->
+      <div class="relative w-full max-w-5xl mx-auto flex flex-col items-center min-h-[460px] justify-center px-4 z-10">
+        
+        <!-- Left Arrow Button -->
+        <button onclick="prevCoverflow()" class="absolute left-0 lg:left-4 z-40 w-12 h-12 rounded-full border border-white/5 bg-black/55 backdrop-blur-md text-white/70 hover:text-white hover:border-white/20 flex items-center justify-center transition-all scale-90 sm:scale-100 active:scale-95 shadow-[0_8px_24px_rgba(0,0,0,0.6)] select-none">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+          </svg>
+        </button>
+
+        <!-- 3D Perspective Viewport -->
+        <div class="coverflow-viewport relative w-full h-[400px] flex items-center justify-center overflow-visible select-none" id="coverflow-viewport">
+          
+          <!-- Card 1: ALL -->
+          <div onclick="handleCardClick(0, 'all')" class="coverflow-card theme-all cursor-pointer group" data-index="0">
+            <div class="editorial-glass rounded-2xl p-6 flex flex-col justify-between h-full relative">
+              <div class="flex justify-between items-start">
+                <span class="text-[9px] font-mono text-white/40 tracking-wider">M_01</span>
+                <span class="text-[8px] font-mono theme-text-color tracking-widest font-semibold">ALL</span>
+              </div>
+              <div class="my-auto text-center flex flex-col items-center">
+                <div class="w-12 h-12 rounded-full theme-icon-container flex items-center justify-center mb-5">
+                  <svg class="w-5 h-5 theme-text-color" fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+                  </svg>
+                </div>
+                <h3 class="text-3xl font-normal text-white font-display tracking-tight leading-none">
+                  All <em class="italic font-serif theme-text-color">Systems</em>
+                </h3>
+                <p class="text-[11px] text-white/50 mt-3 max-w-[200px] leading-relaxed font-normal">Единый хаб всех утилит и сервисов с авторскими вердиктами.</p>
+              </div>
+              <div class="border-t border-white/5 pt-4 flex justify-between items-center text-[9px] font-mono text-white/40">
+                <span>NODES // 11</span>
+                <span class="theme-button-highlight font-semibold">ENTER ➔</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: VIBE CODING -->
+          <div onclick="handleCardClick(1, 'vibe')" class="coverflow-card theme-vibe cursor-pointer group" data-index="1">
+            <div class="editorial-glass rounded-2xl p-6 flex flex-col justify-between h-full relative">
+              <div class="flex justify-between items-start">
+                <span class="text-[9px] font-mono text-white/40 tracking-wider">M_02</span>
+                <span class="text-[8px] font-mono theme-text-color tracking-widest font-semibold">DEV</span>
+              </div>
+              <div class="my-auto text-center flex flex-col items-center">
+                <div class="w-12 h-12 rounded-full theme-icon-container flex items-center justify-center mb-5">
+                  <svg class="w-5 h-5 theme-text-color" fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+                  </svg>
+                </div>
+                <h3 class="text-3xl font-normal text-white font-display tracking-tight leading-none">
+                  Vibe <em class="italic font-serif theme-text-color">Coding</em>
+                </h3>
+                <p class="text-[11px] text-white/50 mt-3 max-w-[200px] leading-relaxed font-normal">Быстрая сборка премиум UI и веб-приложений по текстовым описаниям.</p>
+              </div>
+              <div class="border-t border-white/5 pt-4 flex justify-between items-center text-[9px] font-mono text-white/40">
+                <span>ACTIVE // 2</span>
+                <span class="theme-button-highlight font-semibold">ENTER ➔</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3: VIDEO GEN -->
+          <div onclick="handleCardClick(2, 'video')" class="coverflow-card theme-video cursor-pointer group" data-index="2">
+            <div class="editorial-glass rounded-2xl p-6 flex flex-col justify-between h-full relative">
+              <div class="flex justify-between items-start">
+                <span class="text-[9px] font-mono text-white/40 tracking-wider">M_03</span>
+                <span class="text-[8px] font-mono theme-text-color tracking-widest font-semibold">RENDER</span>
+              </div>
+              <div class="my-auto text-center flex flex-col items-center">
+                <div class="w-12 h-12 rounded-full theme-icon-container flex items-center justify-center mb-5">
+                  <svg class="w-5 h-5 theme-text-color" fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 2.25-4.5 2.25v-4.5z" />
+                  </svg>
+                </div>
+                <h3 class="text-3xl font-normal text-white font-display tracking-tight leading-none">
+                  Video <em class="italic font-serif theme-text-color">Gen</em>
+                </h3>
+                <p class="text-[11px] text-white/50 mt-3 max-w-[200px] leading-relaxed font-normal">Кинематографичная генерация видео, переходов и перебивок.</p>
+              </div>
+              <div class="border-t border-white/5 pt-4 flex justify-between items-center text-[9px] font-mono text-white/40">
+                <span>ACTIVE // 1</span>
+                <span class="theme-button-highlight font-semibold">ENTER ➔</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 4: PHOTO GEN -->
+          <div onclick="handleCardClick(3, 'photo')" class="coverflow-card theme-photo cursor-pointer group" data-index="3">
+            <div class="editorial-glass rounded-2xl p-6 flex flex-col justify-between h-full relative">
+              <div class="flex justify-between items-start">
+                <span class="text-[9px] font-mono text-white/40 tracking-wider">M_04</span>
+                <span class="text-[8px] font-mono theme-text-color tracking-widest font-semibold">IMAGE</span>
+              </div>
+              <div class="my-auto text-center flex flex-col items-center">
+                <div class="w-12 h-12 rounded-full theme-icon-container flex items-center justify-center mb-5">
+                  <svg class="w-5 h-5 theme-text-color" fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                  </svg>
+                </div>
+                <h3 class="text-3xl font-normal text-white font-display tracking-tight leading-none">
+                  Photo <em class="italic font-serif theme-text-color">Gen</em>
+                </h3>
+                <p class="text-[11px] text-white/50 mt-3 max-w-[200px] leading-relaxed font-normal">Арт-концепты, детализированные обложки превью и текстуры.</p>
+              </div>
+              <div class="border-t border-white/5 pt-4 flex justify-between items-center text-[9px] font-mono text-white/40">
+                <span>ACTIVE // 2</span>
+                <span class="theme-button-highlight font-semibold">ENTER ➔</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 5: TEXT / CHAT -->
+          <div onclick="handleCardClick(4, 'text')" class="coverflow-card theme-text cursor-pointer group" data-index="4">
+            <div class="editorial-glass rounded-2xl p-6 flex flex-col justify-between h-full relative">
+              <div class="flex justify-between items-start">
+                <span class="text-[9px] font-mono text-white/40 tracking-wider">M_05</span>
+                <span class="text-[8px] font-mono theme-text-color tracking-widest font-semibold">CORE</span>
+              </div>
+              <div class="my-auto text-center flex flex-col items-center">
+                <div class="w-12 h-12 rounded-full theme-icon-container flex items-center justify-center mb-5">
+                  <svg class="w-5 h-5 theme-text-color" fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+                  </svg>
+                </div>
+                <h3 class="text-3xl font-normal text-white font-display tracking-tight leading-none">
+                  Text <em class="italic font-serif theme-text-color">Chat</em>
+                </h3>
+                <p class="text-[11px] text-white/50 mt-3 max-w-[200px] leading-relaxed font-normal">Интеллектуальные рассуждения, рефакторинг кода и аналитика.</p>
+              </div>
+              <div class="border-t border-white/5 pt-4 flex justify-between items-center text-[9px] font-mono text-white/40">
+                <span>ACTIVE // 2</span>
+                <span class="theme-button-highlight font-semibold">ENTER ➔</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 6: BOTS -->
+          <div onclick="handleCardClick(5, 'bots')" class="coverflow-card theme-bots cursor-pointer group" data-index="5">
+            <div class="editorial-glass rounded-2xl p-6 flex flex-col justify-between h-full relative">
+              <div class="flex justify-between items-start">
+                <span class="text-[9px] font-mono text-white/40 tracking-wider">M_06</span>
+                <span class="text-[8px] font-mono theme-text-color tracking-widest font-semibold">BOTS</span>
+              </div>
+              <div class="my-auto text-center flex flex-col items-center">
+                <div class="w-12 h-12 rounded-full theme-icon-container flex items-center justify-center mb-5">
+                  <svg class="w-5 h-5 theme-text-color" fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25" />
+                  </svg>
+                </div>
+                <h3 class="text-3xl font-normal text-white font-display tracking-tight leading-none">
+                  TG <em class="italic font-serif theme-text-color">Bots</em>
+                </h3>
+                <p class="text-[11px] text-white/50 mt-3 max-w-[200px] leading-relaxed font-normal">Интеграция Telegram-ботов с базами данных и новейшими API.</p>
+              </div>
+              <div class="border-t border-white/5 pt-4 flex justify-between items-center text-[9px] font-mono text-white/40">
+                <span>ACTIVE // 2</span>
+                <span class="theme-button-highlight font-semibold">ENTER ➔</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 7: AI AGENTS -->
+          <div onclick="handleCardClick(6, 'agents')" class="coverflow-card theme-agents cursor-pointer group" data-index="6">
+            <div class="editorial-glass rounded-2xl p-6 flex flex-col justify-between h-full relative">
+              <div class="flex justify-between items-start">
+                <span class="text-[9px] font-mono text-white/40 tracking-wider">M_07</span>
+                <span class="text-[8px] font-mono theme-text-color tracking-widest font-semibold">AGENTS</span>
+              </div>
+              <div class="my-auto text-center flex flex-col items-center">
+                <div class="w-12 h-12 rounded-full theme-icon-container flex items-center justify-center mb-5">
+                  <svg class="w-5 h-5 theme-text-color" fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+                  </svg>
+                </div>
+                <h3 class="text-3xl font-normal text-white font-display tracking-tight leading-none">
+                  AI <em class="italic font-serif theme-text-color">Agents</em>
+                </h3>
+                <p class="text-[11px] text-white/50 mt-3 max-w-[200px] leading-relaxed font-normal">Автономные мульти-агентные группы для отладки кода и рефакторинга.</p>
+              </div>
+              <div class="border-t border-white/5 pt-4 flex justify-between items-center text-[9px] font-mono text-white/40">
+                <span>ACTIVE // 2</span>
+                <span class="theme-button-highlight font-semibold">ENTER ➔</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right Arrow Button -->
+        <button onclick="nextCoverflow()" class="absolute right-0 lg:right-4 z-40 w-12 h-12 rounded-full border border-white/5 bg-black/55 backdrop-blur-md text-white/70 hover:text-white hover:border-white/20 flex items-center justify-center transition-all scale-90 sm:scale-100 active:scale-95 shadow-[0_8px_24px_rgba(0,0,0,0.6)] select-none">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+          </svg>
+        </button>
+
+      </div>
+
+      <!-- Local HTML5 Audio Player -->
+      <audio id="local-audio-player" src="Ray_Charles_-_Hit_the_Road_Jack_Original_Mix_(TheMP3.Info).mp3" preload="auto"></audio>
+
+      <!-- Cyber-Aura Audio Player Capsule -->
+      <div class="mt-8 liquid-glass rounded-full px-6 py-3 flex items-center justify-between gap-6 border border-cyan-500/10 shadow-[0_15px_35px_rgba(0,0,0,0.8)] max-w-sm w-full mx-auto select-none scale-hover relative overflow-hidden" id="audio-player-capsule">
+        <div class="flex items-center gap-4">
+          <!-- Sound Wave Animation -->
+          <div class="flex items-end gap-[3px] h-4 w-6 select-none" id="audio-wave-anim">
+            <span class="w-[3px] bg-[#ababaf] rounded-full h-1 transition-all duration-300"></span>
+            <span class="w-[3px] bg-[#ababaf] rounded-full h-1 transition-all duration-300"></span>
+            <span class="w-[3px] bg-[#ababaf] rounded-full h-1 transition-all duration-300"></span>
+            <span class="w-[3px] bg-[#ababaf] rounded-full h-1 transition-all duration-300"></span>
+            <span class="w-[3px] bg-[#ababaf] rounded-full h-1 transition-all duration-300"></span>
+          </div>
+          
+          <!-- Track Info -->
+          <div class="flex flex-col">
+            <span class="text-[9px] font-mono text-[#ababaf] tracking-widest uppercase transition-colors duration-300" id="audio-status-label">AUDIO // STANDBY</span>
+            <span class="text-xs font-semibold text-white tracking-tight leading-none mt-1">Ray Charles</span>
+            <span class="text-[10px] text-[#ababaf] font-light mt-0.5">Hit the Road Jack</span>
+          </div>
+        </div>
+
+        <!-- Controls Container (Play/Pause + Volume) -->
+        <div class="flex items-center gap-3">
+          <!-- Volume Controller -->
+          <div class="flex items-center gap-2 group/vol select-none">
+            <!-- Speaker Icon -->
+            <svg class="w-4.5 h-4.5 text-[#ababaf] group-hover/vol:text-cyan-400 transition-colors" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" id="volume-icon">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
+            </svg>
+            <!-- Sleek Input Range Slider -->
+            <input 
+              type="range" 
+              id="audio-volume-slider" 
+              min="0" 
+              max="1" 
+              step="0.01" 
+              value="0.40" 
+              class="w-14 h-1 bg-white/10 rounded-full appearance-none cursor-pointer accent-cyan-400 outline-none transition-all duration-300 focus:ring-1 focus:ring-cyan-400/30"
+              oninput="handleVolumeChange(this.value)"
+            />
+          </div>
+
+          <!-- Play/Pause Control Button -->
+          <button onclick="toggleAudio()" class="w-9 h-9 rounded-full bg-cyan-400/10 hover:bg-cyan-400/20 border border-cyan-400/30 hover:border-cyan-400 text-cyan-400 flex items-center justify-center transition-all scale-100 active:scale-90" id="audio-play-btn">
+            <!-- Play Icon -->
+            <svg class="w-4.5 h-4.5 translate-x-[1px]" fill="currentColor" viewBox="0 0 24 24" id="play-icon">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+            <!-- Pause Icon (hidden by default) -->
+            <svg class="w-4.5 h-4.5 hidden" fill="currentColor" viewBox="0 0 24 24" id="pause-icon">
+              <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+    </div> <!-- Closes the max-w-7xl mx-auto relative z-10 content container -->
+  </section>
+
+    <!-- ==========================================================================
+         SECTION 3: LAB & MY PROJECTS (Bento Grid)
+         ========================================================================== -->
+    <section id="lab" class="relative w-full overflow-hidden py-24 scroll-mt-20">
+      <!-- High-tech Steam Avatar Animated Background Video -->
+      <div class="absolute inset-0 z-0 pointer-events-none flex items-center justify-center select-none overflow-hidden h-full w-full">
+        <!-- Masking wrapper to crop out watermarks -->
+        <div class="relative h-full w-auto max-w-full flex items-center justify-center overflow-hidden">
+          <!-- Slightly magnified and shifted up to hide generator watermark -->
+          <video 
+            src="Hailuo_Video_Короткое, 3-секундное, бесшовн_515789385839439875 (online-video-cutter.com).mp4" 
+            autoplay 
+            loop 
+            muted 
+            playsinline 
+            class="h-full w-auto max-w-none object-contain pointer-events-none opacity-70 sm:opacity-80"
+            style="transform: scale(1.05); filter: brightness(0.65) contrast(1.15) drop-shadow(0 0 45px rgba(0, 240, 255, 0.45));"
+          ></video>
+        </div>
+        <!-- Radial dark fades to blend seamlessly -->
+        <div class="absolute inset-0 bg-gradient-to-t from-[#030305] via-transparent to-[#030305] opacity-75"></div>
+      </div>
+
+      <!-- Top and bottom gradient shadows for smooth section transition -->
+      <div class="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-[#030305] to-transparent pointer-events-none z-10"></div>
+      <div class="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-[#030305] to-transparent pointer-events-none z-10"></div>
+      
+      <!-- Content Wrapper -->
+      <div class="max-w-7xl mx-auto px-8 relative z-10">
+        <span class="text-sm font-mono text-cyan-400 tracking-widest uppercase">SECTION_03 // LABORATORY // ЛАБОРАТОРИЯ</span>
+        <h2 class="text-4xl sm:text-5xl font-normal text-white mt-2">Лаборатория</h2>
+        <p class="text-[#ababaf] text-sm mt-1 mb-12">Мои личные SaaS-сервисы, скрипты, системы автоматизации и эксперименты.</p>
+        <div class="text-[10px] font-mono text-zinc-300 -mt-8 mb-12 select-none tracking-wider bg-white/5 border border-white/10 px-3.5 py-1.5 rounded-full inline-block">
+          ? "...two feet at midday..."
+        </div>
+
+        <!-- Bento Grid System — dynamically populated by renderBentoGrid() -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-auto" id="bento-grid-container">
+          <!-- JS will inject project cards here -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         SECTION 4: DEVLOGS & VIDEO ATTACHMENTS (Dynamic Console Layout)
+         ========================================================================== -->
+    <section id="devlogs" class="relative w-full overflow-hidden py-24 scroll-mt-20">
+      <!-- Section 4 Container -->
+      <div class="max-w-7xl mx-auto px-8 relative z-10">
+        <span class="text-sm font-mono text-cyan-400 tracking-widest uppercase">SECTION_04 // VIDEO ARCHIVES // ДЕВОЛОГИ</span>
+        <h2 class="text-4xl sm:text-5xl font-normal text-white mt-2">DevLogs</h2>
+        <p class="text-[#ababaf] text-sm mt-1 mb-12">Интегрированные разборы, демонстрации инструментов и видеоматериалы из выпусков.</p>
+        <div class="text-[10px] font-mono text-zinc-300 -mt-8 mb-12 select-none tracking-wider bg-white/5 border border-white/10 px-3.5 py-1.5 rounded-full inline-block">
+          ? "...and three feet in the evening?"
+        </div>
+
+        <!-- Video & Custom Animated Poster Split-Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+          
+          <!-- Column 1: Video Player & Connected Materials (lg:col-span-8) on the LEFT -->
+          <div class="lg:col-span-8 flex flex-col gap-6">
+            
+            <!-- Video Player Glass Box -->
+            <div class="liquid-glass rounded-2xl p-6 border border-cyan-500/10 flex flex-col justify-between shadow-[0_15px_40px_rgba(0,0,0,0.4)]">
+              <div>
+                <div class="flex justify-between items-center mb-3">
+                  <span class="text-xs font-mono text-cyan-400" id="video-console-episode">LATEST_EPISODE</span>
+                  <span class="text-xs text-zinc-500" id="video-console-status">HD 1080P</span>
+                </div>
+                <h3 class="text-2xl font-normal text-white mb-2" id="video-console-title">Загрузка...</h3>
+                <p class="text-xs text-[#ababaf] mb-4 leading-relaxed" id="video-console-description">Инициализация базы данных видеоматериалов...</p>
+              </div>
+
+              <!-- Embedded Video Box -->
+              <div class="relative w-full rounded-xl overflow-hidden aspect-video border border-white/10 bg-zinc-950 group">
+                <video 
+                  id="devlogs-video-player"
+                  src="" 
+                  controls 
+                  poster=""
+                  class="w-full h-full object-cover"
+                ></video>
+              </div>
+              
+              <div class="flex justify-between items-center mt-4 pt-4 border-t border-white/5 font-mono text-[9px]">
+                <span class="text-zinc-500">PLAYER_SYSTEM_CONNECTED</span>
+                <span class="text-cyan-400">STATUS: STABLE</span>
+              </div>
+            </div>
+
+            <!-- Attached Materials Copy Box (Resolves "Материалов с видео нет"!) -->
+            <div class="liquid-glass rounded-2xl p-6 border border-cyan-500/10 flex flex-col shadow-[0_15px_40px_rgba(0,0,0,0.4)]">
+              <div class="flex justify-between items-center border-b border-white/5 pb-3 mb-4">
+                <div class="flex items-center gap-2">
+                  <span class="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-pulse"></span>
+                  <span class="text-xs font-mono text-cyan-400 tracking-wider">ATTACHED_MATERIALS // МАТЕРИАЛЫ К ВЫПУСКУ</span>
+                </div>
+                <button 
+                  onclick="copyAttachedMaterials()"
+                  class="font-mono text-[9px] text-[#ababaf] hover:text-cyan-400 bg-white/5 border border-white/5 hover:border-cyan-400/30 px-3 py-1.5 rounded-lg transition-all active:scale-95 cursor-pointer flex items-center gap-1"
+                >
+                  <span id="copy-btn-text">КОПИРОВАТЬ МАТЕРИАЛЫ</span> [➔]
+                </button>
+              </div>
+
+              <!-- Prompts/Links Content Display -->
+              <pre 
+                id="video-console-materials" 
+                class="w-full bg-black/40 border border-white/5 rounded-lg p-4 font-mono text-[10px] text-emerald-400 overflow-x-auto whitespace-pre-wrap max-h-48 leading-normal"
+              >Загрузка прикрепленных материалов...</pre>
+            </div>
+
+          </div>
+
+          <!-- Column 2: Compact Assistant Avatar & Playlist (lg:col-span-4) on the RIGHT -->
+          <div class="lg:col-span-4 flex flex-col gap-6">
+            
+            <!-- Compact AI Assistant Telemetry Box -->
+            <div class="relative rounded-2xl overflow-hidden border border-cyan-500/20 bg-black flex flex-col justify-end h-44 group shadow-[0_15px_40px_rgba(0,0,0,0.6)]">
+              <!-- Animated Video Container -->
+              <div class="absolute inset-0 w-full h-full pointer-events-none overflow-hidden" id="bios-girl-container">
+                <video 
+                  src="Sec4.mp4" 
+                  autoplay 
+                  loop 
+                  muted 
+                  playsinline
+                  class="w-full h-full object-cover opacity-45"
+                ></video>
+              </div>
+              <div class="absolute inset-0 bg-gradient-to-t from-[#030305] via-[#030305]/20 to-transparent pointer-events-none z-10"></div>
+              
+              <!-- Telemetry Label overlay on top of video -->
+              <div class="relative z-20 p-4">
+                <span class="text-[8px] font-mono text-cyan-400 tracking-widest uppercase">SYSTEM BOOT SCREEN // NAKZDESIGN</span>
+                <h3 class="text-sm font-normal text-white font-display">Cybernetic Assistant Bios</h3>
+                <p class="text-[9px] text-[#ababaf] font-light leading-none">[STATUS: ONLINE] // NEURAL_NAVIGATOR</p>
+              </div>
+            </div>
+
+            <!-- Interactive Playlist Card -->
+            <div class="liquid-glass rounded-2xl p-5 border border-cyan-500/10 flex-grow shadow-[0_15px_40px_rgba(0,0,0,0.4)] flex flex-col gap-4">
+              <div class="border-b border-white/5 pb-2">
+                <span class="text-[9px] font-mono text-zinc-500 tracking-widest block">// DEVLOGS PLAYLIST QUEUE</span>
+                <h4 class="text-sm font-medium text-white mt-0.5">Список выпусков</h4>
+              </div>
+
+              <!-- Scrollable Playlist Items -->
+              <div id="devlogs-playlist" class="flex flex-col gap-2.5 max-h-[350px] overflow-y-auto pr-1">
+                <!-- JS dynamically renders playlist items here -->
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         SECTION 5: СИНЕРГИИ (Tool Synergies // Constellation Network Background)
+         ========================================================================== -->
+    <section id="synergies" class="relative w-full overflow-hidden py-24 scroll-mt-20">
+      <!-- Interactive Synergy Background Video -->
+      <div class="absolute inset-0 w-full h-full pointer-events-none overflow-hidden select-none z-0">
+        <video 
+          src="Seck5.mp4" 
+          autoplay 
+          loop 
+          muted 
+          playsinline
+          class="w-full h-full object-cover opacity-55"
+          style="filter: brightness(0.65) contrast(1.25) saturate(1.15);"
+        ></video>
+      </div>
+      
+      <!-- Top and bottom gradient shadows for smooth section transition -->
+      <div class="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-[#030305] to-transparent pointer-events-none z-10"></div>
+      <div class="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-[#030305] to-transparent pointer-events-none z-10"></div>
+
+      <!-- Section Content Container -->
+      <div class="max-w-7xl mx-auto px-8 relative z-20">
+        <span class="text-sm font-mono text-cyan-400 tracking-widest uppercase">SECTION_05 // TOOL SYNERGIES</span>
+        <h2 class="text-4xl sm:text-5xl font-normal text-white mt-2">Синергии</h2>
+        <p class="text-[#ababaf] text-sm mt-1 mb-12">Связки инструментов, которые вместе дают результат больше чем по отдельности.</p>
+
+        <!-- Synergy Cards Grid — dynamically rendered by renderSynergies() -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" id="synergies-grid">
+          <!-- JS populates this -->
+        </div>
+
+        <!-- Sphinx Crypt Decoder -->
+        <div class="mt-16 flex flex-col items-center justify-center font-mono select-none">
+          <div class="liquid-glass border border-cyan-500/10 rounded-xl p-6 max-w-md w-full text-center shadow-[0_12px_30px_rgba(0,0,0,0.6)]">
+            <span class="text-[9px] text-cyan-400 tracking-[0.25em] uppercase block mb-3">SPHINX_DECODER.EXE // СФИНКС-ДЕКОДЕР</span>
+            <p class="text-[10px] text-zinc-500 mb-4 leading-relaxed font-light">Соберите части загадки на страницах хаба (Секции 2, 3, 4) и введите ответ ниже:</p>
+            <div class="flex gap-2 justify-center items-center bg-black/40 border border-white/10 rounded-lg px-4 py-3 focus-within:border-cyan-400/40 transition-colors">
+              <span class="text-zinc-500 text-xs font-semibold">></span>
+              <input 
+                type="text" 
+                id="sphinx-input" 
+                oninput="checkSphinxAnswer(this.value)"
+                placeholder="ВВЕДИТЕ ОТВЕТ (НА РУС / ENG)..." 
+                class="bg-transparent border-none text-xs text-white focus:outline-none placeholder-zinc-700 uppercase text-center flex-1 w-full"
+              />
+            </div>
+            <span id="sphinx-status" class="text-[8px] text-zinc-500 uppercase tracking-widest mt-3 block transition-all duration-300">STATUS: ACTIVE // ОЖИДАНИЕ КЛЮЧА</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         SECTION 6: AI ABUSE (Neural Hacks Library // Neuralyn Inspired Layout)
+         ========================================================================== -->
+    <section id="ai-abuse" class="relative w-full overflow-hidden py-24 scroll-mt-20">
+      
+      <!-- Background Video (Neuralyn premium cloudfront stream) -->
+      <div class="absolute inset-0 w-full h-full pointer-events-none overflow-hidden select-none z-0">
+        <video 
+          src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260307_083826_e938b29f-a43a-41ec-a153-3d4730578ab8.mp4" 
+          autoplay 
+          loop 
+          muted 
+          playsinline
+          class="w-full h-full object-cover opacity-60"
+          style="filter: brightness(0.65) contrast(1.3) saturate(1.2);"
+        ></video>
+      </div>
+
+      <!-- Top and Bottom Gradient Blends for smooth section transition -->
+      <div class="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-[#030305] to-transparent pointer-events-none z-10"></div>
+      <div class="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-[#030305] to-transparent pointer-events-none z-10"></div>
+
+      <!-- Section Content Container -->
+      <div class="max-w-7xl mx-auto px-8 relative z-20">
+        
+        <!-- Centered Column Header (Neuralyn Editorial Style) -->
+        <div class="flex flex-col items-center text-center mb-10">
+          
+          <!-- Tag Pill (Neuralyn liquid glass) -->
+          <div class="liquid-glass inline-flex items-center gap-2 px-3 py-1.5 rounded-lg mb-6 border border-white/5 shadow-lg select-none">
+            <span class="bg-white text-black rounded-md text-[10px] font-mono font-bold px-2 py-0.5 uppercase tracking-wide">SYSTEM_HACKS</span>
+            <span class="text-xs font-mono text-[#ababaf]">Say Hello to Neural Hacks v1.4</span>
+          </div>
+
+          <!-- Editorial Title (Neuralyn style) -->
+          <h2 class="text-5xl md:text-7xl font-normal text-white tracking-[-2px] leading-tight md:leading-[1.15] mb-4">
+            AI Abuse.<br/>
+            <span class="font-display italic font-normal text-cyan-400 font-serif">One Clear Overview.</span>
+          </h2>
+
+          <!-- Subtitle -->
+          <p class="text-lg font-normal leading-relaxed opacity-90 max-w-2xl text-[#ababaf]">
+            Связки, обходы и трюки. Как выжать максимум из нейросетей — часто бесплатно.<br/>
+            Коллекция проверенных промптов и алгоритмов автоматизации.
+          </p>
+
+        </div>
+
+        <!-- Neuralyn-Style Dashboard Wrapper -->
+        <div class="w-full max-w-5xl mx-auto rounded-2xl liquid-glass border border-white/10 overflow-hidden shadow-[0_25px_60px_rgba(0,0,0,0.85)] backdrop-blur-xl flex flex-col md:flex-row z-20 relative min-h-[550px]">
+          
+          <!-- Dashboard Sidebar (Left) -->
+          <div class="w-full md:w-64 border-r border-white/5 bg-black/40 p-6 flex flex-col justify-between gap-8 select-none">
+            <div>
+              <!-- Sidebar Header -->
+              <div class="flex items-center gap-2 mb-8">
+                <span class="w-2.5 h-2.5 bg-cyan-400 rounded-full animate-ping"></span>
+                <span class="font-mono text-xs text-white tracking-[0.2em] font-semibold">NEURO_CONSOLE</span>
+              </div>
+              
+              <!-- Vertical Category Tabs -->
+              <div class="flex flex-col gap-1.5" id="hack-sidebar-tabs">
+                <button onclick="filterHacks('ALL')" class="hack-filter-btn active-sidebar-tab flex items-center justify-between w-full text-left font-mono text-[10px] px-4 py-3 rounded-lg border border-transparent text-[#ababaf] hover:text-white hover:bg-white/5 transition-all cursor-pointer" data-filter="ALL">
+                  <span>ALL // ВСЕ ХАКИ</span>
+                  <span class="opacity-40">➔</span>
+                </button>
+                <button onclick="filterHacks('FREE_TIER')" class="hack-filter-btn flex items-center justify-between w-full text-left font-mono text-[10px] px-4 py-3 rounded-lg border border-transparent text-[#ababaf] hover:text-white hover:bg-white/5 transition-all cursor-pointer" data-filter="FREE_TIER">
+                  <span>FREE_TIER // БЕСПЛАТНО</span>
+                  <span class="text-emerald-400">●</span>
+                </button>
+                <button onclick="filterHacks('BYPASS')" class="hack-filter-btn flex items-center justify-between w-full text-left font-mono text-[10px] px-4 py-3 rounded-lg border border-transparent text-[#ababaf] hover:text-white hover:bg-white/5 transition-all cursor-pointer" data-filter="BYPASS">
+                  <span>BYPASS // ОБХОДЫ</span>
+                  <span class="text-amber-400">●</span>
+                </button>
+                <button onclick="filterHacks('COMBO')" class="hack-filter-btn flex items-center justify-between w-full text-left font-mono text-[10px] px-4 py-3 rounded-lg border border-transparent text-[#ababaf] hover:text-white hover:bg-white/5 transition-all cursor-pointer" data-filter="COMBO">
+                  <span>COMBO // СВЯЗКИ</span>
+                  <span class="text-violet-400">●</span>
+                </button>
+                <button onclick="filterHacks('AUTOMATION')" class="hack-filter-btn flex items-center justify-between w-full text-left font-mono text-[10px] px-4 py-3 rounded-lg border border-transparent text-[#ababaf] hover:text-white hover:bg-white/5 transition-all cursor-pointer" data-filter="AUTOMATION">
+                  <span>AUTOMATION // АВТО</span>
+                  <span class="text-cyan-400">●</span>
+                </button>
+              </div>
+            </div>
+            
+            <!-- Sidebar Bottom Telemetry -->
+            <div class="border-t border-white/5 pt-4 flex flex-col gap-2 font-mono text-[9px] text-zinc-500">
+              <div class="flex justify-between">
+                <span>SYSTEM HEALTH:</span>
+                <span class="text-emerald-400">99.8%</span>
+              </div>
+              <div class="flex justify-between">
+                <span>BYPASS ENGINE:</span>
+                <span class="text-cyan-400">ACTIVE</span>
+              </div>
+              <div class="flex justify-between">
+                <span>DB STATUS:</span>
+                <span class="text-emerald-400">STABLE</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Dashboard Main Content (Right) -->
+          <div class="flex-1 p-6 md:p-8 bg-black/10 flex flex-col">
+            
+            <!-- Dashboard Main Header -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-white/5">
+              <div>
+                <h3 class="text-lg font-normal text-white flex items-center gap-2">
+                  Recent Activity Logs
+                </h3>
+                <p class="text-xs text-zinc-500 mt-0.5">В реальном времени обновляемая база обходов лимитов и хаков.</p>
+              </div>
+              
+              <!-- Sleek Search Input -->
+              <div class="relative max-w-xs w-full">
+                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-xs select-none">
+                  🔍
+                </span>
+                <input 
+                  type="text" 
+                  id="hacks-search-input" 
+                  oninput="handleHacksSearch(this.value)"
+                  placeholder="Search anything..." 
+                  class="w-full bg-white/5 border border-white/10 rounded-lg py-2 pr-4 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-cyan-400/50 transition-all font-mono"
+                  style="padding-left: 38px;"
+                />
+              </div>
+            </div>
+            
+            <!-- Logs Table Container (Scrollable) -->
+            <div class="w-full flex-grow mt-4 overflow-x-auto">
+              <!-- Flex Column Table (modern, responsive & animated) -->
+              <div class="w-full flex flex-col min-w-[600px]">
+                
+                <!-- Table Header -->
+                <div class="flex items-center border-b border-white/5 pb-3 px-4 font-mono text-[9px] text-zinc-500 uppercase tracking-wider select-none">
+                  <div class="w-24">ID</div>
+                  <div class="flex-1">Hack Name / Details</div>
+                  <div class="w-32">Category</div>
+                  <div class="w-24">Status</div>
+                  <div class="w-24 text-right">Saving</div>
+                </div>
+                
+                <!-- Table Body -->
+                <div id="hacks-table-body" class="flex flex-col divide-y divide-white/5">
+                  <!-- JS dynamically renders rows here -->
+                </div>
+                
+              </div>
+            </div>
+            
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Footer copyright -->
+    <footer class="py-12 px-8 max-w-7xl mx-auto border-t border-white/5">
+      <div class="flex flex-col sm:flex-row items-center justify-between text-zinc-600 font-mono text-[10px] gap-4">
+        <span>© 2026 NEUROSTAGE. ALL RIGHTS RESERVED.</span>
+        <span>DESIGN // SCI-FI AI LAB SPA</span>
+      </div>
+    </footer>
+
+
+  </div>
+
+  <!-- ==========================================================================
+       CATEGORY DETAILS MODAL OVERLAY (DYNAMIC GLASS)
+       ========================================================================== -->
+  <div id="category-modal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 md:p-10 opacity-0 pointer-events-none transition-all duration-500 ease-out">
+    <!-- Backdrop blur layer -->
+    <div class="absolute inset-0 bg-[#030305]/90 backdrop-blur-[35px] transition-opacity duration-500" onclick="closeCategoryModal()"></div>
+    
+    <!-- Modal content container -->
+    <div class="relative w-full max-w-6xl editorial-glass rounded-2xl p-6 sm:p-10 max-h-[85vh] overflow-y-auto flex flex-col justify-between transform scale-95 transition-all duration-500" id="category-modal-box">
+      
+      <!-- Close button (floating top-right) -->
+      <button onclick="closeCategoryModal()" class="absolute top-6 right-6 font-mono text-xs text-white/50 hover:text-white border border-white/5 hover:border-white/10 rounded-full px-4 py-1.5 transition-all select-none bg-black/20 flex items-center gap-1 z-50">
+        CLOSE <span class="text-[10px] ml-1">✕</span>
+      </button>
+
+      <!-- Modal Header -->
+      <div class="mb-10 z-10 border-b border-white/5 pb-6">
+        <span class="text-xs font-mono text-white/40 tracking-widest uppercase" id="modal-category-subtitle">MODULE // LOADER</span>
+        <h2 class="text-5xl font-normal text-white mt-2 font-display" id="modal-category-title">All Systems</h2>
+      </div>
+
+      <!-- Tools Grid (Dynamically Populated) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 z-10 overflow-y-visible" id="modal-tools-grid">
+        <!-- Rendered JS cards go here -->
+      </div>
+      
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       DASHBOARD JAVASCRIPT CONTROLLERS
+       ========================================================================== -->
+  <script>
+    // 1. Navigation scroll blur effect
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 50) {
+        navbar.classList.add('bg-black/55', 'backdrop-blur-md', 'border-b', 'border-white/10', 'py-4');
+        navbar.classList.remove('py-5');
+      } else {
+        navbar.classList.remove('bg-black/55', 'backdrop-blur-md', 'border-b', 'border-white/10', 'py-4');
+        navbar.classList.add('py-5');
+      }
+    });
+
+    // 2. aiToolsDatabase for Category Details Modal
+    const aiToolsDatabase = [
+      {
+        id: "v0",
+        name: "v0.dev",
+        category: "vibe",
+        tag: "#VIBE_CODING",
+        version: "v0 by Vercel",
+        description: "ИИ-генератор от Vercel. Мгновенно собирает стильные компоненты веб-интерфейсов на React и Tailwind CSS по текстовым промптам.",
+        verdict: "Главный локомотив вайбкодинга. Сокращает верстку премиальных интерфейсов с дней до секунд, позволяя сразу переносить готовый код Агентам.",
+        rating: "10/10"
+      },
+      {
+        id: "cursor",
+        name: "Cursor AI",
+        category: "vibe",
+        tag: "#VIBE_CODING",
+        version: "v0.45+",
+        description: "Продвинутый ИИ-редактор кода на базе VS Code с Composer режимом для мульти-файлового редактирования.",
+        verdict: "Абсолютный game-changer для разработчиков. Интегрирует Claude и GPT прямо в контекст проекта, позволяя кодить «силой мысли» на ходу.",
+        rating: "9.8/10"
+      },
+      {
+        id: "claude",
+        name: "Claude 3.5 Sonnet",
+        category: "text",
+        tag: "#TEXT_LLM",
+        version: "3.5 Sonnet",
+        description: "Самая продвинутая языковая модель от Anthropic для написания и отладки кода, глубокого рефакторинга и логического анализа.",
+        verdict: "Идеальный напарник для написания серверных скриптов на Python и автоматизации процессов. Допускает в разы меньше ошибок в коде, чем GPT-4.",
+        rating: "10/10"
+      },
+      {
+        id: "gpt4o",
+        name: "ChatGPT (GPT-4o)",
+        category: "text",
+        tag: "#TEXT_LLM",
+        version: "GPT-4o",
+        description: "Флагманская модель от OpenAI для мультимодальных задач, быстрого брейншторма и генерации текстов.",
+        verdict: "Отличный инструмент для генерации креативных концептов и базовых скриптов, но уступает Claude в сложных архитектурных задачах кодинга.",
+        rating: "9.0/10"
+      },
+      {
+        id: "runway",
+        name: "Runway Gen-3",
+        category: "video",
+        tag: "#VIDEO_GEN",
+        version: "Gen-3 Alpha",
+        description: "Кинематографичная генерация высококачественного видео и сложных переходов из картинок и текстовых описаний.",
+        verdict: "Основной инструмент для создания кинематографичных футажей, перебивок и заставок при монтаже роликов на моем YouTube-канале.",
+        rating: "9.0/10"
+      },
+      {
+        id: "midjourney",
+        name: "Midjourney v6",
+        category: "photo",
+        tag: "#PHOTO_GEN",
+        version: "v6.0",
+        description: "Лидер художественной генерации превью-картинок, артов и иллюстраций с высочайшей детализацией и реализмом.",
+        verdict: "Все обложки и графические концепты для YouTube-видео создаются здесь с последующим апскейлом. Лучший художественный вкус на рынке.",
+        rating: "9.5/10"
+      },
+      {
+        id: "stable-diffusion",
+        name: "Stable Diffusion XL",
+        category: "photo",
+        tag: "#PHOTO_GEN",
+        version: "SDXL / WebUI",
+        description: "Мощная open-source модель для локальной генерации изображений с полным контролем над позами (ControlNet) и стилями.",
+        verdict: "Требует мощного железа и настройки, но дает абсолютную свободу в генерации конкретных персонажей и точной композиции кадров.",
+        rating: "8.8/10"
+      },
+      {
+        id: "make",
+        name: "Make.com",
+        category: "bots",
+        tag: "#BOTS_INTEGRATIONS",
+        version: "Visual API",
+        description: "Визуальный no-code конструктор интеграций для автоматизации ботов в Telegram, таблиц Google Sheets и отправки вебхуков.",
+        verdict: "Связующее звено всех моих ТГ-ботов. Позволяет мгновенно направить запросы пользователей из Telegram в API OpenAI или Claude без написания бэкенда.",
+        rating: "9.2/10"
+      },
+      {
+        id: "n8n",
+        name: "n8n.io",
+        category: "bots",
+        tag: "#BOTS_INTEGRATIONS",
+        version: "AI Node V2",
+        description: "Расширяемая open-source альтернатива Make с нативной поддержкой JavaScript кода, LangChain нод и self-hosted развертыванием.",
+        verdict: "Идеально подходит для создания сложных мультишаговых ИИ-агентов с локальным хранением данных и без ограничений на количество шагов.",
+        rating: "9.6/10"
+      },
+      {
+        id: "hermes",
+        name: "Hermes & OpenClaude",
+        category: "agents",
+        tag: "#AI_AGENTS",
+        version: "Agent Engine",
+        description: "Автономные агентные системы для автоматической отладки кода, терминального выполнения задач и мульти-агентных рассуждений.",
+        verdict: "Будущее разработки. Агенты сами декомпозируют сложную цель на подзадачи, запускают локальный терминал, тестируют код и устраняют баги до идеального результата.",
+        rating: "9.8/10"
+      },
+      {
+        id: "crewai",
+        name: "CrewAI Studio",
+        category: "agents",
+        tag: "#AI_AGENTS",
+        version: "v0.32+",
+        description: "Мощный фреймворк для оркестрации ролевых автономных ИИ-агентов, работающих в единой «команде» для достижения общей бизнес-цели.",
+        verdict: "Превосходно справляется с разделением обязанностей: один агент ищет информацию, второй пишет черновик, третий рецензирует код.",
+        rating: "9.4/10"
+      }
+    ];
+
+    const categoryMeta = {
+      all: { title: 'All <em class="italic font-serif text-white/60">Systems</em>', subtitle: "MODULE_01 // ALL COMPILATION" },
+      vibe: { title: 'Vibe <em class="italic font-serif text-white/60">Coding</em>', subtitle: "MODULE_02 // SYSTEM_DEV" },
+      video: { title: 'Video <em class="italic font-serif text-white/60">Gen</em>', subtitle: "MODULE_03 // RENDERING" },
+      photo: { title: 'Photo <em class="italic font-serif text-white/60">Gen</em>', subtitle: "MODULE_04 // GRAPHICS" },
+      text: { title: 'Text <em class="italic font-serif text-white/60">Chat</em>', subtitle: "MODULE_05 // CORE_LLM" },
+      bots: { title: 'TG <em class="italic font-serif text-white/60">Bots</em>', subtitle: "MODULE_06 // CONNECTORS" },
+      agents: { title: 'AI <em class="italic font-serif text-white/60">Agents</em>', subtitle: "MODULE_07 // SYNAPSES" }
+    };
+
+
+
+    // 3. Category Modal controllers
+    const modalEl = document.getElementById('category-modal');
+    const modalTitle = document.getElementById('modal-category-title');
+    const modalSubtitle = document.getElementById('modal-category-subtitle');
+    const modalToolsGrid = document.getElementById('modal-tools-grid');
+
+    function openCategoryModal(category) {
+      // Set headers
+      const meta = categoryMeta[category] || { title: "Loader", subtitle: "MODULE // LOADER" };
+      modalTitle.innerHTML = meta.title;
+      modalSubtitle.innerText = meta.subtitle;
+
+      // Inject theme class dynamically into modal box
+      const modalBox = document.getElementById('category-modal-box');
+      if (modalBox) {
+        modalBox.className = 'relative w-full max-w-6xl editorial-glass rounded-2xl p-6 sm:p-10 max-h-[85vh] overflow-y-auto flex flex-col justify-between transform scale-95 transition-all duration-500 theme-' + category;
+      }
+
+      // Filter database tools
+      const tools = aiToolsDatabase.filter(t => category === 'all' || t.category === category);
+      
+      // Populate tools grid
+      modalToolsGrid.innerHTML = '';
+      
+      if (tools.length === 0) {
+        modalToolsGrid.innerHTML = '<div class="col-span-full text-center text-zinc-500 font-mono py-8">NO_ACTIVE_NODES_FOUND</div>';
+      } else {
+        tools.forEach((tool, idx) => {
+          const card = document.createElement('div');
+          // Add micro-animation with staggered delays
+          card.className = 'editorial-glass rounded-xl p-6 flex flex-col justify-between min-h-[220px] animate-modal-card relative overflow-hidden';
+          card.style.animationDelay = `${idx * 0.08}s`;
+          
+          card.innerHTML = `
+            <div>
+              <div class="flex justify-between items-start">
+                <span class="text-[10px] font-mono theme-text-color font-medium">${tool.tag}</span>
+                <span class="text-[10px] text-white/30 font-mono">${tool.version}</span>
+              </div>
+              <h3 class="text-2xl font-normal text-white mt-3 font-display">${tool.name}</h3>
+              <p class="text-xs text-[#ababaf] mt-2 leading-relaxed font-normal">${tool.description}</p>
+            </div>
+            
+            <div class="mt-4 pt-4 border-t border-white/5 flex flex-col gap-3">
+              <div class="flex justify-between items-center">
+                <span class="text-xs theme-text-color font-mono font-medium">NEUROSTAGE SCORE // ${tool.rating}</span>
+                <button onclick="toggleVerdictInline(this)" class="text-[10px] text-[#ababaf] hover:text-white font-mono flex items-center gap-1 select-none">
+                  VERDICT <span class="arrow-indicator text-[8px] transition-transform duration-300">▼</span>
+                </button>
+              </div>
+              
+              <!-- Smooth expandable verdict -->
+              <div class="verdict-box hidden bg-black/45 theme-border-soft rounded-lg p-4 font-mono text-[11px] text-zinc-300 leading-relaxed">
+                <span class="theme-text-color font-bold">&gt; VERDICT:</span> ${tool.verdict}
+              </div>
+            </div>
+          `;
+          modalToolsGrid.appendChild(card);
+        });
+      }
+
+      // Show modal
+      modalEl.classList.add('modal-active');
+      document.body.style.overflow = 'hidden'; // Lock main scrolling
+    }
+
+    function closeCategoryModal() {
+      modalEl.classList.remove('modal-active');
+      document.body.style.overflow = ''; // Unlock main scrolling
+    }
+
+    function toggleVerdictInline(btn) {
+      const parent = btn.closest('.flex-col');
+      const box = parent.querySelector('.verdict-box');
+      const arrow = btn.querySelector('.arrow-indicator');
+      
+      if (box.classList.contains('hidden')) {
+        box.classList.remove('hidden');
+        arrow.style.transform = 'rotate(180deg)';
+      } else {
+        box.classList.add('hidden');
+        arrow.style.transform = 'rotate(0deg)';
+      }
+    }
+
+    // 4. Clipboard copy helper with feedback
+    function copyPrompt(textId, buttonId) {
+      const codeElement = document.getElementById(textId);
+      const btn = document.getElementById(buttonId);
+      
+      navigator.clipboard.writeText(codeElement.innerText).then(() => {
+        const originalText = btn.innerText;
+        btn.innerText = 'COPIED!';
+        btn.classList.add('bg-emerald-500/10', 'border-emerald-500/30', 'text-emerald-400');
+        btn.classList.remove('text-white');
+        
+        setTimeout(() => {
+          btn.innerText = originalText;
+          btn.classList.remove('bg-emerald-500/10', 'border-emerald-500/30', 'text-emerald-400');
+          btn.classList.add('text-white');
+        }, 1500);
+      });
+    }
+
+    // 5. 3D Cylindrical Coverflow logic (Seamless Circular Loop)
+    let coverflowIndex = 0;
+    let currentAngle = 0;
+    const coverflowCards = document.querySelectorAll('.coverflow-card');
+
+    function updateCoverflow() {
+      const isMobile = window.innerWidth < 640;
+      // Cylinder parameters
+      const radius = isMobile ? 160 : 260;
+      const zOffset = isMobile ? 60 : 100;
+
+      coverflowCards.forEach((card, i) => {
+        let angle = (i * (360 / 7) + currentAngle) % 360;
+        if (angle > 180) angle -= 360;
+        if (angle < -180) angle += 360;
+
+        const isCenter = Math.abs(angle) < 10;
+        card.classList.remove('active');
+
+        const rad = angle * Math.PI / 180;
+        const cosVal = Math.cos(rad);
+        const sinVal = Math.sin(rad);
+
+        // Circular coordinates
+        const shiftX = sinVal * radius;
+        const shiftZ = cosVal * radius - radius + zOffset;
+        const rotateY = -angle;
+
+        if (isCenter) {
+          card.classList.add('active');
+          card.style.transform = `translateX(${shiftX}px) scale(1.15) translateZ(${shiftZ}px) rotateY(${rotateY}deg)`;
+          card.style.opacity = '1';
+          card.style.zIndex = '20';
+          card.style.filter = 'none';
+          card.style.pointerEvents = 'auto';
+          coverflowIndex = i;
+        } else {
+          const scale = 0.8 + 0.35 * cosVal;
+          const opacity = Math.max(0.2, 0.4 + 0.6 * cosVal);
+          const zIndex = Math.round(10 + 10 * cosVal);
+          const blurAmount = Math.max(0, 3 * (1 - cosVal));
+          const saturateAmount = Math.max(0.1, 0.3 + 0.7 * cosVal);
+
+          card.style.transform = `translateX(${shiftX}px) scale(${scale}) translateZ(${shiftZ}px) rotateY(${rotateY}deg)`;
+          card.style.opacity = opacity.toString();
+          card.style.zIndex = zIndex.toString();
+          card.style.filter = `blur(${blurAmount}px) saturate(${saturateAmount})`;
+          card.style.pointerEvents = 'auto';
+        }
+      });
+    }
+
+    function handleCardClick(idx, category) {
+      if (idx === coverflowIndex) {
+        openCategoryModal(category);
+      } else {
+        let diff = idx - coverflowIndex;
+        // Find shortest path in 7-card circle
+        if (diff > 3) diff -= 7;
+        if (diff < -3) diff += 7;
+        currentAngle -= diff * (360 / 7);
+        updateCoverflow();
+      }
+    }
+
+    function prevCoverflow() {
+      currentAngle += (360 / 7);
+      updateCoverflow();
+    }
+
+    function nextCoverflow() {
+      currentAngle -= (360 / 7);
+      updateCoverflow();
+    }
+
+    // Keyboard Arrow navigation when modal is closed
+    window.addEventListener('keydown', (e) => {
+      const modalActive = document.getElementById('category-modal').classList.contains('modal-active');
+      if (!modalActive) {
+        if (e.key === 'ArrowLeft') {
+          prevCoverflow();
+        } else if (e.key === 'ArrowRight') {
+          nextCoverflow();
+        }
+      }
+    });
+
+    window.addEventListener('resize', updateCoverflow);
+    updateCoverflow();
+
+    // 6. Live clock center update (from previous system logs)
+    function updateSynthesisClock() {
+      const clockEl = document.getElementById('live-synthesis-clock');
+      if (clockEl) {
+        const now = new Date();
+        const timeString = now.toTimeString().split(' ')[0];
+        clockEl.innerText = timeString;
+      }
+    }
+    setInterval(updateSynthesisClock, 1000);
+    updateSynthesisClock();
+
+    function triggerSynthesisEasterEgg() {
+      const terminalInput = document.getElementById('terminal-input');
+      const terminalSection = document.getElementById('footer-terminal');
+      
+      if (terminalInput && terminalSection) {
+        terminalSection.scrollIntoView({ behavior: 'smooth' });
+        setTimeout(() => {
+          terminalInput.value = 'diagnostics';
+          const event = new KeyboardEvent('keypress', { key: 'Enter' });
+          handleTerminalKeyPress(event);
+        }, 800);
+      }
+    }
+
+    // 7. Interactive CLI Terminal Logic
+    const termScreen = document.getElementById('terminal-screen');
+    const termInput = document.getElementById('terminal-input');
+
+    function appendTerminalLine(text, isCommand = false) {
+      const line = document.createElement('div');
+      if (isCommand) {
+        line.innerHTML = `<span class="text-cyan-400 font-bold">visitor@neurostage:~$</span> ${text}`;
+      } else {
+        line.innerHTML = text;
+      }
+      termScreen.appendChild(line);
+      termScreen.scrollTop = termScreen.scrollHeight;
+    }
+
+    function handleTerminalKeyPress(e) {
+      if (e.key === 'Enter') {
+        const command = termInput.value.trim().toLowerCase();
+        if (command === '') return;
+        
+        appendTerminalLine(command, true);
+        
+        setTimeout(() => {
+          switch(command) {
+            case 'help':
+              appendTerminalLine(`Доступные команды:<br>
+- <span class="text-cyan-400 font-semibold">about</span>: Краткая информация о проекте Neurostage.<br>
+- <span class="text-cyan-400 font-semibold">socials</span>: Ссылки на Telegram и YouTube каналы.<br>
+- <span class="text-cyan-400 font-semibold">diagnostics</span>: Экспресс-диагностика узлов хаба.<br>
+- <span class="text-cyan-400 font-semibold">clear</span>: Очистить консоль.`);
+              break;
+            case 'about':
+              appendTerminalLine(`<span class="text-white font-semibold">NEUROSTAGE®</span> — авторский хаб автоматизаций и нейросетей.<br>
+Мы разрабатываем и деконструируем интеллектуальные SaaS-решения, учим создавать умных ИИ-агентов на Python/Node-RED и автоматизируем рутинные задачи в рамках YouTube-канала.`);
+              break;
+            case 'socials':
+              appendTerminalLine(`Мои социальные сети:<br>
+- <span class="text-cyan-400">YouTube</span>: <a href="https://youtube.com/" target="_blank" class="underline text-white font-medium hover:text-cyan-400 transition-colors">youtube.com/@neurostage</a><br>
+- <span class="text-cyan-400">Telegram</span>: <a href="https://t.me/" target="_blank" class="underline text-white font-medium hover:text-cyan-400 transition-colors">t.me/neurostage</a><br>
+- <span class="text-cyan-400">GitHub</span>: <a href="https://github.com/" target="_blank" class="underline text-white font-medium hover:text-cyan-400 transition-colors">github.com/neurostage</a>`);
+              break;
+            case 'diagnostics':
+              appendTerminalLine(`<span class="text-cyan-400 font-bold">&gt; Initializing diagnostics...</span><br>
+[ALL_SYSTEMS]: <span class="text-emerald-400 font-semibold">OK (100% responsive)</span><br>
+[VIBE_CORE]: <span class="text-emerald-400 font-semibold">Active // Node-02</span><br>
+[VIDEO_GEN_SYNC]: <span class="text-emerald-400 font-semibold">Active // Port-8890</span><br>
+[PHOTO_GEN_PIXELS]: <span class="text-emerald-400 font-semibold">Active // Midjourney-V6</span><br>
+[AI_AGENTS_HEURISTICS]: <span class="text-emerald-400 font-semibold">Idle // Awaiting subtasks</span><br>
+<span class="text-white font-bold">Status: STABLE. Diagnostics complete.</span>`);
+              break;
+            case 'clear':
+              termScreen.innerHTML = '';
+              break;
+            default:
+              appendTerminalLine(`Ошибка: команда <span class="text-red-400 font-semibold">'${command}'</span> не найдена. Введите <span class="text-white font-semibold">'help'</span> для списка доступных команд.`);
+          }
+        }, 150);
+
+        termInput.value = '';
+      }
+    }
+
+    // 8. Local Audio Player Controller
+    var audioPlayer = document.getElementById('local-audio-player');
+    var isAudioPlaying = false;
+
+    // Handle track ending automatically and double-check setup
+    function setupAudioListener() {
+      if (audioPlayer) {
+        audioPlayer.volume = 0.40; // Set to 40% initial volume as requested
+        audioPlayer.addEventListener('ended', function() {
+          resetAudioUI();
+        });
+      }
+    }
+
+    if (audioPlayer) {
+      setupAudioListener();
+    } else {
+      // DOMContentLoaded fail-safe
+      window.addEventListener('DOMContentLoaded', () => {
+        audioPlayer = document.getElementById('local-audio-player');
+        setupAudioListener();
+      });
+    }
+
+    function resetAudioUI() {
+      isAudioPlaying = false;
+      
+      const playIcon = document.getElementById('play-icon');
+      const pauseIcon = document.getElementById('pause-icon');
+      const statusLabel = document.getElementById('audio-status-label');
+      const playerCapsule = document.getElementById('audio-player-capsule');
+      const waveBars = document.querySelectorAll('#audio-wave-anim span');
+
+      playIcon.classList.remove('hidden');
+      pauseIcon.classList.add('hidden');
+      statusLabel.innerText = 'AUDIO // STANDBY';
+      statusLabel.classList.remove('text-cyan-400');
+      statusLabel.classList.add('text-[#ababaf]');
+      playerCapsule.classList.remove('border-cyan-400');
+
+      waveBars.forEach(bar => {
+        bar.classList.remove('wave-bar');
+        bar.style.height = '4px';
+      });
+    }
+
+    function toggleAudio() {
+      if (!audioPlayer) {
+        audioPlayer = document.getElementById('local-audio-player');
+      }
+      if (!audioPlayer) return;
+
+      const playIcon = document.getElementById('play-icon');
+      const pauseIcon = document.getElementById('pause-icon');
+      const statusLabel = document.getElementById('audio-status-label');
+      const playerCapsule = document.getElementById('audio-player-capsule');
+      const waveBars = document.querySelectorAll('#audio-wave-anim span');
+
+      if (isAudioPlaying) {
+        audioPlayer.pause();
+        isAudioPlaying = false;
+
+        playIcon.classList.remove('hidden');
+        pauseIcon.classList.add('hidden');
+        statusLabel.innerText = 'AUDIO // STANDBY';
+        statusLabel.classList.remove('text-cyan-400');
+        statusLabel.classList.add('text-[#ababaf]');
+        playerCapsule.classList.remove('border-cyan-400');
+
+        waveBars.forEach(bar => {
+          bar.classList.remove('wave-bar');
+          bar.style.height = '4px';
+        });
+      } else {
+        audioPlayer.play();
+        isAudioPlaying = true;
+
+        playIcon.classList.add('hidden');
+        pauseIcon.classList.remove('hidden');
+        statusLabel.innerText = 'AUDIO // ACTIVE';
+        statusLabel.classList.remove('text-[#ababaf]');
+        statusLabel.classList.add('text-cyan-400');
+        playerCapsule.classList.add('border-cyan-400');
+
+        waveBars.forEach(bar => {
+          bar.classList.add('wave-bar');
+        });
+      }
+    }
+
+    function handleVolumeChange(val) {
+      if (!audioPlayer) {
+        audioPlayer = document.getElementById('local-audio-player');
+      }
+      if (audioPlayer) {
+        audioPlayer.volume = val;
+        
+        // Dynamic opacity for speaker icon if muted
+        const volIcon = document.getElementById('volume-icon');
+        if (volIcon) {
+          if (val == 0) {
+            volIcon.style.opacity = '0.35';
+          } else {
+            volIcon.style.opacity = '1';
+          }
+        }
+      }
+    }
+
+    // =========================================================================
+    // 9. LABORATORY ADMIN PANEL — PIN Gate, CRUD, Dynamic Bento Grid, JSON Export
+    // =========================================================================
+    const DEV_PIN = '1337';
+
+    // --- Default fallback projects (shown on first load when localStorage is empty) ---
+    const defaultProjects = [
+      {
+        id: 'proj_1',
+        name: 'SaaS Automator',
+        tagline: 'Продвинутый оркестратор Агентов на Node-RED.',
+        description: 'Полноценный SaaS-движок для управления нейросетевыми агентами. Автоматически маршрутизирует запросы между Claude, GPT-4o и Llama через визуальный Node-RED интерфейс с поддержкой вебхуков и Telegram-интеграций.',
+        tags: 'Node-RED, Claude API, Telegram, Webhooks',
+        status: 'ONLINE',
+        size: 'double',
+        url: '#',
+        image: ''
+      },
+      {
+        id: 'proj_2',
+        name: 'AI Video Bot',
+        tagline: 'Автоматический рендеринг Shorts и Reels по текстовому описанию.',
+        description: 'Генерация коротких видеороликов для YouTube Shorts и Instagram Reels из простого текстового промпта. Используется Runway Gen-3 API для рендеринга и FFmpeg для финальной сборки.',
+        tags: 'Python, Runway, FFmpeg',
+        status: 'IN DEV',
+        size: 'single',
+        url: '#',
+        image: ''
+      },
+      {
+        id: 'proj_3',
+        name: 'Neural Scraper',
+        tagline: 'Интеллектуальный парсинг сайтов с помощью Llama-3 API.',
+        description: 'Глубокий парсер веб-страниц, использующий LLM для извлечения структурированных данных из неструктурированного HTML. Поддерживает экспорт в JSON, CSV и Google Sheets.',
+        tags: 'Python, Llama-3, BeautifulSoup',
+        status: 'ONLINE',
+        size: 'single',
+        url: '#',
+        image: ''
+      }
+    ];
+
+    // --- Load projects from localStorage or use defaults ---
+    function getProjects() {
+      const stored = localStorage.getItem('neurostage_projects');
+      if (stored) {
+        try { return JSON.parse(stored); } catch(e) { return [...defaultProjects]; }
+      }
+      return [...defaultProjects];
+    }
+
+    function saveProjectsToStorage(projects) {
+      localStorage.setItem('neurostage_projects', JSON.stringify(projects));
+    }
+
+    // --- Status badge color mapping ---
+    function getStatusBadge(status) {
+      const map = {
+        'ONLINE':   { color: 'emerald', label: 'ONLINE' },
+        'IN DEV':   { color: 'amber',   label: 'IN DEV' },
+        'RENDERED': { color: 'cyan',    label: 'RENDERED' },
+        'OFFLINE':  { color: 'red',     label: 'OFFLINE' }
+      };
+      const s = map[status] || map['OFFLINE'];
+      return `<div class="flex items-center gap-2 font-mono text-[10px] bg-${s.color}-500/10 border border-${s.color}-500/30 text-${s.color}-400 px-3 py-1 rounded-full">
+        <span class="w-1.5 h-1.5 bg-${s.color}-400 rounded-full ${status === 'ONLINE' ? 'animate-ping' : ''}"></span>
+        ${s.label}
+      </div>`;
+    }
+
+    // --- Render the Bento Grid dynamically ---
+    function renderBentoGrid() {
+      const container = document.getElementById('bento-grid-container');
+      if (!container) return;
+      const projects = getProjects();
+
+      if (projects.length === 0) {
+        container.innerHTML = `<div class="col-span-full text-center py-16 text-zinc-500 font-mono text-sm">
+          NO_ACTIVE_PROJECTS. Откройте Dev Console, чтобы добавить свой первый проект.
+        </div>`;
+        return;
+      }
+
+      container.innerHTML = projects.map((p, idx) => {
+        const isDouble = p.size === 'double';
+        const colSpan = isDouble ? 'md:col-span-2' : '';
+        const imgSection = p.image ? `<div class="w-full h-24 rounded-lg overflow-hidden mt-3 mb-2 border border-white/5"><img src="${p.image}" class="w-full h-full object-cover" alt="${p.name}" /></div>` : '';
+        const tagsHtml = p.tags ? p.tags.split(',').map(t => `<span class="bg-white/5 border border-white/5 text-zinc-400 px-2 py-0.5 rounded text-[9px] font-mono">${t.trim()}</span>`).join('') : '';
+
+        return `<div class="liquid-glass rounded-2xl p-8 ${colSpan} flex flex-col justify-between border border-cyan-500/10 scale-hover animate-modal-card" style="animation-delay: ${idx * 0.08}s" data-project-id="${p.id}">
+          <div class="flex justify-between items-start">
+            <div>
+              <span class="text-xs font-mono text-cyan-400 font-semibold tracking-wider">${p.name.toUpperCase()}</span>
+              <h3 class="text-2xl font-normal text-white mt-1">${p.name}</h3>
+            </div>
+            ${getStatusBadge(p.status)}
+          </div>
+
+          ${imgSection}
+
+          <p class="text-xs text-[#ababaf] leading-relaxed my-3 flex-grow">${p.tagline}</p>
+
+          ${tagsHtml ? `<div class="flex flex-wrap gap-1.5 mb-3">${tagsHtml}</div>` : ''}
+
+          <div class="flex justify-between items-center border-t border-white/5 pt-3 mt-auto">
+            <button onclick="toggleProjectDetails('${p.id}')" class="text-[10px] text-[#ababaf] hover:text-white font-mono flex items-center gap-1 select-none cursor-pointer transition-colors">
+              ДЕТАЛИ <span class="text-[8px] transition-transform duration-300" id="arrow-${p.id}">▼</span>
+            </button>
+            ${p.url && p.url !== '#' ? `<a href="${p.url}" target="_blank" class="text-xs text-cyan-400 hover:text-white font-mono transition-colors">OPEN ➔</a>` : `<span class="text-xs text-zinc-600 font-mono">LOCAL</span>`}
+          </div>
+
+          <div class="hidden mt-3 bg-black/30 border border-white/5 rounded-lg p-4 text-xs text-zinc-300 leading-relaxed font-normal" id="details-${p.id}">
+            ${p.description || 'Нет описания.'}
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function toggleProjectDetails(id) {
+      const box = document.getElementById('details-' + id);
+      const arrow = document.getElementById('arrow-' + id);
+      if (!box) return;
+      if (box.classList.contains('hidden')) {
+        box.classList.remove('hidden');
+        if (arrow) arrow.style.transform = 'rotate(180deg)';
+      } else {
+        box.classList.add('hidden');
+        if (arrow) arrow.style.transform = 'rotate(0deg)';
+      }
+    }
+
+    // --- PIN Gate Controllers ---
+    function openPinOverlay() {
+      const overlay = document.getElementById('admin-pin-overlay');
+      overlay.classList.add('modal-active');
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => { document.getElementById('dev-pin-input').focus(); }, 200);
+    }
+
+    function closePinOverlay() {
+      const overlay = document.getElementById('admin-pin-overlay');
+      overlay.classList.remove('modal-active');
+      document.body.style.overflow = '';
+      document.getElementById('dev-pin-input').value = '';
+    }
+
+    function handlePinKeyPress(e) {
+      if (e.key === 'Enter') submitPin();
+    }
+
+    function submitPin() {
+      const input = document.getElementById('dev-pin-input');
+      if (input.value === DEV_PIN) {
+        closePinOverlay();
+        setTimeout(() => { openAdminPortal(); }, 150);
+      } else {
+        input.style.borderColor = '#ef4444';
+        input.value = '';
+        input.placeholder = 'НЕВЕРНЫЙ PIN';
+        setTimeout(() => {
+          input.style.borderColor = '';
+          input.placeholder = '••••';
+        }, 1200);
+      }
+    }
+
+    // --- Admin Portal Controllers ---
+    function openAdminPortal() {
+      const modal = document.getElementById('admin-portal-modal');
+      modal.classList.add('modal-active');
+      document.body.style.overflow = 'hidden';
+      renderAdminProjectsList();
+    }
+
+    function closeAdminPortal() {
+      const modal = document.getElementById('admin-portal-modal');
+      modal.classList.remove('modal-active');
+      document.body.style.overflow = '';
+      resetAdminForm();
+    }
+
+    // --- Render the admin projects list sidebar ---
+    function renderAdminProjectsList() {
+      const container = document.getElementById('admin-projects-list');
+      const projects = getProjects();
+
+      if (projects.length === 0) {
+        container.innerHTML = `<div class="text-center text-zinc-500 font-mono text-xs py-6">Нет проектов.</div>`;
+        return;
+      }
+
+      container.innerHTML = projects.map(p => `
+        <div class="flex items-center justify-between bg-black/30 border border-white/5 rounded-lg px-4 py-3 group hover:border-white/10 transition-colors">
+          <div class="flex flex-col min-w-0 flex-grow mr-3">
+            <span class="text-xs text-white font-medium truncate">${p.name}</span>
+            <span class="text-[9px] text-zinc-500 font-mono truncate">${p.status} // ${p.size === 'double' ? '2 COL' : '1 COL'}</span>
+          </div>
+          <div class="flex gap-2 flex-shrink-0">
+            <button onclick="editProject('${p.id}')" class="text-[9px] font-mono text-[#ababaf] hover:text-cyan-400 bg-white/5 border border-white/5 hover:border-cyan-400/30 px-2 py-0.5 rounded transition-all">EDIT</button>
+            <button onclick="deleteProject('${p.id}')" class="text-[9px] font-mono text-[#ababaf] hover:text-red-400 bg-white/5 border border-white/5 hover:border-red-400/30 px-2 py-0.5 rounded transition-all">DEL</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // --- CRUD: Add / Edit / Delete ---
+    function saveProject() {
+      const editId = document.getElementById('edit-project-id').value;
+      const name = document.getElementById('proj-name').value.trim();
+      if (!name) { document.getElementById('proj-name').style.borderColor = '#ef4444'; return; }
+
+      const project = {
+        id: editId || 'proj_' + Date.now(),
+        name: name,
+        tagline: document.getElementById('proj-tagline').value.trim(),
+        description: document.getElementById('proj-description').value.trim(),
+        tags: document.getElementById('proj-tags').value.trim(),
+        status: document.getElementById('proj-status').value,
+        size: document.getElementById('proj-size').value,
+        url: document.getElementById('proj-url').value.trim(),
+        image: document.getElementById('proj-img-path').value.trim()
+      };
+
+      let projects = getProjects();
+
+      if (editId) {
+        projects = projects.map(p => p.id === editId ? project : p);
+      } else {
+        projects.push(project);
+      }
+
+      saveProjectsToStorage(projects);
+      renderBentoGrid();
+      renderAdminProjectsList();
+      resetAdminForm();
+
+      // Flash success on button
+      const btn = document.getElementById('save-proj-btn');
+      btn.innerText = editId ? 'ОБНОВЛЕНО ✓' : 'ОПУБЛИКОВАНО ✓';
+      btn.classList.add('bg-emerald-500/20', 'border-emerald-500/30', 'text-emerald-400');
+      setTimeout(() => {
+        btn.innerText = 'Опубликовать проект в Лабораторию ➔';
+        btn.classList.remove('bg-emerald-500/20', 'border-emerald-500/30', 'text-emerald-400');
+      }, 1500);
+    }
+
+    function editProject(id) {
+      const projects = getProjects();
+      const p = projects.find(proj => proj.id === id);
+      if (!p) return;
+
+      document.getElementById('edit-project-id').value = p.id;
+      document.getElementById('proj-name').value = p.name;
+      document.getElementById('proj-tagline').value = p.tagline || '';
+      document.getElementById('proj-description').value = p.description || '';
+      document.getElementById('proj-tags').value = p.tags || '';
+      document.getElementById('proj-status').value = p.status || 'ONLINE';
+      document.getElementById('proj-size').value = p.size || 'single';
+      document.getElementById('proj-url').value = p.url || '';
+      document.getElementById('proj-img-path').value = p.image || '';
+
+      document.getElementById('form-action-title').innerText = 'Редактирование: ' + p.name;
+      document.getElementById('reset-form-btn').classList.remove('hidden');
+      document.getElementById('save-proj-btn').innerText = 'Сохранить изменения ➔';
+    }
+
+    function deleteProject(id) {
+      let projects = getProjects();
+      projects = projects.filter(p => p.id !== id);
+      saveProjectsToStorage(projects);
+      renderBentoGrid();
+      renderAdminProjectsList();
+    }
+
+    function resetAdminForm() {
+      document.getElementById('edit-project-id').value = '';
+      document.getElementById('proj-name').value = '';
+      document.getElementById('proj-tagline').value = '';
+      document.getElementById('proj-description').value = '';
+      document.getElementById('proj-tags').value = '';
+      document.getElementById('proj-status').value = 'ONLINE';
+      document.getElementById('proj-size').value = 'double';
+      document.getElementById('proj-url').value = '';
+      document.getElementById('proj-img-path').value = '';
+      document.getElementById('proj-name').style.borderColor = '';
+      document.getElementById('form-action-title').innerText = 'Добавить новый проект';
+      document.getElementById('reset-form-btn').classList.add('hidden');
+      document.getElementById('save-proj-btn').innerText = 'Опубликовать проект в Лабораторию ➔';
+    }
+
+    // --- Image Upload Handler (Base64 fallback) ---
+    function handleImageUpload(input) {
+      if (!input.files || !input.files[0]) return;
+      const file = input.files[0];
+      if (file.size > 2 * 1024 * 1024) {
+        alert('Файл слишком большой (макс. 2 МБ). Используйте путь к файлу вместо загрузки.');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('proj-img-path').value = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // --- JSON Export ---
+    function exportProjectsJSON() {
+      const projects = getProjects();
+      const blob = new Blob([JSON.stringify(projects, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'projects.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // --- Initialize Bento Grid on page load ---
+    renderBentoGrid();
+
+    // =========================================================================
+    // 10. SYNERGIES ENGINE (Section 5)
+    // =========================================================================
+    const defaultSynergies = [
+      {
+        id: 'syn_1',
+        title: 'Vibe Dev Stack',
+        tools: ['Claude Code CLI', 'MCP Servers'],
+        result: 'ИИ-агент с доступом к файловой системе, браузеру и терминалу прямо из IDE.',
+        detail: 'Claude Code CLI запускается в терминале и через протокол MCP подключается к серверам инструментов: filesystem, browser-use, github MCP. Получаем полноценного агента-кодера без GUI.',
+        difficulty: 'PRO',
+        tags: ['Claude', 'MCP', 'Terminal']
+      },
+      {
+        id: 'syn_2',
+        title: 'AI Visual Pipeline',
+        tools: ['GPT-4o Image Gen', 'Kling 3.0'],
+        result: 'Из текстового промпта — готовое анимированное видео за 5 минут.',
+        detail: 'GPT-4o генерирует статичное изображение с нужной композицией и персонажами. Это изображение отдаётся в Kling 3.0 как стартовый кадр — он анимирует его в плавное 5-секундное видео.',
+        difficulty: 'BEGINNER',
+        tags: ['GPT-4o', 'Kling', 'Video']
+      },
+      {
+        id: 'syn_3',
+        title: 'Instant Web Launch',
+        tools: ['Antigravity AI', 'GitHub Pages'],
+        result: 'Готовый задеплоенный сайт без единой строки кода.',
+        detail: 'Antigravity генерирует полноценный HTML/CSS/JS сайт по описанию. Файл index.html пушится в GitHub репозиторий — GitHub Pages автоматически публикует его по домену username.github.io.',
+        difficulty: 'BEGINNER',
+        tags: ['Antigravity', 'GitHub', 'Deploy']
+      },
+      {
+        id: 'syn_4',
+        title: 'No-Code AI Bot',
+        tools: ['Make.com', 'Claude API', 'Telegram'],
+        result: 'Автоматизированный ИИ-ассистент в Telegram без бэкенда.',
+        detail: 'Make.com слушает вебхук от Telegram Bot API, отправляет сообщение в Claude API, возвращает ответ пользователю. Вся логика — визуальный граф без единой строки кода.',
+        difficulty: 'INTERMEDIATE',
+        tags: ['Make', 'Claude', 'Telegram']
+      }
+    ];
+
+    function getSynergies() {
+      const stored = localStorage.getItem('neurostage_synergies');
+      if (stored) { try { return JSON.parse(stored); } catch(e) {} }
+      return [...defaultSynergies];
+    }
+
+    function saveSynergiesToStorage(data) {
+      localStorage.setItem('neurostage_synergies', JSON.stringify(data));
+    }
+
+    const difficultyMap = {
+      'BEGINNER':     { color: 'emerald', label: 'BEGINNER' },
+      'INTERMEDIATE': { color: 'amber',   label: 'INTERMEDIATE' },
+      'PRO':          { color: 'violet',  label: 'PRO' }
+    };
+
+    function renderSynergies() {
+      const container = document.getElementById('synergies-grid');
+      if (!container) return;
+      const synergies = getSynergies();
+      if (synergies.length === 0) {
+        container.innerHTML = `<div class="col-span-full text-center py-16 text-zinc-500 font-mono text-sm">НЕТ СИНЕРГИЙ. Добавьте через Dev Console.</div>`;
+        return;
+      }
+      container.innerHTML = synergies.map((s, idx) => {
+        const diff = difficultyMap[s.difficulty] || difficultyMap['BEGINNER'];
+        const toolsHtml = s.tools.map((t, i) =>
+          `<span class="bg-black/40 border border-cyan-500/20 text-cyan-300 px-2.5 py-1 rounded-md text-[10px] font-mono">${t}</span>` +
+          (i < s.tools.length - 1 ? `<span class="synergy-arrow">⟶</span>` : '')
+        ).join('');
+        const tagsHtml = (s.tags || []).map(t => `<span class="bg-white/5 border border-white/5 text-zinc-400 px-2 py-0.5 rounded text-[9px] font-mono">${t}</span>`).join('');
+        return `<div class="liquid-glass rounded-2xl p-7 flex flex-col gap-4 border border-cyan-500/10 scale-hover animate-modal-card" style="animation-delay:${idx*0.07}s">
+          <div class="flex justify-between items-start gap-3">
+            <h3 class="text-lg font-normal text-white leading-tight">${s.title}</h3>
+            <span class="text-[9px] font-mono px-2.5 py-1 rounded-full border bg-${diff.color}-500/10 border-${diff.color}-500/30 text-${diff.color}-400 flex-shrink-0">${diff.label}</span>
+          </div>
+          <div class="flex flex-wrap items-center gap-1.5">${toolsHtml}</div>
+          <div class="bg-black/30 border border-white/5 rounded-lg px-4 py-3">
+            <p class="text-xs text-white/80 leading-relaxed font-light">⟹ ${s.result}</p>
+          </div>
+          <div class="flex flex-wrap gap-1.5">${tagsHtml}</div>
+          <button onclick="toggleSynergyDetail('${s.id}')" class="text-left text-[10px] text-[#ababaf] hover:text-white font-mono flex items-center gap-1 transition-colors mt-auto pt-3 border-t border-white/5">
+            КАК ЭТО РАБОТАЕТ <span id="syn-arrow-${s.id}" class="text-[8px] transition-transform duration-300">▼</span>
+          </button>
+          <div id="syn-detail-${s.id}" class="hidden text-xs text-zinc-400 leading-relaxed border-t border-white/5 pt-3">${s.detail}</div>
+        </div>`;
+      }).join('');
+    }
+
+    function toggleSynergyDetail(id) {
+      const box = document.getElementById('syn-detail-' + id);
+      const arrow = document.getElementById('syn-arrow-' + id);
+      if (!box) return;
+      box.classList.toggle('hidden');
+      if (arrow) arrow.style.transform = box.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+    }
+
+    // =========================================================================
+    // 10. DEVLOGS ENGINE (Section 4)
+    // =========================================================================
+    const defaultDevlogs = [
+      {
+        id: 'devlog_1',
+        episode: 'EP_01 // 2026-05-26',
+        title: 'ИИ-Агенты в действии: Разбор связок',
+        description: 'Наглядная демонстрация работы автономных агентов, развертывания локальных ИИ моделей и интеграции с веб-браузером в реальном времени.',
+        videoUrl: 'Section_2.mp4',
+        posterUrl: 'cinematic_hero_bg.png',
+        status: 'HD 1080P',
+        duration: '0:24',
+        materials: `// ПОЛЕЗНЫЕ МАТЕРИАЛЫ К ВЫПУСКУ:
+1. Промпт для инициализации агента:
+"Спланируй и реализуй сбор данных с github по ключевому слову..."
+
+2. Ссылка на репозиторий:
+github.com/neurostage/agent-core
+
+3. Документация по MCP-серверам:
+filesystem, browser-use, github-mcp`
+      },
+      {
+        id: 'devlog_2',
+        episode: 'EP_02 // 2026-05-27',
+        title: 'Анимация персонажей в Hailuo AI',
+        description: 'Пошаговый разбор процесса оживления статичных персонажей с помощью нейросети Hailuo. Моргание глаз, мимика и микро-движения пальцев.',
+        videoUrl: 'Sec4.mp4',
+        posterUrl: 'bios_cyber_bg.jpg',
+        status: 'NEW EPISODE',
+        duration: '0:03',
+        materials: `// ПРОМПТ ДЛЯ АНИМАЦИИ В HAILUO AI:
+"In this static shot, the two painted hands slowly move towards each other. Once they are extremely close, they slowly pull back to their original positions. The white loading spinner icon in the exact center rotates continuously. Seamless loop."
+
+Инструкция: Загрузите human_robot_synergy.png и скопируйте промпт выше.`
+      }
+    ];
+
+    let activeDevlogId = 'devlog_1';
+
+    function getDevlogs() {
+      const stored = localStorage.getItem('neurostage_devlogs');
+      if (stored) { try { return JSON.parse(stored); } catch(e) {} }
+      return [...defaultDevlogs];
+    }
+
+    function saveDevlogsToStorage(data) {
+      localStorage.setItem('neurostage_devlogs', JSON.stringify(data));
+    }
+
+    function selectDevlog(id) {
+      activeDevlogId = id;
+      const devlogs = getDevlogs();
+      const active = devlogs.find(d => d.id === id) || devlogs[0];
+      
+      const player = document.getElementById('devlogs-video-player');
+      const title = document.getElementById('video-console-title');
+      const desc = document.getElementById('video-console-description');
+      const ep = document.getElementById('video-console-episode');
+      const status = document.getElementById('video-console-status');
+      const materials = document.getElementById('video-console-materials');
+      
+      if (!active) return;
+      
+      if (player) {
+        player.src = active.videoUrl;
+        player.poster = active.posterUrl;
+        player.load();
+      }
+      
+      if (title) title.innerText = active.title;
+      if (desc) desc.innerText = active.description;
+      if (ep) ep.innerText = active.episode;
+      if (status) status.innerText = active.status;
+      if (materials) materials.innerText = active.materials;
+      
+      renderDevlogsPlaylist();
+    }
+
+    function renderDevlogsPlaylist() {
+      const container = document.getElementById('devlogs-playlist');
+      if (!container) return;
+      const devlogs = getDevlogs();
+      
+      if (devlogs.length === 0) {
+        container.innerHTML = `<div class="text-center text-zinc-500 font-mono text-xs py-4">Нет видео.</div>`;
+        return;
+      }
+      
+      container.innerHTML = devlogs.map(d => {
+        const isActive = d.id === activeDevlogId;
+        const activeClass = isActive 
+          ? 'border-cyan-500/30 bg-cyan-500/5 text-white' 
+          : 'border-white/5 hover:border-white/10 text-[#ababaf] hover:text-white';
+        
+        const activeMarker = isActive 
+          ? '<span class="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-pulse flex-shrink-0"></span>' 
+          : '<span class="w-1.5 h-1.5 bg-zinc-700 rounded-full flex-shrink-0"></span>';
+          
+        return `
+          <div 
+            onclick="selectDevlog('${d.id}')"
+            class="flex items-center justify-between p-3.5 rounded-xl border transition-all duration-200 cursor-pointer select-none ${activeClass}"
+          >
+            <div class="flex items-center gap-2.5 min-w-0 mr-2">
+              ${activeMarker}
+              <div class="flex flex-col min-w-0">
+                <span class="text-[8px] font-mono text-cyan-400 tracking-wider">${d.episode.split(' // ')[0]}</span>
+                <span class="text-[11px] font-medium truncate mt-0.5">${d.title}</span>
+              </div>
+            </div>
+            <span class="font-mono text-[9px] text-zinc-500 flex-shrink-0">${d.duration}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function copyAttachedMaterials() {
+      const materialsText = document.getElementById('video-console-materials').innerText;
+      navigator.clipboard.writeText(materialsText).then(() => {
+        const btnText = document.getElementById('copy-btn-text');
+        btnText.innerText = 'СКОПИРОВАНО ✓';
+        btnText.classList.add('text-emerald-400');
+        setTimeout(() => {
+          btnText.innerText = 'КОПИРОВАТЬ МАТЕРИАЛЫ';
+          btnText.classList.remove('text-emerald-400');
+        }, 2000);
+      }).catch(err => {
+        console.error('Ошибка копирования:', err);
+      });
+    }
+
+    // =========================================================================
+    // 11. AI ABUSE / HACKS ENGINE (Section 6)
+    // =========================================================================
+    const defaultHacks = [
+      {
+        id: 'hack_1',
+        hackId: 'HACK_001',
+        title: 'OmniRouter + Free GPT Vibe Coding',
+        description: 'Роутинг запросов через OmniRouter к бесплатным GPT-аккаунтам. Получаем GPT-4o для вайбкодинга совершенно бесплатно через единый API-ключ.',
+        category: 'FREE_TIER',
+        status: 'WORKING',
+        saving: '~$20/мес',
+        tools: 'OmniRouter, GPT-4o, VS Code'
+      },
+      {
+        id: 'hack_2',
+        hackId: 'HACK_002',
+        title: 'Cursor Free Trial Loop',
+        description: 'Смена email через temp-mail сервисы (10minutemail, guerrillamail) для продления бесплатного триала Cursor AI. Каждый новый аккаунт = новые 2 недели Pro.',
+        category: 'FREE_TIER',
+        status: 'WORKING',
+        saving: '~$20/мес',
+        tools: '10minutemail, Cursor AI'
+      },
+      {
+        id: 'hack_3',
+        hackId: 'HACK_003',
+        title: 'Claude API через Puter.js',
+        description: 'Прямой доступ к Claude 3.5 Sonnet через Puter.js SDK в браузере без API-ключа и без оплаты. Работает для разработки и прототипирования.',
+        category: 'BYPASS',
+        status: 'WORKING',
+        saving: '~$15/мес',
+        tools: 'Puter.js, Claude API, Browser'
+      },
+      {
+        id: 'hack_4',
+        hackId: 'HACK_004',
+        title: 'n8n Self-Hosted вместо Make',
+        description: 'Разворачиваем n8n на дешёвом VPS (Hetzner €3/мес) и получаем полноценный Make.com альтернатив с неограниченными сценариями и без лимитов операций.',
+        category: 'BYPASS',
+        status: 'WORKING',
+        saving: '~$29/мес',
+        tools: 'n8n, Hetzner VPS, Docker'
+      },
+      {
+        id: 'hack_5',
+        hackId: 'HACK_005',
+        title: 'GitHub Actions как бесплатный крон',
+        description: 'Используем GitHub Actions (2000 мин/мес бесплатно) как замену платным cron-сервисам. Запускаем Python скрипты, парсеры и ИИ-агентов по расписанию.',
+        category: 'AUTOMATION',
+        status: 'WORKING',
+        saving: '~$10/мес',
+        tools: 'GitHub Actions, Python, YAML'
+      }
+    ];
+
+    let currentHackFilter = 'ALL';
+    let expandedHackId = null;
+    let hacksSearchQuery = '';
+
+    function getHacks() {
+      const stored = localStorage.getItem('neurostage_hacks');
+      if (stored) { try { return JSON.parse(stored); } catch(e) {} }
+      return [...defaultHacks];
+    }
+
+    function saveHacksToStorage(data) {
+      localStorage.setItem('neurostage_hacks', JSON.stringify(data));
+    }
+
+    function handleHacksSearch(query) {
+      hacksSearchQuery = query.toLowerCase().trim();
+      renderHacksGrid(currentHackFilter);
+    }
+
+    function toggleHackExpand(id) {
+      if (expandedHackId === id) {
+        expandedHackId = null;
+      } else {
+        expandedHackId = id;
+      }
+      renderHacksGrid(currentHackFilter);
+    }
+
+    function renderHacksGrid(filter) {
+      const container = document.getElementById('hacks-table-body');
+      if (!container) return;
+      let hacks = getHacks();
+      
+      // Filter by category sidebar tabs
+      if (filter && filter !== 'ALL') hacks = hacks.filter(h => h.category === filter);
+      
+      // Filter by search query
+      if (hacksSearchQuery) {
+        hacks = hacks.filter(h => 
+          h.title.toLowerCase().includes(hacksSearchQuery) || 
+          h.description.toLowerCase().includes(hacksSearchQuery) || 
+          (h.tools || '').toLowerCase().includes(hacksSearchQuery) || 
+          (h.hackId || '').toLowerCase().includes(hacksSearchQuery)
+        );
+      }
+      
+      if (hacks.length === 0) {
+        container.innerHTML = `<div class="text-center py-16 text-zinc-500 font-mono text-xs">NO HACKS OR LOGS FOUND.</div>`;
+        return;
+      }
+      
+      container.innerHTML = hacks.map((h, idx) => {
+        const toolTags = (h.tools || '').split(',').map(t => `<span class="bg-white/5 border border-white/5 text-zinc-400 px-2 py-0.5 rounded text-[9px] font-mono">${t.trim()}</span>`).join('');
+        const isExpanded = h.id === expandedHackId;
+        const expandArrow = isExpanded ? '▲' : '▼';
+        
+        return `
+          <div class="flex flex-col w-full transition-all">
+            <!-- Main Row -->
+            <div onclick="toggleHackExpand('${h.id}')" class="flex items-center py-4 px-4 hover:bg-white/5 transition-all duration-200 cursor-pointer select-none">
+              <!-- ID Column -->
+              <div class="w-24 font-mono text-[10px] text-zinc-500">${h.hackId || 'HACK_???'}</div>
+              
+              <!-- Name Column -->
+              <div class="flex-1 pr-4">
+                <span class="text-xs font-medium text-white hover:text-cyan-400 transition-colors flex items-center gap-1.5">
+                  ${h.title}
+                  <span class="text-[8px] text-zinc-600 font-mono">${expandArrow}</span>
+                </span>
+              </div>
+              
+              <!-- Category Column -->
+              <div class="w-32">
+                <span class="text-[9px] font-mono px-2 py-0.5 rounded border hack-badge-${h.category}">${h.category}</span>
+              </div>
+              
+              <!-- Status Column -->
+              <div class="w-24 font-mono text-[9px] hack-status-${h.status || 'WORKING'} flex items-center gap-1">
+                <span class="w-1.5 h-1.5 bg-current rounded-full inline-block animate-pulse"></span>
+                ${h.status || 'WORKING'}
+              </div>
+              
+              <!-- Saving Column -->
+              <div class="w-24 text-right font-mono text-[10px] text-emerald-400 font-semibold">${h.saving || '—'}</div>
+            </div>
+            
+            <!-- Expanded Details Accordion -->
+            ${isExpanded ? `
+              <div class="px-4 pb-5 pt-2 border-t border-white/5 bg-black/35 flex flex-col gap-3 transition-all animate-modal-card">
+                <div class="text-xs text-zinc-400 leading-relaxed font-light">
+                  <span class="text-cyan-400/70 font-mono text-[10px] uppercase block mb-1">// DESCRIPTION:</span>
+                  ${h.description}
+                </div>
+                <div class="flex flex-wrap gap-1.5 items-center mt-1">
+                  <span class="text-zinc-600 font-mono text-[9px] uppercase mr-1.5">STACK:</span>
+                  ${toolTags}
+                </div>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function filterHacks(category) {
+      currentHackFilter = category;
+      expandedHackId = null; // collapse on switch
+      
+      // Update sidebar active classes
+      document.querySelectorAll('#hack-sidebar-tabs .hack-filter-btn').forEach(btn => {
+        btn.classList.remove('active-sidebar-tab');
+        const f = btn.getAttribute('data-filter');
+        if (f === category) btn.classList.add('active-sidebar-tab');
+      });
+      
+      renderHacksGrid(category);
+    }
+
+    // --- Hacks CRUD ---
+    function saveHack() {
+      const editId = document.getElementById('edit-hack-id').value;
+      const title = document.getElementById('hack-title').value.trim();
+      if (!title) { document.getElementById('hack-title').style.borderColor = '#ef4444'; return; }
+      const hack = {
+        id: editId || 'hack_' + Date.now(),
+        hackId: document.getElementById('hack-hack-id').value.trim() || 'HACK_' + String(getHacks().length + 1).padStart(3, '0'),
+        title,
+        description: document.getElementById('hack-description').value.trim(),
+        category: document.getElementById('hack-category').value,
+        status: document.getElementById('hack-status').value,
+        saving: document.getElementById('hack-saving').value.trim(),
+        tools: document.getElementById('hack-tools').value.trim()
+      };
+      let hacks = getHacks();
+      if (editId) { hacks = hacks.map(h => h.id === editId ? hack : h); }
+      else { hacks.push(hack); }
+      saveHacksToStorage(hacks);
+      renderHacksGrid(currentHackFilter);
+      renderAdminHacksList();
+      resetHackForm();
+      const btn = document.getElementById('save-hack-btn');
+      btn.innerText = editId ? 'ОБНОВЛЕНО ✓' : 'ОПУБЛИКОВАНО ✓';
+      btn.classList.add('bg-emerald-500/20', 'border-emerald-500/30', 'text-emerald-400');
+      setTimeout(() => {
+        btn.innerText = 'Опубликовать хак ➔';
+        btn.classList.remove('bg-emerald-500/20', 'border-emerald-500/30', 'text-emerald-400');
+      }, 1500);
+    }
+
+    function editHack(id) {
+      const h = getHacks().find(x => x.id === id);
+      if (!h) return;
+      document.getElementById('edit-hack-id').value = h.id;
+      document.getElementById('hack-hack-id').value = h.hackId || '';
+      document.getElementById('hack-title').value = h.title;
+      document.getElementById('hack-description').value = h.description || '';
+      document.getElementById('hack-category').value = h.category || 'FREE_TIER';
+      document.getElementById('hack-status').value = h.status || 'WORKING';
+      document.getElementById('hack-saving').value = h.saving || '';
+      document.getElementById('hack-tools').value = h.tools || '';
+      document.getElementById('hack-form-title').innerText = 'Редактирование: ' + h.title;
+      document.getElementById('reset-hack-btn').classList.remove('hidden');
+      document.getElementById('save-hack-btn').innerText = 'Сохранить изменения ➔';
+    }
+
+    function deleteHack(id) {
+      let hacks = getHacks().filter(h => h.id !== id);
+      saveHacksToStorage(hacks);
+      renderHacksGrid(currentHackFilter);
+      renderAdminHacksList();
+    }
+
+    function resetHackForm() {
+      ['edit-hack-id','hack-hack-id','hack-title','hack-description','hack-saving','hack-tools'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.value = ''; el.style.borderColor = ''; }
+      });
+      document.getElementById('hack-category').value = 'FREE_TIER';
+      document.getElementById('hack-status').value = 'WORKING';
+      document.getElementById('hack-form-title').innerText = 'Добавить новый хак';
+      document.getElementById('reset-hack-btn').classList.add('hidden');
+      document.getElementById('save-hack-btn').innerText = 'Опубликовать хак ➔';
+    }
+
+    function renderAdminHacksList() {
+      const container = document.getElementById('admin-hacks-list');
+      if (!container) return;
+      const hacks = getHacks();
+      if (hacks.length === 0) {
+        container.innerHTML = `<div class="text-center text-zinc-500 font-mono text-xs py-6">Нет хаков.</div>`;
+        return;
+      }
+      container.innerHTML = hacks.map(h => `
+        <div class="flex items-center justify-between bg-black/30 border border-white/5 rounded-lg px-4 py-3 hover:border-white/10 transition-colors">
+          <div class="flex flex-col min-w-0 flex-grow mr-3">
+            <span class="text-xs text-white font-medium truncate">${h.title}</span>
+            <span class="text-[9px] text-zinc-500 font-mono">${h.hackId} // ${h.category} // ${h.status}</span>
+          </div>
+          <div class="flex gap-2 flex-shrink-0">
+            <button onclick="editHack('${h.id}')" class="text-[9px] font-mono text-[#ababaf] hover:text-cyan-400 bg-white/5 border border-white/5 hover:border-cyan-400/30 px-2 py-0.5 rounded transition-all">EDIT</button>
+            <button onclick="deleteHack('${h.id}')" class="text-[9px] font-mono text-[#ababaf] hover:text-red-400 bg-white/5 border border-white/5 hover:border-red-400/30 px-2 py-0.5 rounded transition-all">DEL</button>
+          </div>
+        </div>`).join('');
+    }
+
+    // =========================================================================
+    // 12. ADMIN PORTAL TABS (ПРОЕКТЫ / ХАКИ)
+    // =========================================================================
+    let activeAdminTab = 'projects';
+
+    function switchAdminTab(tab) {
+      activeAdminTab = tab;
+      document.getElementById('tab-projects').classList.toggle('active-filter', tab === 'projects');
+      document.getElementById('tab-hacks').classList.toggle('active-filter', tab === 'hacks');
+      document.getElementById('admin-tab-projects').classList.toggle('hidden', tab !== 'projects');
+      document.getElementById('admin-tab-hacks').classList.toggle('hidden', tab === 'projects');
+      if (tab === 'hacks') renderAdminHacksList();
+      else renderAdminProjectsList();
+    }
+
+    // Override openAdminPortal to also render hacks list
+    const _origOpenAdminPortal = openAdminPortal;
+    openAdminPortal = function() {
+      _origOpenAdminPortal();
+      renderAdminHacksList();
+      // Reset to projects tab each time
+      switchAdminTab('projects');
+    };
+
+    // --- Sphinx Crypt Riddle Real-time Verification ---
+    function checkSphinxAnswer(val) {
+      const input = document.getElementById('sphinx-input');
+      const status = document.getElementById('sphinx-status');
+      if (!status || !input) return;
+      
+      const cleanVal = val.toLowerCase().trim();
+      status.classList.remove('text-zinc-500', 'text-emerald-400', 'text-red-400');
+      
+      if (cleanVal === '') {
+        status.innerText = 'STATUS: ACTIVE // ОЖИДАНИЕ КЛЮЧА';
+        status.classList.add('text-zinc-500');
+        input.parentElement.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+        return;
+      }
+      
+      const isCorrect = (cleanVal === 'человек' || cleanVal === 'man' || cleanVal === 'human');
+      
+      if (isCorrect) {
+        status.innerHTML = `STATUS: DECRYPTED // ДОСТУП РАЗРЕШЕН <br/>
+          <span class="text-[9px] text-emerald-400 mt-2 block leading-normal lowercase font-mono">
+            // ОТВЕТ ВЕРЕН // ЧЕЛОВЕК: в младенчестве ползает на четырех ногах, в зрелости ходит на двух, в старости опирается на костыль/трость.
+          </span>`;
+        status.classList.add('text-emerald-400');
+        input.parentElement.style.borderColor = 'rgba(52, 211, 153, 0.4)';
+        
+        // Trigger a temporary cyber-flash effect on the synergies video background!
+        const video = document.querySelector('#synergies video');
+        if (video) {
+          video.style.opacity = '0.9';
+          setTimeout(() => { video.style.opacity = '0.55'; }, 600);
+        }
+      } else {
+        status.innerText = 'STATUS: ERROR // НЕВЕРНЫЙ КЛЮЧ ДЕКРИПТА';
+        status.classList.add('text-red-400');
+        input.parentElement.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+      }
+    }
+
+    // --- Initialize all sections on page load ---
+    renderSynergies();
+    renderHacksGrid('ALL');
+    renderDevlogsPlaylist();
+    selectDevlog('devlog_1');
+
+  </script>
+
+  <!-- Dev PIN Access Overlay -->
+  <div id="admin-pin-overlay" class="fixed inset-0 z-[110] flex items-center justify-center p-4 opacity-0 pointer-events-none transition-all duration-300">
+    <div class="absolute inset-0 bg-[#030305]/80 backdrop-blur-md" onclick="closePinOverlay()"></div>
+    <div class="relative w-full max-w-xs liquid-glass rounded-2xl p-6 border border-cyan-500/30 text-center shadow-[0_20px_45px_rgba(0,0,0,0.8)] transform scale-95 transition-all duration-300" id="admin-pin-card">
+      <span class="text-[9px] font-mono text-cyan-400 tracking-[0.2em] uppercase">SECURITY GATE</span>
+      <h3 class="text-xl font-normal text-white mt-1 font-display">Enter Developer PIN</h3>
+      <p class="text-[10px] text-[#ababaf] mt-1 font-light">Авторизация разработчика для доступа к Лаборатории.</p>
+      
+      <!-- PIN input field -->
+      <input 
+        type="password" 
+        id="dev-pin-input" 
+        maxlength="6"
+        placeholder="••••"
+        class="w-full text-center bg-black/40 border border-white/10 rounded-lg py-2.5 mt-5 text-xl font-mono text-white tracking-widest placeholder-zinc-700 focus:border-cyan-400 focus:outline-none transition-colors"
+        onkeypress="handlePinKeyPress(event)"
+      />
+      
+      <!-- Actions -->
+      <div class="flex gap-3 mt-5">
+        <button onclick="closePinOverlay()" class="w-1/2 border border-white/5 bg-white/5 hover:bg-white/10 text-white/70 hover:text-white rounded-lg py-2 text-xs transition-colors font-mono uppercase">Cancel</button>
+        <button onclick="submitPin()" class="w-1/2 bg-cyan-400/20 border border-cyan-400/30 hover:border-cyan-400 text-cyan-400 rounded-lg py-2 text-xs transition-colors font-mono uppercase font-semibold">Verify</button>
+      </div>
+      
+      <span class="text-[9px] font-mono text-zinc-600 mt-4 block">DEFAULT PIN: 1337</span>
+    </div>
+  </div>
+
+  <!-- Admin Portal Drawer / Modal -->
+  <div id="admin-portal-modal" class="fixed inset-0 z-[120] flex items-center justify-center p-4 sm:p-6 md:p-10 opacity-0 pointer-events-none transition-all duration-500 ease-out">
+    <div class="absolute inset-0 bg-[#030305]/90 backdrop-blur-[25px]" onclick="closeAdminPortal()"></div>
+    
+    <div class="relative w-full max-w-4xl editorial-glass rounded-2xl p-6 sm:p-8 max-h-[90vh] overflow-y-auto flex flex-col justify-between transform scale-95 transition-all duration-500 border border-cyan-500/20 shadow-2xl" id="admin-portal-box">
+      
+      <!-- Close Button -->
+      <button onclick="closeAdminPortal()" class="absolute top-6 right-6 font-mono text-[10px] text-white/50 hover:text-white border border-white/5 hover:border-white/10 rounded-full px-3 py-1 transition-all bg-black/20 z-50">
+        CLOSE ✕
+      </button>
+
+      <!-- Header -->
+      <div class="mb-6 border-b border-white/5 pb-4">
+        <span class="text-xs font-mono text-cyan-400 tracking-widest uppercase">LABORATORY CONSOLE // SYSTEM ADMIN</span>
+        <h2 class="text-4xl font-normal text-white mt-1 font-display">Панель управления проектами</h2>
+      </div>
+
+      <!-- Tabs Switcher -->
+      <div class="flex gap-4 mb-6 border-b border-white/5 pb-2">
+        <button id="tab-projects" onclick="switchAdminTab('projects')" class="hack-filter-btn px-4 py-2 text-xs font-mono tracking-widest uppercase transition-all border border-white/5 active-filter">
+          ПРОЕКТЫ
+        </button>
+        <button id="tab-hacks" onclick="switchAdminTab('hacks')" class="hack-filter-btn px-4 py-2 text-xs font-mono tracking-widest uppercase transition-all border border-white/5">
+          AI ABUSE (ХАКИ)
+        </button>
+      </div>
+
+      <!-- Tab: Projects -->
+      <div id="admin-tab-projects" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start select-none">
+        
+        <!-- Column 1: Add/Edit Project Form (7 cols) -->
+        <div class="lg:col-span-7 flex flex-col gap-4">
+          <h3 class="text-lg text-white font-mono border-b border-white/5 pb-2 flex justify-between items-center select-none">
+            <span id="form-action-title">Добавить новый проект</span>
+            <button onclick="resetAdminForm()" class="text-[9px] text-[#ababaf] hover:text-white font-mono bg-white/5 border border-white/5 px-2 py-0.5 rounded transition-all hidden" id="reset-form-btn">СБРОСИТЬ ФОРМУ</button>
+          </h3>
+          
+          <input type="hidden" id="edit-project-id" value="" />
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[10px] font-mono text-[#ababaf] uppercase">Название проекта</label>
+              <input type="text" id="proj-name" placeholder="Например: SaaS Automator" class="bg-black/35 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-600 focus:border-cyan-400 focus:outline-none transition-colors" />
+            </div>
+            
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[10px] font-mono text-[#ababaf] uppercase">Теги технологий (через запятую)</label>
+              <input type="text" id="proj-tags" placeholder="Next.js, Python, n8n" class="bg-black/35 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-600 focus:border-cyan-400 focus:outline-none transition-colors" />
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label class="text-[10px] font-mono text-[#ababaf] uppercase">Краткий слоган / Подзаголовок</label>
+            <input type="text" id="proj-tagline" placeholder="Продвинутый оркестратор Агентов на Node-RED" class="bg-black/35 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-600 focus:border-cyan-400 focus:outline-none transition-colors" />
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label class="text-[10px] font-mono text-[#ababaf] uppercase">Подробное описание проекта (Вкладка // Детали)</label>
+            <textarea id="proj-description" rows="3" placeholder="Опишите архитектуру проекта, используемый стэк, цели и результаты..." class="bg-black/35 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-600 focus:border-cyan-400 focus:outline-none transition-colors resize-none"></textarea>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[10px] font-mono text-[#ababaf] uppercase">Размер блока в сетке Bento</label>
+              <select id="proj-size" class="bg-black/35 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-cyan-400 focus:outline-none transition-colors cursor-pointer">
+                <option value="double" class="bg-[#0c0c11]">Широкий (2 колонки - как SaaS block)</option>
+                <option value="single" class="bg-[#0c0c11]">Узкий (1 колонка - как Scraper block)</option>
+              </select>
+            </div>
+            
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[10px] font-mono text-[#ababaf] uppercase">Текущий статус</label>
+              <select id="proj-status" class="bg-black/35 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-cyan-400 focus:outline-none transition-colors cursor-pointer">
+                <option value="ONLINE" class="bg-[#0c0c11]">ONLINE</option>
+                <option value="IN DEV" class="bg-[#0c0c11]">IN DEV</option>
+                <option value="RENDERED" class="bg-[#0c0c11]">RENDERED</option>
+                <option value="OFFLINE" class="bg-[#0c0c11]">OFFLINE</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[10px] font-mono text-[#ababaf] uppercase">Ссылка на проект / GitHub / Demo</label>
+              <input type="text" id="proj-url" placeholder="https://github.com/..." class="bg-black/35 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-600 focus:border-cyan-400 focus:outline-none transition-colors" />
+            </div>
+            
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[10px] font-mono text-[#ababaf] uppercase">Скриншот проекта (Выбор файла ИЛИ Путь)</label>
+              <div class="flex gap-2">
+                <input type="text" id="proj-img-path" placeholder="img/screens.png" class="bg-black/35 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-600 focus:border-cyan-400 focus:outline-none transition-colors flex-grow" />
+                <label class="bg-white/5 border border-white/10 hover:bg-white/10 hover:border-cyan-400 text-white rounded-lg px-3 py-2 text-xs transition-colors cursor-pointer font-mono select-none flex items-center justify-center">
+                  UPLOAD
+                  <input type="file" id="proj-img-file" class="hidden" accept="image/*" onchange="handleImageUpload(this)" />
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <button onclick="saveProject()" class="w-full bg-cyan-400/20 border border-cyan-400/30 hover:border-cyan-400 text-cyan-400 font-semibold rounded-lg py-3 text-xs tracking-wider transition-all scale-100 active:scale-95 font-mono uppercase mt-2 shadow-[0_5px_15px_rgba(0,240,255,0.05)]" id="save-proj-btn">
+            Опубликовать проект в Лабораторию ➔
+          </button>
+        </div>
+
+        <!-- Column 2: Projects List Manager (5 cols) -->
+        <div class="lg:col-span-5 flex flex-col gap-4">
+          <h3 class="text-lg text-white font-mono border-b border-white/5 pb-2 flex justify-between items-center select-none">
+            <span>Управление проектами</span>
+            <button onclick="exportProjectsJSON()" class="text-[9px] text-cyan-400 hover:text-white font-mono bg-cyan-400/10 border border-cyan-400/30 hover:border-cyan-400 px-2 py-0.5 rounded transition-all">ЭКСПОРТ JSON</button>
+          </h3>
+          
+          <!-- Projects List Container -->
+          <div class="flex flex-col gap-3 max-h-[380px] overflow-y-auto pr-1" id="admin-projects-list">
+            <!-- Populated dynamically via JS -->
+          </div>
+        </div>
+        
+      </div>
+
+      <!-- Tab: Hacks -->
+      <div id="admin-tab-hacks" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start select-none hidden">
+        
+        <!-- Column 1: Add/Edit Hack Form (7 cols) -->
+        <div class="lg:col-span-7 flex flex-col gap-4">
+          <h3 class="text-lg text-white font-mono border-b border-white/5 pb-2 flex justify-between items-center select-none">
+            <span id="hack-form-title">Добавить новый хак</span>
+            <button onclick="resetHackForm()" class="text-[9px] text-[#ababaf] hover:text-white font-mono bg-white/5 border border-white/5 px-2 py-0.5 rounded transition-all hidden" id="reset-hack-btn">СБРОСИТЬ ФОРМУ</button>
+          </h3>
+          
+          <input type="hidden" id="edit-hack-id" value="" />
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[10px] font-mono text-[#ababaf] uppercase">Название хака</label>
+              <input type="text" id="hack-title" placeholder="Например: Claude Code Unlimited Free Bypass" class="bg-black/35 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-600 focus:border-cyan-400 focus:outline-none transition-colors" />
+            </div>
+            
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[10px] font-mono text-[#ababaf] uppercase">Идентификатор (e.g. HACK_005)</label>
+              <input type="text" id="hack-hack-id" placeholder="Оставьте пустым для автогенерации" class="bg-black/35 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-600 focus:border-cyan-400 focus:outline-none transition-colors" />
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label class="text-[10px] font-mono text-[#ababaf] uppercase">Инструменты (через запятую)</label>
+            <input type="text" id="hack-tools" placeholder="OmniRoute, Vibe Coding, GPT-4o Free" class="bg-black/35 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-600 focus:border-cyan-400 focus:outline-none transition-colors" />
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label class="text-[10px] font-mono text-[#ababaf] uppercase">Описание хака / Шаги реализации</label>
+            <textarea id="hack-description" rows="3" placeholder="Опишите связку, как обходить лимиты или бесплатно использовать ресурсы..." class="bg-black/35 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-600 focus:border-cyan-400 focus:outline-none transition-colors resize-none"></textarea>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[10px] font-mono text-[#ababaf] uppercase">Категория</label>
+              <select id="hack-category" class="bg-black/35 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-cyan-400 focus:outline-none transition-colors cursor-pointer">
+                <option value="FREE_TIER" class="bg-[#0c0c11]">Free Tier / Лимиты</option>
+                <option value="API_BYPASS" class="bg-[#0c0c11]">Bypasses / Обход API</option>
+                <option value="LOCAL_AI" class="bg-[#0c0c11]">Local / Локалки</option>
+                <option value="AUTOMATION" class="bg-[#0c0c11]">Automation / Скрипты</option>
+              </select>
+            </div>
+            
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[10px] font-mono text-[#ababaf] uppercase">Статус работы</label>
+              <select id="hack-status" class="bg-black/35 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-cyan-400 focus:outline-none transition-colors cursor-pointer">
+                <option value="WORKING" class="bg-[#0c0c11]">WORKING</option>
+                <option value="PATCHED" class="bg-[#0c0c11]">PATCHED</option>
+                <option value="RISKY" class="bg-[#0c0c11]">RISKY</option>
+              </select>
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[10px] font-mono text-[#ababaf] uppercase">Примерная экономия в $</label>
+              <input type="text" id="hack-saving" placeholder="e.g. $120/mo" class="bg-black/35 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-600 focus:border-cyan-400 focus:outline-none transition-colors" />
+            </div>
+          </div>
+
+          <button onclick="saveHack()" class="w-full bg-cyan-400/20 border border-cyan-400/30 hover:border-cyan-400 text-cyan-400 font-semibold rounded-lg py-3 text-xs tracking-wider transition-all scale-100 active:scale-95 font-mono uppercase mt-2 shadow-[0_5px_15px_rgba(0,240,255,0.05)]" id="save-hack-btn">
+            Опубликовать хак ➔
+          </button>
+        </div>
+
+        <!-- Column 2: Hacks List Manager (5 cols) -->
+        <div class="lg:col-span-5 flex flex-col gap-4">
+          <h3 class="text-lg text-white font-mono border-b border-white/5 pb-2 flex justify-between items-center select-none">
+            <span>Управление хаками</span>
+          </h3>
+          
+          <!-- Hacks List Container -->
+          <div class="flex flex-col gap-3 max-h-[380px] overflow-y-auto pr-1" id="admin-hacks-list">
+            <!-- Populated dynamically via JS -->
+          </div>
+        </div>
+        
+      </div>
+      
+    </div>
+  </div>
+</body>
+</html>
