@@ -508,6 +508,189 @@
         height: 300px;
       }
     }
+
+    /* ==========================================================================
+       MOBILE RESPONSIVENESS OVERRIDES (Premium Touch & UX)
+       ========================================================================== */
+    @media (max-width: 768px) {
+      /* Navbar */
+      #navbar {
+        padding-top: 12px !important;
+        padding-bottom: 12px !important;
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+      }
+      #navbar a.text-3xl {
+        font-size: 1.5rem !important; /* 24px */
+      }
+      #navbar .liquid-glass {
+        padding: 6px 14px !important;
+        font-size: 0.75rem !important;
+      }
+
+      /* Hero Section */
+      header.relative {
+        padding-top: 100px !important;
+        padding-bottom: 60px !important;
+      }
+      header.relative h1 {
+        font-size: 2.25rem !important; /* 36px */
+        line-height: 1.05 !important;
+        letter-spacing: -1px !important;
+      }
+      header.relative a.liquid-glass {
+        padding: 14px 32px !important;
+        margin-top: 24px !important;
+        font-size: 0.875rem !important;
+      }
+
+      /* Sections General */
+      section {
+        padding-top: 48px !important;
+        padding-bottom: 48px !important;
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+      }
+      
+      /* Bento Grid Card Padding */
+      #bento-grid-container > div {
+        padding: 20px !important;
+      }
+
+      /* Coverflow adjustments */
+      .coverflow-viewport {
+        height: 320px !important;
+      }
+
+      /* Audio Capsule Mobile optimization */
+      #audio-player-capsule {
+        padding-left: 14px !important;
+        padding-right: 14px !important;
+        padding-top: 8px !important;
+        padding-bottom: 8px !important;
+        gap: 12px !important;
+        max-width: 290px !important;
+      }
+      #audio-volume-slider {
+        width: 35px !important; /* Extremely neat and small */
+      }
+      #audio-wave-anim {
+        width: 16px !important;
+        gap: 2px !important;
+      }
+
+      /* DevLogs Column Spacing */
+      #devlogs .grid {
+        gap: 16px !important;
+      }
+      #devlogs .liquid-glass {
+        padding: 16px !important;
+      }
+      #devlogs-playlist {
+        max-h: 220px !important;
+      }
+      
+      /* Attached materials header wrap */
+      #devlogs button[onclick="copyAttachedMaterials()"] {
+        padding: 4px 8px !important;
+        font-size: 8px !important;
+      }
+
+      /* Section 6: AI Abuse Premium Dashboard Mobile Layout */
+      #ai-abuse .max-w-7xl {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+      }
+      #ai-abuse h2 {
+        font-size: 2.5rem !important; /* 40px */
+      }
+      #ai-abuse p.text-lg {
+        font-size: 0.875rem !important; /* 14px */
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+
+      #ai-abuse .liquid-glass.flex-col {
+        border-radius: 12px !important;
+        min-height: auto !important;
+      }
+      
+      /* Sidebar transform to horizontal tab bar */
+      #ai-abuse .w-full.md\:w-64 {
+        border-right: none !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+        padding: 16px !important;
+        gap: 16px !important;
+      }
+      #ai-abuse #hack-sidebar-tabs {
+        flex-direction: row !important;
+        overflow-x: auto !important;
+        width: 100% !important;
+        padding-bottom: 8px !important;
+        /* Custom scrollbar for tabs */
+        scrollbar-width: none;
+      }
+      #ai-abuse #hack-sidebar-tabs::-webkit-scrollbar {
+        display: none;
+      }
+      #ai-abuse .hack-filter-btn {
+        flex-shrink: 0 !important;
+        padding: 6px 12px !important;
+        width: auto !important;
+      }
+      #ai-abuse .hack-filter-btn span:last-child {
+        display: none !important; /* Hide arrow/dot indicators on mobile to fit nicely */
+      }
+      /* Hide sidebar telemetry on mobile to focus on the main workspace */
+      #ai-abuse .w-full.md\:w-64 > div:last-child {
+        display: none !important;
+      }
+      #ai-abuse .w-full.md\:w-64 > div:first-child {
+        width: 100% !important;
+      }
+      #ai-abuse .w-full.md\:w-64 .mb-8 {
+        margin-bottom: 12px !important;
+      }
+
+      /* Main content dashboard adjustments */
+      #ai-abuse .flex-1.p-6 {
+        padding: 16px !important;
+      }
+      #ai-abuse .flex-col.sm\:flex-row {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 12px !important;
+      }
+      #ai-abuse #hacks-search-input {
+        max-width: 100% !important;
+      }
+
+      /* Modal overrides */
+      #category-modal-box {
+        padding: 20px !important;
+        max-height: 90vh !important;
+      }
+      #category-modal-box h2 {
+        font-size: 2.25rem !important; /* 36px */
+      }
+      #modal-tools-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+      }
+      #category-modal-box .absolute.top-6.right-6 {
+        top: 14px !important;
+        right: 14px !important;
+        padding: 4px 10px !important;
+      }
+
+      /* Contrast tweaks */
+      .section-video-bg {
+        opacity: 0.20 !important; /* slightly lower on mobile for maximum readability */
+      }
+      .section-fade-top, .section-fade-bottom {
+        height: 12vh !important;
+      }
+    }
   </style>
 </head>
 <body class="relative min-h-screen selection:bg-cyan-500/30 selection:text-cyan-200">
