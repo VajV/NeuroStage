@@ -714,12 +714,73 @@
         <a href="#synergies" class="text-sm text-[#ababaf] hover:text-white transition-colors">Synergies</a>
       </div>
 
-      <!-- CTA Action -->
-      <a href="#ai-abuse" class="liquid-glass rounded-full px-6 py-2.5 text-sm text-white hover:scale-[1.03] select-none active:scale-[0.98] transition-transform">
-        AI Abuse
-      </a>
+      <!-- CTA Action & Hamburger -->
+      <div class="flex items-center gap-3">
+        <!-- CTA Action -->
+        <a href="#ai-abuse" class="liquid-glass rounded-full px-6 py-2.5 text-sm text-white hover:scale-[1.03] select-none active:scale-[0.98] transition-transform">
+          AI Abuse
+        </a>
+
+        <!-- Hamburger Button (Visible only on mobile) -->
+        <button onclick="toggleMobileMenu()" class="flex md:hidden liquid-glass rounded-full p-2.5 text-white hover:scale-[1.05] active:scale-[0.95] transition-transform select-none z-[60]" id="mobile-menu-btn">
+          <!-- Burger Icon -->
+          <svg class="w-5 h-5 transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" id="burger-icon">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+          </svg>
+          <!-- Cross Icon (hidden by default) -->
+          <svg class="w-5 h-5 hidden transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" id="close-icon">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
     </div>
   </nav>
+
+  <!-- Mobile Menu Overlay (Liquid Glass) -->
+  <div id="mobile-menu" class="fixed inset-0 z-40 bg-[#030305]/95 backdrop-blur-[20px] border-b border-white/10 transform -translate-y-full opacity-0 pointer-events-none transition-all duration-500 ease-out flex flex-col justify-center px-8 py-24 select-none">
+    <!-- Top Radial Glow -->
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-cyan-500/10 rounded-full blur-[80px] pointer-events-none"></div>
+
+    <div class="flex flex-col gap-6 font-mono text-xs text-[#ababaf] max-w-sm mx-auto w-full">
+      <span class="text-[9px] text-cyan-400 tracking-[0.25em] uppercase font-bold border-b border-white/5 pb-2">// SYSTEM NAVIGATION</span>
+      
+      <a href="#" onclick="closeMobileMenu()" class="text-2xl font-normal text-white hover:text-cyan-400 tracking-tight transition-colors py-1 flex items-center justify-between group">
+        <span>01 // Home</span>
+        <span class="text-xs text-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity">➔</span>
+      </a>
+      <a href="#hub" onclick="closeMobileMenu()" class="text-2xl font-normal text-white hover:text-cyan-400 tracking-tight transition-colors py-1 flex items-center justify-between group">
+        <span>02 // NeuroHub</span>
+        <span class="text-xs text-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity">➔</span>
+      </a>
+      <a href="#lab" onclick="closeMobileMenu()" class="text-2xl font-normal text-white hover:text-cyan-400 tracking-tight transition-colors py-1 flex items-center justify-between group">
+        <span>03 // Labs</span>
+        <span class="text-xs text-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity">➔</span>
+      </a>
+      <a href="#devlogs" onclick="closeMobileMenu()" class="text-2xl font-normal text-white hover:text-cyan-400 tracking-tight transition-colors py-1 flex items-center justify-between group">
+        <span>04 // DevLogs</span>
+        <span class="text-xs text-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity">➔</span>
+      </a>
+      <a href="#synergies" onclick="closeMobileMenu()" class="text-2xl font-normal text-white hover:text-cyan-400 tracking-tight transition-colors py-1 flex items-center justify-between group">
+        <span>05 // Synergies</span>
+        <span class="text-xs text-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity">➔</span>
+      </a>
+      <a href="#ai-abuse" onclick="closeMobileMenu()" class="text-2xl font-normal text-cyan-400 hover:text-white tracking-tight transition-colors py-1 flex items-center justify-between group">
+        <span>06 // AI Abuse</span>
+        <span class="text-xs text-white opacity-0 group-hover:opacity-100 transition-opacity">➔</span>
+      </a>
+
+      <div class="border-t border-white/5 pt-6 mt-6 flex flex-col gap-2 text-[9px] text-zinc-500 font-mono">
+        <div class="flex justify-between">
+          <span>PORTAL ADDRESS:</span>
+          <span>NEUROSTAGE.VERCEL.APP</span>
+        </div>
+        <div class="flex justify-between">
+          <span>SECURITY STATUS:</span>
+          <span class="text-emerald-400 font-semibold">SECURE // ENCRYPTED</span>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Content layers -->
   <div class="content-overlay">
@@ -1214,18 +1275,10 @@
          SECTION 5: СИНЕРГИИ (Tool Synergies // Constellation Network Background)
          ========================================================================== -->
     <section id="synergies" class="relative w-full overflow-hidden py-24 scroll-mt-20">
-      <!-- Interactive Synergy Background Video -->
-      <div class="absolute inset-0 w-full h-full pointer-events-none overflow-hidden select-none z-0">
-        <video 
-          src="Seck5.mp4" 
-          autoplay 
-          loop 
-          muted 
-          playsinline
-          class="w-full h-full object-cover opacity-55"
-          style="filter: brightness(0.65) contrast(1.25) saturate(1.15);"
-        ></video>
-      </div>
+      <!-- Background Video contained inside Section 5 only -->
+      <video autoplay loop muted playsinline class="section-video-bg select-none" style="filter: brightness(0.65) contrast(1.25) saturate(1.15);">
+        <source src="Seck5.mp4" type="video/mp4">
+      </video>
       
       <!-- Top and bottom gradient shadows for smooth section transition -->
       <div class="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-[#030305] to-transparent pointer-events-none z-10"></div>
@@ -2868,6 +2921,39 @@ filesystem, browser-use, github-mcp`
         status.classList.add('text-red-400');
         input.parentElement.style.borderColor = 'rgba(239, 68, 68, 0.4)';
       }
+    }
+
+    // Mobile Navigation Menu Controllers
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobile-menu');
+      const burgerIcon = document.getElementById('burger-icon');
+      const closeIcon = document.getElementById('close-icon');
+      if (!menu) return;
+      const isClosed = menu.classList.contains('pointer-events-none');
+
+      if (isClosed) {
+        // Open menu
+        menu.classList.remove('pointer-events-none', 'opacity-0', '-translate-y-full');
+        menu.classList.add('opacity-100', 'translate-y-0');
+        if (burgerIcon) burgerIcon.classList.add('hidden');
+        if (closeIcon) closeIcon.classList.remove('hidden');
+        document.body.style.overflow = 'hidden'; // Lock main scrolling
+      } else {
+        closeMobileMenu();
+      }
+    }
+
+    function closeMobileMenu() {
+      const menu = document.getElementById('mobile-menu');
+      const burgerIcon = document.getElementById('burger-icon');
+      const closeIcon = document.getElementById('close-icon');
+      if (!menu) return;
+      
+      menu.classList.add('pointer-events-none', 'opacity-0', '-translate-y-full');
+      menu.classList.remove('opacity-100', 'translate-y-0');
+      if (burgerIcon) burgerIcon.classList.remove('hidden');
+      if (closeIcon) closeIcon.classList.add('hidden');
+      document.body.style.overflow = ''; // Unlock main scrolling
     }
 
     // --- Initialize all sections on page load ---
