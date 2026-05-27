@@ -1149,9 +1149,38 @@
           ? "...two feet at midday..."
         </div>
 
-        <!-- Bento Grid System — dynamically populated by renderBentoGrid() -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-auto" id="bento-grid-container">
-          <!-- JS will inject project cards here -->
+        <!-- Bento Grid System — REPLACED BY PREMIUM SCIFI LABS DASHBOARD -->
+        <div class="w-full max-w-5xl mx-auto rounded-2xl liquid-glass border border-white/10 overflow-hidden shadow-[0_25px_60px_rgba(0,0,0,0.85)] backdrop-blur-xl flex flex-col md:flex-row z-20 relative min-h-[500px]">
+          
+          <!-- Sidebar (Left) - Project Tabs -->
+          <div class="w-full md:w-64 border-r border-white/5 bg-black/40 p-6 flex flex-col justify-between gap-8 select-none">
+            <div>
+              <!-- Sidebar Header -->
+              <div class="flex items-center gap-2 mb-6">
+                <span class="w-2.5 h-2.5 bg-cyan-400 rounded-full animate-pulse"></span>
+                <span class="font-mono text-xs text-white tracking-[0.2em] font-semibold">LAB_PROJECTS</span>
+              </div>
+              
+              <!-- Vertical Project Tabs -->
+              <div class="flex flex-col gap-1.5" id="project-sidebar-tabs">
+                <!-- Dynamic JS list of projects as tabs -->
+              </div>
+            </div>
+            
+            <!-- Sidebar Footer (Developer Gate) -->
+            <div class="border-t border-white/5 pt-4 flex flex-col gap-3">
+              <span class="text-[9px] font-mono text-zinc-500 uppercase tracking-widest block">// DEV CORE GATEWAY</span>
+              <button onclick="openPinOverlay()" class="w-full bg-cyan-400/10 border border-cyan-400/20 hover:border-cyan-400/50 hover:bg-cyan-400/20 text-cyan-400 font-mono text-[10px] py-2.5 rounded-lg transition-all active:scale-95 cursor-pointer uppercase font-semibold">
+                Developer Console
+              </button>
+            </div>
+          </div>
+          
+          <!-- Main Workspace (Right) - Project Details -->
+          <div class="flex-1 p-6 md:p-8 bg-black/10 flex flex-col justify-between min-h-[400px]" id="project-details-panel">
+            <!-- Dynamic JS content based on selected project -->
+          </div>
+          
         </div>
       </div>
     </section>
@@ -1291,9 +1320,42 @@
         <h2 class="text-4xl sm:text-5xl font-normal text-white mt-2">Синергии</h2>
         <p class="text-[#ababaf] text-sm mt-1 mb-12">Связки инструментов, которые вместе дают результат больше чем по отдельности.</p>
 
-        <!-- Synergy Cards Grid — dynamically rendered by renderSynergies() -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" id="synergies-grid">
-          <!-- JS populates this -->
+        <!-- Synergy Dashboard Wrapper — REPLACED BY PREMIUM SCIFI SYNERGIES DASHBOARD -->
+        <div class="w-full max-w-5xl mx-auto rounded-2xl liquid-glass border border-white/10 overflow-hidden shadow-[0_25px_60px_rgba(0,0,0,0.85)] backdrop-blur-xl flex flex-col md:flex-row z-20 relative min-h-[500px]">
+          
+          <!-- Sidebar (Left) - Synergy Tabs -->
+          <div class="w-full md:w-64 border-r border-white/5 bg-black/40 p-6 flex flex-col justify-between gap-8 select-none">
+            <div>
+              <!-- Sidebar Header -->
+              <div class="flex items-center gap-2 mb-6">
+                <span class="w-2.5 h-2.5 bg-cyan-400 rounded-full animate-pulse"></span>
+                <span class="font-mono text-xs text-white tracking-[0.2em] font-semibold">SYNERGY_INDEX</span>
+              </div>
+              
+              <!-- Vertical Synergy Tabs -->
+              <div class="flex flex-col gap-1.5 shadow-inner max-h-[350px] overflow-y-auto pr-1" id="synergy-sidebar-tabs">
+                <!-- Dynamic JS list of synergies as tabs -->
+              </div>
+            </div>
+            
+            <!-- Sidebar Footer (Mainframe) -->
+            <div class="border-t border-white/5 pt-4 flex flex-col gap-2 font-mono text-[9px] text-zinc-500">
+              <div class="flex justify-between">
+                <span>ACTIVE PIPELINES:</span>
+                <span class="text-cyan-400" id="synergy-pipelines-count">4 ACTIVE</span>
+              </div>
+              <div class="flex justify-between">
+                <span>DECRYPT KEY:</span>
+                <span class="text-emerald-400">SPHINX.EXE</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Main Workspace (Right) - Synergy Details -->
+          <div class="flex-1 p-6 md:p-8 bg-black/10 flex flex-col justify-between min-h-[400px]" id="synergy-details-panel">
+            <!-- Dynamic JS content based on selected synergy -->
+          </div>
+          
         </div>
 
         <!-- Sphinx Crypt Decoder -->
@@ -1496,6 +1558,20 @@
     <!-- Modal content container -->
     <div class="relative w-full max-w-6xl editorial-glass rounded-2xl p-6 sm:p-10 max-h-[85vh] overflow-y-auto flex flex-col justify-between transform scale-95 transition-all duration-500" id="category-modal-box">
       
+      <!-- Left Navigation Button -->
+      <button onclick="navigateModalCategory(-1)" class="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-50 w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-white/5 bg-black/45 backdrop-blur-md text-white/70 hover:text-white hover:border-white/20 flex items-center justify-center transition-all active:scale-95 select-none" title="Previous Category">
+        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+        </svg>
+      </button>
+
+      <!-- Right Navigation Button -->
+      <button onclick="navigateModalCategory(1)" class="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-50 w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-white/5 bg-black/45 backdrop-blur-md text-white/70 hover:text-white hover:border-white/20 flex items-center justify-center transition-all active:scale-95 select-none" title="Next Category">
+        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+        </svg>
+      </button>
+
       <!-- Close button (floating top-right) -->
       <button onclick="closeCategoryModal()" class="absolute top-6 right-6 font-mono text-xs text-white/50 hover:text-white border border-white/5 hover:border-white/10 rounded-full px-4 py-1.5 transition-all select-none bg-black/20 flex items-center gap-1 z-50">
         CLOSE <span class="text-[10px] ml-1">✕</span>
@@ -1663,7 +1739,18 @@
     const modalSubtitle = document.getElementById('modal-category-subtitle');
     const modalToolsGrid = document.getElementById('modal-tools-grid');
 
+    let activeModalCategory = 'all';
+    const categoryOrder = ['all', 'vibe', 'video', 'photo', 'text', 'bots', 'agents'];
+
+    function navigateModalCategory(direction) {
+      let idx = categoryOrder.indexOf(activeModalCategory);
+      if (idx === -1) idx = 0;
+      idx = (idx + direction + categoryOrder.length) % categoryOrder.length;
+      openCategoryModal(categoryOrder[idx]);
+    }
+
     function openCategoryModal(category) {
+      activeModalCategory = category;
       // Set headers
       const meta = categoryMeta[category] || { title: "Loader", subtitle: "MODULE // LOADER" };
       modalTitle.innerHTML = meta.title;
@@ -2118,65 +2205,88 @@
       </div>`;
     }
 
-    // --- Render the Bento Grid dynamically ---
-    function renderBentoGrid() {
-      const container = document.getElementById('bento-grid-container');
-      if (!container) return;
+    let activeProjectId = 'proj_1';
+
+    function selectLabProject(id) {
+      activeProjectId = id;
+      renderLabsDashboard();
+    }
+
+    function renderLabsDashboard() {
+      const tabsContainer = document.getElementById('project-sidebar-tabs');
+      const detailsPanel = document.getElementById('project-details-panel');
+      if (!tabsContainer || !detailsPanel) return;
+
       const projects = getProjects();
 
       if (projects.length === 0) {
-        container.innerHTML = `<div class="col-span-full text-center py-16 text-zinc-500 font-mono text-sm">
-          NO_ACTIVE_PROJECTS. Откройте Dev Console, чтобы добавить свой первый проект.
-        </div>`;
+        tabsContainer.innerHTML = '<div class="text-zinc-500 font-mono text-[9px] p-4">NO_PROJECTS</div>';
+        detailsPanel.innerHTML = '<div class="text-zinc-500 font-mono text-xs py-8">NO_ACTIVE_PROJECTS. Open Dev Console to add your first project.</div>';
         return;
       }
 
-      container.innerHTML = projects.map((p, idx) => {
-        const isDouble = p.size === 'double';
-        const colSpan = isDouble ? 'md:col-span-2' : '';
-        const imgSection = p.image ? `<div class="w-full h-24 rounded-lg overflow-hidden mt-3 mb-2 border border-white/5"><img src="${p.image}" class="w-full h-full object-cover" alt="${p.name}" /></div>` : '';
-        const tagsHtml = p.tags ? p.tags.split(',').map(t => `<span class="bg-white/5 border border-white/5 text-zinc-400 px-2 py-0.5 rounded text-[9px] font-mono">${t.trim()}</span>`).join('') : '';
+      // Fallback activeProjectId if current active doesn't exist anymore
+      if (!projects.some(p => p.id === activeProjectId)) {
+        activeProjectId = projects[0].id;
+      }
 
-        return `<div class="liquid-glass rounded-2xl p-8 ${colSpan} flex flex-col justify-between border border-cyan-500/10 scale-hover animate-modal-card" style="animation-delay: ${idx * 0.08}s" data-project-id="${p.id}">
-          <div class="flex justify-between items-start">
+      // Render vertical tabs
+      tabsContainer.innerHTML = projects.map(p => {
+        const isActive = p.id === activeProjectId;
+        const activeClass = isActive ? 'active-sidebar-tab' : '';
+        return `
+          <button onclick="selectLabProject('${p.id}')" class="project-tab-btn ${activeClass} flex items-center justify-between w-full text-left font-mono text-[10px] px-4 py-3 rounded-lg border border-transparent text-[#ababaf] hover:text-white hover:bg-white/5 transition-all cursor-pointer" data-project-id="${p.id}">
+            <span class="truncate pr-2">${p.name.toUpperCase()}</span>
+            <span class="text-[9px] ${p.status === 'ONLINE' ? 'text-emerald-400' : 'text-amber-400'} flex-shrink-0">●</span>
+          </button>
+        `;
+      }).join('');
+
+      // Render active project details
+      const p = projects.find(x => x.id === activeProjectId) || projects[0];
+      const statusBadge = getStatusBadge(p.status);
+      const tagsHtml = p.tags ? p.tags.split(',').map(t => `<span class="bg-white/5 border border-white/5 text-zinc-400 px-2.5 py-1 rounded-md text-[10px] font-mono">${t.trim()}</span>`).join('') : '';
+      const imgHtml = p.image ? `
+        <div class="w-full h-44 rounded-xl overflow-hidden border border-white/10 bg-zinc-950/40 relative shadow-inner group mb-6">
+          <img src="${p.image}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="${p.name}" />
+        </div>` : '';
+
+      detailsPanel.innerHTML = `
+        <div class="flex flex-col gap-6 animate-modal-card">
+          <!-- Header row -->
+          <div class="flex justify-between items-start gap-4 pb-4 border-b border-white/5">
             <div>
-              <span class="text-xs font-mono text-cyan-400 font-semibold tracking-wider">${p.name.toUpperCase()}</span>
-              <h3 class="text-2xl font-normal text-white mt-1">${p.name}</h3>
+              <span class="text-[10px] font-mono text-cyan-400 font-semibold tracking-[0.2em] block mb-1">PROJECT_DETAILS // MODULE_03</span>
+              <h3 class="text-3xl md:text-4xl font-normal text-white font-display tracking-tight">${p.name}</h3>
             </div>
-            ${getStatusBadge(p.status)}
+            ${statusBadge}
           </div>
-
-          ${imgSection}
-
-          <p class="text-xs text-[#ababaf] leading-relaxed my-3 flex-grow">${p.tagline}</p>
-
-          ${tagsHtml ? `<div class="flex flex-wrap gap-1.5 mb-3">${tagsHtml}</div>` : ''}
-
-          <div class="flex justify-between items-center border-t border-white/5 pt-3 mt-auto">
-            <button onclick="toggleProjectDetails('${p.id}')" class="text-[10px] text-[#ababaf] hover:text-white font-mono flex items-center gap-1 select-none cursor-pointer transition-colors">
-              ДЕТАЛИ <span class="text-[8px] transition-transform duration-300" id="arrow-${p.id}">▼</span>
-            </button>
-            ${p.url && p.url !== '#' ? `<a href="${p.url}" target="_blank" class="text-xs text-cyan-400 hover:text-white font-mono transition-colors">OPEN ➔</a>` : `<span class="text-xs text-zinc-600 font-mono">LOCAL</span>`}
-          </div>
-
-          <div class="hidden mt-3 bg-black/30 border border-white/5 rounded-lg p-4 text-xs text-zinc-300 leading-relaxed font-normal" id="details-${p.id}">
+          
+          <!-- Slogan / Tagline -->
+          <p class="text-base text-zinc-300 font-light leading-relaxed italic border-l-2 border-cyan-400/40 pl-4 py-1">${p.tagline}</p>
+          
+          <!-- Detailed Description -->
+          <div class="text-sm text-[#ababaf] leading-relaxed font-normal whitespace-pre-wrap">
             ${p.description || 'Нет описания.'}
           </div>
-        </div>`;
-      }).join('');
-    }
-
-    function toggleProjectDetails(id) {
-      const box = document.getElementById('details-' + id);
-      const arrow = document.getElementById('arrow-' + id);
-      if (!box) return;
-      if (box.classList.contains('hidden')) {
-        box.classList.remove('hidden');
-        if (arrow) arrow.style.transform = 'rotate(180deg)';
-      } else {
-        box.classList.add('hidden');
-        if (arrow) arrow.style.transform = 'rotate(0deg)';
-      }
+          
+          <!-- Screenshot (if present) -->
+          ${imgHtml}
+        </div>
+        
+        <!-- Bottom bar tags and action url -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t border-white/5 mt-6">
+          <div class="flex flex-wrap gap-1.5">${tagsHtml}</div>
+          
+          ${p.url && p.url !== '#' ? `
+            <a href="${p.url}" target="_blank" class="liquid-glass rounded-xl px-5 py-2 text-xs text-white hover:scale-[1.03] select-none active:scale-[0.98] transition-transform text-center font-mono">
+              LAUNCH PROJECT ➔
+            </a>
+          ` : `
+            <span class="text-xs text-zinc-500 font-mono italic">LOCAL CONSOLE REPOSITORY</span>
+          `}
+        </div>
+      `;
     }
 
     // --- PIN Gate Controllers ---
@@ -2280,7 +2390,7 @@
       }
 
       saveProjectsToStorage(projects);
-      renderBentoGrid();
+      renderLabsDashboard();
       renderAdminProjectsList();
       resetAdminForm();
 
@@ -2318,7 +2428,7 @@
       let projects = getProjects();
       projects = projects.filter(p => p.id !== id);
       saveProjectsToStorage(projects);
-      renderBentoGrid();
+      renderLabsDashboard();
       renderAdminProjectsList();
     }
 
@@ -2365,8 +2475,8 @@
       URL.revokeObjectURL(url);
     }
 
-    // --- Initialize Bento Grid on page load ---
-    renderBentoGrid();
+    // --- Initialize Labs Dashboard on page load ---
+    renderLabsDashboard();
 
     // =========================================================================
     // 10. SYNERGIES ENGINE (Section 5)
@@ -2420,51 +2530,110 @@
       localStorage.setItem('neurostage_synergies', JSON.stringify(data));
     }
 
+    let activeSynergyId = 'syn_1';
+
     const difficultyMap = {
       'BEGINNER':     { color: 'emerald', label: 'BEGINNER' },
       'INTERMEDIATE': { color: 'amber',   label: 'INTERMEDIATE' },
       'PRO':          { color: 'violet',  label: 'PRO' }
     };
 
-    function renderSynergies() {
-      const container = document.getElementById('synergies-grid');
-      if (!container) return;
-      const synergies = getSynergies();
-      if (synergies.length === 0) {
-        container.innerHTML = `<div class="col-span-full text-center py-16 text-zinc-500 font-mono text-sm">НЕТ СИНЕРГИЙ. Добавьте через Dev Console.</div>`;
-        return;
-      }
-      container.innerHTML = synergies.map((s, idx) => {
-        const diff = difficultyMap[s.difficulty] || difficultyMap['BEGINNER'];
-        const toolsHtml = s.tools.map((t, i) =>
-          `<span class="bg-black/40 border border-cyan-500/20 text-cyan-300 px-2.5 py-1 rounded-md text-[10px] font-mono">${t}</span>` +
-          (i < s.tools.length - 1 ? `<span class="synergy-arrow">⟶</span>` : '')
-        ).join('');
-        const tagsHtml = (s.tags || []).map(t => `<span class="bg-white/5 border border-white/5 text-zinc-400 px-2 py-0.5 rounded text-[9px] font-mono">${t}</span>`).join('');
-        return `<div class="liquid-glass rounded-2xl p-7 flex flex-col gap-4 border border-cyan-500/10 scale-hover animate-modal-card" style="animation-delay:${idx*0.07}s">
-          <div class="flex justify-between items-start gap-3">
-            <h3 class="text-lg font-normal text-white leading-tight">${s.title}</h3>
-            <span class="text-[9px] font-mono px-2.5 py-1 rounded-full border bg-${diff.color}-500/10 border-${diff.color}-500/30 text-${diff.color}-400 flex-shrink-0">${diff.label}</span>
-          </div>
-          <div class="flex flex-wrap items-center gap-1.5">${toolsHtml}</div>
-          <div class="bg-black/30 border border-white/5 rounded-lg px-4 py-3">
-            <p class="text-xs text-white/80 leading-relaxed font-light">⟹ ${s.result}</p>
-          </div>
-          <div class="flex flex-wrap gap-1.5">${tagsHtml}</div>
-          <button onclick="toggleSynergyDetail('${s.id}')" class="text-left text-[10px] text-[#ababaf] hover:text-white font-mono flex items-center gap-1 transition-colors mt-auto pt-3 border-t border-white/5">
-            КАК ЭТО РАБОТАЕТ <span id="syn-arrow-${s.id}" class="text-[8px] transition-transform duration-300">▼</span>
-          </button>
-          <div id="syn-detail-${s.id}" class="hidden text-xs text-zinc-400 leading-relaxed border-t border-white/5 pt-3">${s.detail}</div>
-        </div>`;
-      }).join('');
+    function selectSynergy(id) {
+      activeSynergyId = id;
+      renderSynergiesDashboard();
     }
 
-    function toggleSynergyDetail(id) {
-      const box = document.getElementById('syn-detail-' + id);
-      const arrow = document.getElementById('syn-arrow-' + id);
-      if (!box) return;
-      box.classList.toggle('hidden');
-      if (arrow) arrow.style.transform = box.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+    function renderSynergiesDashboard() {
+      const tabsContainer = document.getElementById('synergy-sidebar-tabs');
+      const detailsPanel = document.getElementById('synergy-details-panel');
+      const countEl = document.getElementById('synergy-pipelines-count');
+      if (!tabsContainer || !detailsPanel) return;
+
+      const synergies = getSynergies();
+
+      if (synergies.length === 0) {
+        tabsContainer.innerHTML = '<div class="text-zinc-500 font-mono text-[9px] p-4">NO_SYNERGIES</div>';
+        detailsPanel.innerHTML = '<div class="text-zinc-500 font-mono text-xs py-8">NO_ACTIVE_SYNERGIES.</div>';
+        if (countEl) countEl.innerText = '0 ACTIVE';
+        return;
+      }
+
+      // Fallback activeSynergyId if current active doesn't exist anymore
+      if (!synergies.some(s => s.id === activeSynergyId)) {
+        activeSynergyId = synergies[0].id;
+      }
+
+      if (countEl) {
+        countEl.innerText = synergies.length + ' ACTIVE';
+      }
+
+      // Render vertical tabs
+      tabsContainer.innerHTML = synergies.map(s => {
+        const isActive = s.id === activeSynergyId;
+        const activeClass = isActive ? 'active-sidebar-tab' : '';
+        const diff = difficultyMap[s.difficulty] || difficultyMap['BEGINNER'];
+        return `
+          <button onclick="selectSynergy('${s.id}')" class="synergy-tab-btn ${activeClass} flex items-center justify-between w-full text-left font-mono text-[10px] px-4 py-3 rounded-lg border border-transparent text-[#ababaf] hover:text-white hover:bg-white/5 transition-all cursor-pointer" data-synergy-id="${s.id}">
+            <span class="truncate pr-2">${s.title.toUpperCase()}</span>
+            <span class="text-[9px] text-${diff.color}-400 flex-shrink-0">●</span>
+          </button>
+        `;
+      }).join('');
+
+      // Render active synergy details
+      const s = synergies.find(x => x.id === activeSynergyId) || synergies[0];
+      const diff = difficultyMap[s.difficulty] || difficultyMap['BEGINNER'];
+
+      const toolsHtml = s.tools.map((t, i) =>
+        `<div class="bg-black/60 border border-cyan-500/20 text-cyan-300 px-4 py-2.5 rounded-xl text-xs font-mono font-medium shadow-sm select-none">${t}</div>` +
+        (i < s.tools.length - 1 ? `
+          <div class="flex items-center text-cyan-400/60 flex-shrink-0 animate-pulse">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+            </svg>
+          </div>
+        ` : '')
+      ).join('');
+
+      const tagsHtml = (s.tags || []).map(t => `<span class="bg-white/5 border border-white/5 text-zinc-400 px-2.5 py-1 rounded-md text-[10px] font-mono">${t}</span>`).join('');
+
+      detailsPanel.innerHTML = `
+        <div class="flex flex-col gap-6 animate-modal-card justify-between h-full">
+          <div class="flex flex-col gap-6">
+            <!-- Header row -->
+            <div class="flex justify-between items-start gap-4 pb-4 border-b border-white/5">
+              <div>
+                <span class="text-[10px] font-mono text-cyan-400 font-semibold tracking-[0.2em] block mb-1">SYNERGY_PIPELINE // CONNECTED</span>
+                <h3 class="text-3xl md:text-4xl font-normal text-white font-display tracking-tight">${s.title}</h3>
+              </div>
+              <span class="text-[9px] font-mono px-2.5 py-1 rounded-full border bg-${diff.color}-500/10 border-${diff.color}-500/30 text-${diff.color}-400 flex-shrink-0 font-medium">${diff.label}</span>
+            </div>
+
+            <!-- Pipeline Diagram -->
+            <div class="bg-black/20 border border-white/5 rounded-2xl p-6 flex flex-wrap items-center justify-center gap-4 min-h-[100px]">
+              ${toolsHtml}
+            </div>
+
+            <!-- Result -->
+            <div class="bg-cyan-500/5 border border-cyan-500/10 rounded-xl px-5 py-4">
+              <p class="text-xs text-white/95 leading-relaxed font-light font-mono">
+                <span class="text-cyan-400 font-bold">&gt; OUTPUT:</span> ${s.result}
+              </p>
+            </div>
+
+            <!-- Walkthrough -->
+            <div class="flex flex-col">
+              <span class="text-[10px] font-mono text-zinc-500 block mb-2 font-semibold tracking-wider">HOW IT WORKS // РУКОВОДСТВО</span>
+              <p class="text-sm text-zinc-300 leading-relaxed font-normal whitespace-pre-wrap">${s.detail}</p>
+            </div>
+          </div>
+
+          <!-- Tags at bottom -->
+          <div class="flex flex-wrap gap-1.5 pt-4 border-t border-white/5 mt-6">
+            ${tagsHtml}
+          </div>
+        </div>
+      `;
     }
 
     // =========================================================================
@@ -2958,7 +3127,7 @@ filesystem, browser-use, github-mcp`
     }
 
     // --- Initialize all sections on page load ---
-    renderSynergies();
+    renderSynergiesDashboard();
     renderHacksGrid('ALL');
     renderDevlogsPlaylist();
     selectDevlog('devlog_1');
