@@ -692,6 +692,13 @@
       }
     }
 
+    /* GPU Hardware Acceleration for background videos to prevent rendering lag */
+    video {
+      will-change: transform;
+      transform: translate3d(0, 0, 0);
+      backface-visibility: hidden;
+    }
+
   </style>
 </head>
 <body class="relative min-h-screen selection:bg-cyan-500/30 selection:text-cyan-200">
@@ -3213,11 +3220,48 @@ filesystem, browser-use, github-mcp`
       if (closeIcon) closeIcon.classList.add('hidden');
       document.body.style.overflow = ''; // Unlock main scrolling
     }
+
+    // --- Performance Engine: Dynamic Video Play/Pause on Scroll ---
+    function setupVideoPerformanceEngine() {
+      const videos = document.querySelectorAll('video[autoplay]');
+      if ('IntersectionObserver' in window && videos.length > 0) {
+        const observerOptions = {
+          root: null,
+          rootMargin: '100px', // Resume playing slightly before it rolls in
+          threshold: 0.01
+        };
+
+        const videoObserver = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            const video = entry.target;
+            if (entry.isIntersecting) {
+              if (video.paused) {
+                video.play().catch(err => {
+                  console.debug('[NEUROSTAGE PERFORMANCE] Autoplay play blocked or pending:', err);
+                });
+              }
+            } else {
+              if (!video.paused) {
+                video.pause();
+              }
+            }
+          });
+        }, observerOptions);
+
+        videos.forEach(video => {
+          videoObserver.observe(video);
+          // Set preload to metadata to save bandwidth
+          video.setAttribute('preload', 'metadata');
+        });
+      }
+    }
+
     // --- Initialize all sections on page load ---
     renderSynergiesDashboard();
     renderHacksGrid('ALL');
     renderDevlogsPlaylist();
     selectDevlog('devlog_1');
+    setupVideoPerformanceEngine();
 
     // --- Export interactive functions to global scope safely ---
     window.toggleMobileMenu = toggleMobileMenu;
