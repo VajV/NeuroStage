@@ -1168,11 +1168,15 @@
             </div>
             
             <!-- Sidebar Footer (Developer Gate) -->
-            <div class="border-t border-white/5 pt-4 flex flex-col gap-3">
-              <span class="text-[9px] font-mono text-zinc-500 uppercase tracking-widest block">// DEV CORE GATEWAY</span>
-              <button onclick="openPinOverlay()" class="w-full bg-cyan-400/10 border border-cyan-400/20 hover:border-cyan-400/50 hover:bg-cyan-400/20 text-cyan-400 font-mono text-[10px] py-2.5 rounded-lg transition-all active:scale-95 cursor-pointer uppercase font-semibold">
-                Developer Console
-              </button>
+            <div class="border-t border-white/5 pt-4 flex flex-col gap-2 font-mono text-[9px] text-zinc-500">
+              <div class="flex justify-between">
+                <span>LAB SYSTEM:</span>
+                <span class="text-cyan-400">ACTIVE</span>
+              </div>
+              <div class="flex justify-between">
+                <span>SECURITY:</span>
+                <span class="text-emerald-400">SECURE</span>
+              </div>
             </div>
           </div>
           
@@ -2138,7 +2142,14 @@
     // =========================================================================
     // 9. LABORATORY ADMIN PANEL — PIN Gate, CRUD, Dynamic Bento Grid, JSON Export
     // =========================================================================
-    const DEV_PIN = '1337';
+    const DEV_PIN_HASH = '8323a63f9cfb715694a55850937a0980f7d5494cb7742118330ab452140a3311';
+
+    async function sha256(message) {
+      const msgBuffer = new TextEncoder().encode(message);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
 
     // --- Default fallback projects (shown on first load when localStorage is empty) ---
     const defaultProjects = [
@@ -2308,9 +2319,10 @@
       if (e.key === 'Enter') submitPin();
     }
 
-    function submitPin() {
+    async function submitPin() {
       const input = document.getElementById('dev-pin-input');
-      if (input.value === DEV_PIN) {
+      const hashed = await sha256(input.value);
+      if (hashed === DEV_PIN_HASH) {
         closePinOverlay();
         setTimeout(() => { openAdminPortal(); }, 150);
       } else {
@@ -2323,6 +2335,14 @@
         }, 1200);
       }
     }
+
+    // Secret developer hotkeys to trigger the PIN Overlay: Ctrl + Shift + D or Ctrl + Shift + L
+    window.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.shiftKey && (e.key.toLowerCase() === 'd' || e.key.toLowerCase() === 'l')) {
+        e.preventDefault();
+        openPinOverlay();
+      }
+    });
 
     // --- Admin Portal Controllers ---
     function openAdminPortal() {
@@ -3157,8 +3177,6 @@ filesystem, browser-use, github-mcp`
         <button onclick="closePinOverlay()" class="w-1/2 border border-white/5 bg-white/5 hover:bg-white/10 text-white/70 hover:text-white rounded-lg py-2 text-xs transition-colors font-mono uppercase">Cancel</button>
         <button onclick="submitPin()" class="w-1/2 bg-cyan-400/20 border border-cyan-400/30 hover:border-cyan-400 text-cyan-400 rounded-lg py-2 text-xs transition-colors font-mono uppercase font-semibold">Verify</button>
       </div>
-      
-      <span class="text-[9px] font-mono text-zinc-600 mt-4 block">DEFAULT PIN: 1337</span>
     </div>
   </div>
 
