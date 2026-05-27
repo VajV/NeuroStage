@@ -1599,8 +1599,11 @@
        DASHBOARD JAVASCRIPT CONTROLLERS
        ========================================================================== -->
   <script>
-    // 1. Navigation scroll blur effect
-    const navbar = document.getElementById('navbar');
+    (function() {
+      "use strict";
+
+      // 1. Navigation scroll blur effect
+      const navbar = document.getElementById('navbar');
     window.addEventListener('scroll', () => {
       if (window.scrollY > 50) {
         navbar.classList.add('bg-black/55', 'backdrop-blur-md', 'border-b', 'border-white/10', 'py-4');
@@ -3211,13 +3214,50 @@ filesystem, browser-use, github-mcp`
       if (closeIcon) closeIcon.classList.add('hidden');
       document.body.style.overflow = ''; // Unlock main scrolling
     }
-
     // --- Initialize all sections on page load ---
     renderSynergiesDashboard();
     renderHacksGrid('ALL');
     renderDevlogsPlaylist();
     selectDevlog('devlog_1');
 
+    // --- Export interactive functions to global scope safely ---
+    window.toggleMobileMenu = toggleMobileMenu;
+    window.closeMobileMenu = closeMobileMenu;
+    window.prevCoverflow = prevCoverflow;
+    window.nextCoverflow = nextCoverflow;
+    window.handleCardClick = handleCardClick;
+    window.toggleAudio = toggleAudio;
+    window.filterHacks = filterHacks;
+    window.closeCategoryModal = closeCategoryModal;
+    window.navigateModalCategory = navigateModalCategory;
+    window.toggleVerdictInline = toggleVerdictInline;
+    window.selectLabProject = selectLabProject;
+    window.selectSynergy = selectSynergy;
+    window.selectDevlog = selectDevlog;
+    window.toggleHackExpand = toggleHackExpand;
+    window.copyAttachedMaterials = copyAttachedMaterials;
+    window.openPinOverlay = openPinOverlay;
+    window.closePinOverlay = closePinOverlay;
+    window.handlePinKeyPress = handlePinKeyPress;
+    window.submitPin = submitPin;
+    window.closeAdminPortal = closeAdminPortal;
+    window.switchAdminTab = switchAdminTab;
+    window.resetAdminForm = resetAdminForm;
+    window.resetHackForm = resetHackForm;
+    window.editProject = editProject;
+    window.deleteProject = deleteProject;
+    window.saveProject = saveProject;
+    window.exportProjectsJSON = exportProjectsJSON;
+    window.editHack = editHack;
+    window.deleteHack = deleteHack;
+    window.saveHack = saveHack;
+    window.handleVolumeChange = handleVolumeChange;
+    window.handleImageUpload = handleImageUpload;
+    window.copyPrompt = copyPrompt;
+    window.checkSphinxAnswer = checkSphinxAnswer;
+    window.handleHacksSearch = handleHacksSearch;
+
+  })();
   </script>
 
   <!-- Dev PIN Access Overlay -->
