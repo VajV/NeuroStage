@@ -2151,6 +2151,36 @@
       return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
+    // --- Session Auth Token (generated on successful PIN, checked by all CRUD ops) ---
+    let _adminAuthToken = null;
+
+    function _isAdminAuthed() {
+      return _adminAuthToken !== null;
+    }
+
+    function _requireAdmin(actionName) {
+      if (!_isAdminAuthed()) {
+        console.warn('[NEUROSTAGE SECURITY] Unauthorized call to ' + actionName + '() blocked. Authenticate via PIN first.');
+        return false;
+      }
+      return true;
+    }
+
+    // --- XSS Sanitizer: escapes all HTML special characters ---
+    function escapeHTML(str) {
+      if (typeof str !== 'string') return '';
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // --- Brute-force rate limiter ---
+    let _pinAttempts = 0;
+    let _pinLockoutUntil = 0;
+
     // --- Default fallback projects (shown on first load when localStorage is empty) ---
     const defaultProjects = [
       {
@@ -2247,7 +2277,7 @@
         const activeClass = isActive ? 'active-sidebar-tab' : '';
         return `
           <button onclick="selectLabProject('${p.id}')" class="project-tab-btn ${activeClass} flex items-center justify-between w-full text-left font-mono text-[10px] px-4 py-3 rounded-lg border border-transparent text-[#ababaf] hover:text-white hover:bg-white/5 transition-all cursor-pointer" data-project-id="${p.id}">
-            <span class="truncate pr-2">${p.name.toUpperCase()}</span>
+            <span class="truncate pr-2">${escapeHTML(p.name.toUpperCase())}</span>
             <span class="text-[9px] ${p.status === 'ONLINE' ? 'text-emerald-400' : 'text-amber-400'} flex-shrink-0">●</span>
           </button>
         `;
@@ -2256,10 +2286,10 @@
       // Render active project details
       const p = projects.find(x => x.id === activeProjectId) || projects[0];
       const statusBadge = getStatusBadge(p.status);
-      const tagsHtml = p.tags ? p.tags.split(',').map(t => `<span class="bg-white/5 border border-white/5 text-zinc-400 px-2.5 py-1 rounded-md text-[10px] font-mono">${t.trim()}</span>`).join('') : '';
+      const tagsHtml = p.tags ? p.tags.split(',').map(t => `<span class="bg-white/5 border border-white/5 text-zinc-400 px-2.5 py-1 rounded-md text-[10px] font-mono">${escapeHTML(t.trim())}</span>`).join('') : '';
       const imgHtml = p.image ? `
         <div class="w-full h-44 rounded-xl overflow-hidden border border-white/10 bg-zinc-950/40 relative shadow-inner group mb-6">
-          <img src="${p.image}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="${p.name}" />
+          <img src="${escapeHTML(p.image)}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="${escapeHTML(p.name)}" />
         </div>` : '';
 
       detailsPanel.innerHTML = `
@@ -2268,17 +2298,17 @@
           <div class="flex justify-between items-start gap-4 pb-4 border-b border-white/5">
             <div>
               <span class="text-[10px] font-mono text-cyan-400 font-semibold tracking-[0.2em] block mb-1">PROJECT_DETAILS // MODULE_03</span>
-              <h3 class="text-3xl md:text-4xl font-normal text-white font-display tracking-tight">${p.name}</h3>
+              <h3 class="text-3xl md:text-4xl font-normal text-white font-display tracking-tight">${escapeHTML(p.name)}</h3>
             </div>
             ${statusBadge}
           </div>
           
           <!-- Slogan / Tagline -->
-          <p class="text-base text-zinc-300 font-light leading-relaxed italic border-l-2 border-cyan-400/40 pl-4 py-1">${p.tagline}</p>
+          <p class="text-base text-zinc-300 font-light leading-relaxed italic border-l-2 border-cyan-400/40 pl-4 py-1">${escapeHTML(p.tagline)}</p>
           
           <!-- Detailed Description -->
           <div class="text-sm text-[#ababaf] leading-relaxed font-normal whitespace-pre-wrap">
-            ${p.description || 'Нет описания.'}
+            ${escapeHTML(p.description || 'Нет описания.')}
           </div>
           
           <!-- Screenshot (if present) -->
@@ -2321,14 +2351,40 @@
 
     async function submitPin() {
       const input = document.getElementById('dev-pin-input');
+
+      // Rate limiter: block if locked out
+      const now = Date.now();
+      if (now < _pinLockoutUntil) {
+        const secsLeft = Math.ceil((_pinLockoutUntil - now) / 1000);
+        input.value = '';
+        input.placeholder = 'LOCKOUT ' + secsLeft + 's';
+        input.style.borderColor = '#ef4444';
+        return;
+      }
+
       const hashed = await sha256(input.value);
       if (hashed === DEV_PIN_HASH) {
+        // Generate cryptographic session token
+        const tokenArray = new Uint8Array(32);
+        crypto.getRandomValues(tokenArray);
+        _adminAuthToken = Array.from(tokenArray).map(b => b.toString(16).padStart(2, '0')).join('');
+        _pinAttempts = 0;
         closePinOverlay();
         setTimeout(() => { openAdminPortal(); }, 150);
       } else {
+        _pinAttempts++;
+        // After 3 failed attempts, lock out for 30s * attempt multiplier
+        if (_pinAttempts >= 3) {
+          const lockSeconds = 30 * Math.pow(2, _pinAttempts - 3); // 30s, 60s, 120s...
+          _pinLockoutUntil = Date.now() + lockSeconds * 1000;
+          input.value = '';
+          input.placeholder = 'LOCKED ' + lockSeconds + 's';
+          input.style.borderColor = '#ef4444';
+          return;
+        }
         input.style.borderColor = '#ef4444';
         input.value = '';
-        input.placeholder = 'НЕВЕРНЫЙ PIN';
+        input.placeholder = 'НЕВЕРНЫЙ PIN (' + (3 - _pinAttempts) + ' left)';
         setTimeout(() => {
           input.style.borderColor = '';
           input.placeholder = '••••';
@@ -2346,6 +2402,7 @@
 
     // --- Admin Portal Controllers ---
     function openAdminPortal() {
+      if (!_requireAdmin('openAdminPortal')) return;
       const modal = document.getElementById('admin-portal-modal');
       modal.classList.add('modal-active');
       document.body.style.overflow = 'hidden';
@@ -2357,6 +2414,8 @@
       modal.classList.remove('modal-active');
       document.body.style.overflow = '';
       resetAdminForm();
+      // Invalidate session token on close — require re-auth next time
+      _adminAuthToken = null;
     }
 
     // --- Render the admin projects list sidebar ---
@@ -2385,6 +2444,7 @@
 
     // --- CRUD: Add / Edit / Delete ---
     function saveProject() {
+      if (!_requireAdmin('saveProject')) return;
       const editId = document.getElementById('edit-project-id').value;
       const name = document.getElementById('proj-name').value.trim();
       if (!name) { document.getElementById('proj-name').style.borderColor = '#ef4444'; return; }
@@ -2425,6 +2485,7 @@
     }
 
     function editProject(id) {
+      if (!_requireAdmin('editProject')) return;
       const projects = getProjects();
       const p = projects.find(proj => proj.id === id);
       if (!p) return;
@@ -2445,6 +2506,7 @@
     }
 
     function deleteProject(id) {
+      if (!_requireAdmin('deleteProject')) return;
       let projects = getProjects();
       projects = projects.filter(p => p.id !== id);
       saveProjectsToStorage(projects);
@@ -2485,6 +2547,7 @@
 
     // --- JSON Export ---
     function exportProjectsJSON() {
+      if (!_requireAdmin('exportProjectsJSON')) return;
       const projects = getProjects();
       const blob = new Blob([JSON.stringify(projects, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
@@ -2897,7 +2960,7 @@ filesystem, browser-use, github-mcp`
       }
       
       container.innerHTML = hacks.map((h, idx) => {
-        const toolTags = (h.tools || '').split(',').map(t => `<span class="bg-white/5 border border-white/5 text-zinc-400 px-2 py-0.5 rounded text-[9px] font-mono">${t.trim()}</span>`).join('');
+        const toolTags = (h.tools || '').split(',').map(t => `<span class="bg-white/5 border border-white/5 text-zinc-400 px-2 py-0.5 rounded text-[9px] font-mono">${escapeHTML(t.trim())}</span>`).join('');
         const isExpanded = h.id === expandedHackId;
         const expandArrow = isExpanded ? '▲' : '▼';
         
@@ -2911,7 +2974,7 @@ filesystem, browser-use, github-mcp`
               <!-- Name Column -->
               <div class="flex-1 pr-4">
                 <span class="text-xs font-medium text-white hover:text-cyan-400 transition-colors flex items-center gap-1.5">
-                  ${h.title}
+                  ${escapeHTML(h.title)}
                   <span class="text-[8px] text-zinc-600 font-mono">${expandArrow}</span>
                 </span>
               </div>
@@ -2928,7 +2991,7 @@ filesystem, browser-use, github-mcp`
               </div>
               
               <!-- Saving Column -->
-              <div class="w-24 text-right font-mono text-[10px] text-emerald-400 font-semibold">${h.saving || '—'}</div>
+              <div class="w-24 text-right font-mono text-[10px] text-emerald-400 font-semibold">${escapeHTML(h.saving || '—')}</div>
             </div>
             
             <!-- Expanded Details Accordion -->
@@ -2936,7 +2999,7 @@ filesystem, browser-use, github-mcp`
               <div class="px-4 pb-5 pt-2 border-t border-white/5 bg-black/35 flex flex-col gap-3 transition-all animate-modal-card">
                 <div class="text-xs text-zinc-400 leading-relaxed font-light">
                   <span class="text-cyan-400/70 font-mono text-[10px] uppercase block mb-1">// DESCRIPTION:</span>
-                  ${h.description}
+                  ${escapeHTML(h.description)}
                 </div>
                 <div class="flex flex-wrap gap-1.5 items-center mt-1">
                   <span class="text-zinc-600 font-mono text-[9px] uppercase mr-1.5">STACK:</span>
@@ -2965,6 +3028,7 @@ filesystem, browser-use, github-mcp`
 
     // --- Hacks CRUD ---
     function saveHack() {
+      if (!_requireAdmin('saveHack')) return;
       const editId = document.getElementById('edit-hack-id').value;
       const title = document.getElementById('hack-title').value.trim();
       if (!title) { document.getElementById('hack-title').style.borderColor = '#ef4444'; return; }
@@ -2995,6 +3059,7 @@ filesystem, browser-use, github-mcp`
     }
 
     function editHack(id) {
+      if (!_requireAdmin('editHack')) return;
       const h = getHacks().find(x => x.id === id);
       if (!h) return;
       document.getElementById('edit-hack-id').value = h.id;
@@ -3011,6 +3076,7 @@ filesystem, browser-use, github-mcp`
     }
 
     function deleteHack(id) {
+      if (!_requireAdmin('deleteHack')) return;
       let hacks = getHacks().filter(h => h.id !== id);
       saveHacksToStorage(hacks);
       renderHacksGrid(currentHackFilter);
