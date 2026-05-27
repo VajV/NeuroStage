@@ -2336,9 +2336,9 @@
       }
     }
 
-    // Secret developer hotkeys to trigger the PIN Overlay: Ctrl + Shift + D or Ctrl + Shift + L
+    // Secret developer hotkeys to trigger the PIN Overlay: Ctrl + Alt + D
     window.addEventListener('keydown', (e) => {
-      if (e.ctrlKey && e.shiftKey && (e.key.toLowerCase() === 'd' || e.key.toLowerCase() === 'l')) {
+      if (e.ctrlKey && e.altKey && e.key.toLowerCase() === 'd') {
         e.preventDefault();
         openPinOverlay();
       }
