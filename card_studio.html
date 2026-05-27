@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NeuroStage // Business Card Studio</title>
+  <!-- Tailwind CSS for Studio UI styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts for premium typography -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700;800&family=Playfair+Display:ital,wght@0,700;1,400&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: radial-gradient(circle at 50% 50%, #0c0d12 0%, #030305 100%);
+      color: #e4e4e7;
+    }
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+    }
+    .neon-border-cyan {
+      box-shadow: 0 0 15px rgba(6, 182, 212, 0.15);
+      border-color: rgba(6, 182, 212, 0.3);
+    }
+    /* Printable card preview canvas styling */
+    #preview-container {
+      perspective: 1000px;
+    }
+    .card-element {
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+      transition: transform 0.1s ease-out;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between py-6 px-4 md:px-8 overflow-x-hidden">
+
+  <!-- Header -->
+  <header class="max-w-7xl w-full mx-auto flex items-center justify-between mb-6 border-b border-white/5 pb-4">
+    <div class="flex items-center gap-3">
+      <span class="text-xl">✂️</span>
+      <div>
+        <h1 class="text-base font-bold tracking-wider text-white font-mono uppercase">Card Studio // 300 DPI</h1>
+        <p class="text-[10px] text-zinc-500 font-mono">РЕАКТИВНЫЙ МАКЕТ ВИЗИТКИ ДЛЯ ТИПОГРАФИИ</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+      <span class="text-[10px] text-zinc-400 font-mono uppercase">Ready for Print (92x52mm)</span>
+    </div>
+  </header>
+
+  <!-- Main content grid -->
+  <main class="max-w-7xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start my-auto">
+    
+    <!-- Left panel: Inputs & Controls (5 cols) -->
+    <section class="lg:col-span-5 flex flex-col gap-6">
+      
+      <!-- Editor Panel -->
+      <div class="glass-panel rounded-2xl p-6 flex flex-col gap-5">
+        <h2 class="text-sm font-semibold text-white font-mono border-b border-white/5 pb-2 uppercase tracking-wider flex items-center justify-between">
+          <span>Редактор данных</span>
+          <span class="text-[10px] text-cyan-400 font-normal">Параметры визитки</span>
+        </h2>
+        
+        <!-- Input fields -->
+        <div class="flex flex-col gap-4">
+          
+          <!-- Title -->
+          <div>
+            <label class="block text-[10px] font-mono text-zinc-400 uppercase tracking-wider mb-1">Заголовок (Строка 1)</label>
+            <input 
+              type="text" 
+              id="input-title1" 
+              value="Парикмахерская" 
+              class="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400 transition-colors font-sans"
+              oninput="updateCard()"
+            />
+          </div>
+
+          <!-- Subtitle / Name -->
+          <div>
+            <label class="block text-[10px] font-mono text-zinc-400 uppercase tracking-wider mb-1">Название / Имя (Строка 2)</label>
+            <input 
+              type="text" 
+              id="input-title2" 
+              value="Марианна" 
+              class="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400 transition-colors font-sans font-bold"
+              oninput="updateCard()"
+            />
+          </div>
+
+          <!-- Phone Number -->
+          <div>
+            <label class="block text-[10px] font-mono text-zinc-400 uppercase tracking-wider mb-1">Номер телефона</label>
+            <input 
+              type="text" 
+              id="input-phone" 
+              value="8-918-910-03-58" 
+              class="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400 transition-colors font-mono font-bold"
+              oninput="updateCard()"
+            />
+          </div>
+
+          <!-- Services List -->
+          <div>
+            <label class="block text-[10px] font-mono text-zinc-400 uppercase tracking-wider mb-1">Список услуг (одна на строку)</label>
+            <textarea 
+              id="input-services" 
+              rows="6" 
+              class="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400 transition-colors font-mono leading-relaxed resize-none"
+              oninput="updateCard()"
+            >СТРИЖКИ ЖЕНСКИЕ
+СТРИЖКИ МУЖСКИЕ
+СТРИЖКИ ДЕТСКИЕ
+ПОКРАСКА ВОЛОС
+УКЛАДКА ПРИЧЕСКИ
+МАНИКЮР
+ПЕДИКЮР
+КОРРЕКЦИЯ И ПОКРАСКА БРОВЕЙ</textarea>
+          </div>
+          
+          <!-- Font Selection -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[10px] font-mono text-zinc-400 uppercase tracking-wider mb-1">Шрифт названия</label>
+              <select 
+                id="font-select" 
+                class="w-full bg-black/40 border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-400 transition-colors"
+                onchange="updateCard()"
+              >
+                <option value="Montserrat">Montserrat</option>
+                <option value="Rubik">Rubik</option>
+                <option value="Inter">Inter (Sans)</option>
+                <option value="Arial">Arial (Classic)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[10px] font-mono text-zinc-400 uppercase tracking-wider mb-1">Цвет фона</label>
+              <div class="flex gap-2 items-center h-8 mt-0.5">
+                <input 
+                  type="color" 
+                  id="color-bg" 
+                  value="#e03c2f" 
+                  class="bg-transparent border-0 cursor-pointer h-8 w-8 rounded overflow-hidden" 
+                  oninput="updateCard()"
+                />
+                <span class="text-xs font-mono text-zinc-400" id="color-hex">#e03c2f</span>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+
+      </div>
+
+    </section>
+    
+    <!-- Right panel: Interactive Preview & Downloads (7 cols) -->
+    <section class="lg:col-span-7 flex flex-col gap-6 items-center">
+      
+      <!-- Interactive Screen Box -->
+      <div class="w-full glass-panel rounded-2xl p-6 flex flex-col items-center gap-6 relative overflow-hidden">
+        
+        <!-- Background decorative elements -->
+        <div class="absolute -top-24 -left-24 w-48 h-48 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-red-500/5 rounded-full blur-3xl pointer-events-none"></div>
+        
+        <!-- Header Info inside Preview Box -->
+        <div class="w-full flex items-center justify-between font-mono text-[10px] text-zinc-500 border-b border-white/5 pb-3">
+          <span class="flex items-center gap-1.5">
+            <span class="h-1.5 w-1.5 rounded-full bg-cyan-400"></span>
+            PREVIEW // 3D INTERACTIVE VIEW
+          </span>
+          <span>Размер: 92x52 мм (с полями вылета)</span>
+        </div>
+        
+        <!-- 3D Interactive Card Preview Container -->
+        <div id="preview-container" class="w-full flex items-center justify-center py-6 select-none">
+          <!-- Canvas representing the physical card -->
+          <canvas 
+            id="cardCanvas" 
+            width="1086" 
+            height="614" 
+            class="card-element max-w-full h-auto rounded-md cursor-grab active:cursor-grabbing origin-center"
+            style="width: 543px; height: 307px; border: 1px solid rgba(255,255,255,0.15);"
+          ></canvas>
+        </div>
+        
+        <!-- Guidelines Toggle / Info -->
+        <div class="w-full text-zinc-500 text-[10px] font-mono leading-relaxed bg-black/30 rounded-xl p-3 border border-white/5 flex flex-col gap-2">
+          <div class="flex items-center justify-between text-zinc-400">
+            <span class="font-bold text-cyan-400 flex items-center gap-1">ℹ️ Информация о допуске:</span>
+            <span>300 DPI // 1086 × 614 px</span>
+          </div>
+          <div>• <strong class="text-zinc-300">Внешняя граница (1086x614px / 92x52мм):</strong> Полный дообрезной формат. Фон должен заходить до самого края!</div>
+          <div>• <strong class="text-zinc-300">Красная рамка (90x50мм):</strong> Физический размер готовой визитки после реза.</div>
+          <div>• <strong class="text-zinc-300">Синяя рамка (84x44мм):</strong> Безопасная зона. Все логотипы, текст и контакты находятся внутри неё, исключая риск обреза!</div>
+          
+          <div class="mt-2 pt-2 border-t border-white/5 flex gap-4 justify-center">
+            <label class="flex items-center gap-2 cursor-pointer select-none text-zinc-400 hover:text-white transition-colors">
+              <input type="checkbox" id="show-guidelines" class="rounded bg-black/40 border-white/10 text-cyan-500 focus:ring-0" checked onchange="updateCard()">
+              Показывать технические рамки (только для предпросмотра)
+            </label>
+          </div>
+        </div>
+
+        <!-- Download Buttons -->
+        <div class="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+          
+          <!-- Download PNG -->
+          <button 
+            onclick="downloadPNG()" 
+            class="bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-500/40 hover:border-emerald-400 hover:from-emerald-500/30 hover:to-teal-500/30 text-emerald-300 font-semibold rounded-xl py-3 text-xs tracking-wider transition-all scale-100 active:scale-95 font-mono uppercase flex items-center justify-center gap-2 shadow-lg"
+          >
+            💾 СКАЧАТЬ PNG (300 DPI)
+          </button>
+
+          <!-- Download SVG -->
+          <button 
+            onclick="downloadSVG()" 
+            class="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/40 hover:border-cyan-400 hover:from-cyan-500/30 hover:to-blue-500/30 text-cyan-300 font-semibold rounded-xl py-3 text-xs tracking-wider transition-all scale-100 active:scale-95 font-mono uppercase flex items-center justify-center gap-2 shadow-lg"
+          >
+            📐 СКАЧАТЬ ВЕКТОРНЫЙ SVG
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="max-w-7xl w-full mx-auto text-center text-[10px] text-zinc-600 font-mono border-t border-white/5 pt-4 mt-6">
+    <span>© 2026 NEUROSTAGE CARD STUDIO. ВСЕ ПРАВА ЗАЩИЩЕНЫ. РАЗМЕР В РАЗМЕР 92x52 MM @ 300 DPI.</span>
+  </footer>
+
+  <!-- Script logic -->
+  <script>
+    const canvas = document.getElementById('cardCanvas');
+    const ctx = canvas.getContext('2d');
+    const container = document.getElementById('preview-container');
+
+    // samplers
+    const title1Input = document.getElementById('input-title1');
+    const title2Input = document.getElementById('input-title2');
+    const phoneInput = document.getElementById('input-phone');
+    const servicesInput = document.getElementById('input-services');
+    const fontSelect = document.getElementById('font-select');
+    const colorBg = document.getElementById('color-bg');
+    const colorHex = document.getElementById('color-hex');
+    const showGuidelinesCheck = document.getElementById('show-guidelines');
+
+    // 3D Tilt Card effect
+    let isMoving = false;
+    
+    container.addEventListener('mousemove', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left - (rect.width / 2);
+      const y = e.clientY - rect.top - (rect.height / 2);
+      
+      const tiltX = (y / (rect.height / 2)) * -12; // Max angle 12deg
+      const tiltY = (x / (rect.width / 2)) * 12;
+      
+      canvas.style.transform = `rotateX(${tiltX}deg) rotateY(${tiltY}deg) scale(1.03)`;
+    });
+
+    container.addEventListener('mouseleave', () => {
+      canvas.style.transform = 'rotateX(0deg) rotateY(0deg) scale(1)';
+    });
+
+    // Helper: Draw Circular Comb and Scissors logo
+    function drawLogo(ctx, cx, cy, r) {
+      ctx.save();
+      
+      // Draw outer circle frame
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 6;
+      ctx.stroke();
+
+      // Slightly smaller inner circle outline accent
+      ctx.beginPath();
+      ctx.arc(cx, cy, r - 8, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Translate context to center of logo for easy drawing
+      ctx.translate(cx, cy);
+      ctx.rotate(-Math.PI / 6); // Slanted look
+
+      // 1. Draw the Comb
+      ctx.save();
+      ctx.fillStyle = '#ffffff';
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2;
+      
+      // Comb spine (slanted bar)
+      const spineW = 14;
+      const spineH = 140;
+      ctx.fillRect(-spineW/2 - 20, -spineH/2, spineW, spineH);
+      
+      // Comb teeth
+      const numTeeth = 24;
+      const toothL = 30;
+      const toothW = 3;
+      const toothGap = 5;
+      
+      for (let i = 0; i < numTeeth; i++) {
+        const ty = -spineH/2 + 5 + i * (toothW + toothGap);
+        if (ty + toothW > spineH/2 - 5) break;
+        ctx.fillRect(-spineW/2 - 20 + spineW, ty, toothL, toothW);
+      }
+      ctx.restore();
+
+      // 2. Draw the Scissors (Crossing over the comb)
+      ctx.save();
+      ctx.rotate(Math.PI / 3.5); // Crossed orientation
+      ctx.fillStyle = '#ffffff';
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineJoin = 'round';
+      ctx.lineCap = 'round';
+
+      // Scissors Pivot screw
+      ctx.beginPath();
+      ctx.arc(0, -10, 4, 0, Math.PI*2);
+      ctx.fillStyle = colorBg.value;
+      ctx.fill();
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.fillStyle = '#ffffff';
+
+      // Blades (Top half)
+      // Blade 1
+      ctx.beginPath();
+      ctx.moveTo(-3, -10);
+      ctx.lineTo(-8, -80);
+      ctx.quadraticCurveTo(-5, -85, 0, -80);
+      ctx.lineTo(2, -10);
+      ctx.closePath();
+      ctx.fill();
+      
+      // Blade 2
+      ctx.beginPath();
+      ctx.moveTo(3, -10);
+      ctx.lineTo(8, -80);
+      ctx.quadraticCurveTo(5, -85, 0, -80);
+      ctx.lineTo(-2, -10);
+      ctx.closePath();
+      ctx.fill();
+
+      // Handles / Shafts (Bottom half)
+      ctx.lineWidth = 7;
+      
+      // Shaft 1
+      ctx.beginPath();
+      ctx.moveTo(-2, -5);
+      ctx.lineTo(-12, 35);
+      ctx.stroke();
+
+      // Shaft 2
+      ctx.beginPath();
+      ctx.moveTo(2, -5);
+      ctx.lineTo(12, 35);
+      ctx.stroke();
+
+      // Rings / Finger holes
+      ctx.lineWidth = 6;
+      
+      // Ring 1
+      ctx.beginPath();
+      ctx.arc(-22, 50, 18, 0, Math.PI*2);
+      ctx.stroke();
+
+      // Ring 2
+      ctx.beginPath();
+      ctx.arc(22, 50, 18, 0, Math.PI*2);
+      ctx.stroke();
+
+      // Small finger rest rest-pin (flange) on Ring 1
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.moveTo(-35, 60);
+      ctx.quadraticCurveTo(-45, 68, -48, 62);
+      ctx.stroke();
+
+      ctx.restore();
+      ctx.restore();
+    }
+
+    // Core function: Render Card onto canvas
+    function updateCard() {
+      // Hex display
+      colorHex.innerText = colorBg.value.toUpperCase();
+
+      // Background fill
+      ctx.fillStyle = colorBg.value;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const fontName = fontSelect.value;
+      
+      // Left side Centered stack
+      const leftColX = 295; // X coordinate for left column center
+      
+      // 1. Title Line 1: "Парикмахерская"
+      ctx.save();
+      ctx.fillStyle = '#ffffff';
+      ctx.textAlign = 'center';
+      ctx.font = `600 35px '${fontName}', 'Inter', sans-serif`;
+      ctx.fillText(title1Input.value.toUpperCase(), leftColX, 105);
+      
+      // 2. Title Line 2: "Марианна"
+      ctx.font = `800 52px '${fontName}', 'Inter', sans-serif`;
+      ctx.fillText(title2Input.value, leftColX, 165);
+      ctx.restore();
+
+      // 3. Logo comb/scissors
+      drawLogo(ctx, leftColX, 335, 115);
+
+      // 4. Contact Phone (Bottom Left)
+      ctx.save();
+      ctx.fillStyle = '#ffffff';
+      ctx.textAlign = 'center';
+      ctx.font = `800 42px 'Montserrat', sans-serif`;
+      ctx.fillText(phoneInput.value, leftColX, 530);
+      ctx.restore();
+
+      // Right side Left-aligned stack (List of services)
+      const rightColX = 570; // Starting X coordinate of list
+      const services = servicesInput.value.split('\n').filter(s => s.trim() !== '');
+      
+      ctx.save();
+      ctx.fillStyle = '#ffffff';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+      
+      // Vertical spacing calculation
+      const startY = 85;
+      const totalH = 444; // Available height inside safe area
+      const rowSpacing = totalH / Math.max(services.length, 1);
+
+      ctx.font = `600 24px 'Montserrat', 'Inter', sans-serif`;
+
+      services.forEach((service, index) => {
+        const currentY = startY + index * Math.min(rowSpacing, 52);
+        
+        // Custom elegant custom round bullet
+        ctx.beginPath();
+        ctx.arc(rightColX + 10, currentY + 14, 5, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffffff';
+        ctx.fill();
+
+        // Service text
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText(service.toUpperCase().trim(), rightColX + 32, currentY);
+      });
+      ctx.restore();
+
+      // --- Draw technical overlay guides if checkbox is checked ---
+      if (showGuidelinesCheck.checked) {
+        ctx.save();
+        
+        // 1. Cut marks (90x50 mm, size from borders: 92x52 mm, bleeding is 1 mm on each side)
+        // 1 mm in 300 DPI is ~11.8 pixels. Bleeding width is 93 pixels left/right, 93 pixels top/bottom.
+        // Wait, standard calculations:
+        // Full Size: 92x52 mm (1086x614 pixels)
+        // Crop/Cut Line (90x50 mm): 90/92 of width. Margins are 1mm on each side.
+        // 1 mm = 300 DPI / 25.4 = 11.81 pixels. Let's make it exactly 12 pixels margin on all sides.
+        const cutMargin = 12;
+        const cutW = canvas.width - (cutMargin * 2);
+        const cutH = canvas.height - (cutMargin * 2);
+        
+        ctx.strokeStyle = '#ef4444'; // Red for cut line
+        ctx.lineWidth = 2;
+        ctx.setLineDash([8, 8]);
+        ctx.strokeRect(cutMargin, cutMargin, cutW, cutH);
+        
+        // Text tag for cut line
+        ctx.fillStyle = '#ef4444';
+        ctx.font = "bold 12px monospace";
+        ctx.fillText("ЛИНИЯ РЕЗА (90x50 мм)", cutMargin + 10, cutMargin + 20);
+
+        // 2. Safe zone (84x44 mm): Margin from trimmed edge is 3mm on all sides.
+        // 3mm = 3 * 11.81 pixels = 35.4 pixels. Let's make it exactly 36 pixels margin inside the trimmed border, 
+        // which is 12 + 36 = 48 pixels margin from full canvas boundaries.
+        const safeMargin = 48;
+        const safeW = canvas.width - (safeMargin * 2);
+        const safeH = canvas.height - (safeMargin * 2);
+        
+        ctx.strokeStyle = '#06b6d4'; // Cyan for safe zone
+        ctx.lineWidth = 2;
+        ctx.setLineDash([4, 4]);
+        ctx.strokeRect(safeMargin, safeMargin, safeW, safeH);
+        
+        // Text tag for safe zone
+        ctx.fillStyle = '#06b6d4';
+        ctx.fillText("БЕЗОПАСНАЯ ЗОНА (84x44 мм)", safeMargin + 10, safeMargin + 20);
+
+        ctx.restore();
+      }
+    }
+
+    // Download PNG file directly (Ensuring guidelines are disabled before saving!)
+    function downloadPNG() {
+      // Temporarily hide guidelines to capture the pure art
+      const wasChecked = showGuidelinesCheck.checked;
+      showGuidelinesCheck.checked = false;
+      updateCard();
+
+      // Capture canvas
+      const dataURL = canvas.toDataURL('image/png');
+      
+      const link = document.createElement('a');
+      link.download = `vizitka_marianna_300dpi.png`;
+      link.href = dataURL;
+      link.click();
+
+      // Restore guidelines if they were active
+      showGuidelinesCheck.checked = wasChecked;
+      updateCard();
+    }
+
+    // Download SVG vector file for lossless printing
+    function downloadSVG() {
+      const fontName = fontSelect.value;
+      const bgColor = colorBg.value;
+      const title1 = title1Input.value.toUpperCase();
+      const title2 = title2Input.value;
+      const phone = phoneInput.value;
+      const services = servicesInput.value.split('\n').filter(s => s.trim() !== '');
+
+      // Build SVG contents mathematically matching layout
+      let svgLines = '';
+      
+      const rightColX = 570;
+      const startY = 85;
+      const totalH = 444;
+      const rowSpacing = totalH / Math.max(services.length, 1);
+
+      services.forEach((service, index) => {
+        const currentY = startY + index * Math.min(rowSpacing, 52);
+        svgLines += `<circle cx="${rightColX + 10}" cy="${currentY + 14}" r="5" fill="#ffffff" />\n`;
+        svgLines += `<text x="${rightColX + 32}" y="${currentY + 22}" font-family="'Montserrat', sans-serif" font-weight="600" font-size="24" fill="#ffffff">${service.toUpperCase().trim()}</text>\n`;
+      });
+
+      // SVG markup
+      const svgContent = `<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="1086px" height="614px" viewBox="0 0 1086 614" style="enable-background:new 0 0 1086 614;" xml:space="preserve">
+<style type="text/css">
+	@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&amp;family=${fontName}:wght@600;800&amp;display=swap');
+	.bg { fill: ${bgColor}; }
+	.title-1 { font-family: '${fontName}', sans-serif; font-weight: 600; font-size: 35px; fill: #ffffff; text-anchor: middle; }
+	.title-2 { font-family: '${fontName}', sans-serif; font-weight: 800; font-size: 52px; fill: #ffffff; text-anchor: middle; }
+	.phone { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 42px; fill: #ffffff; text-anchor: middle; }
+</style>
+<rect class="bg" width="1086" height="614"/>
+
+<!-- Left centered column -->
+<text x="295" y="105" class="title-1">${title1}</text>
+<text x="295" y="165" class="title-2">${title2}</text>
+<text x="295" y="530" class="phone">${phone}</text>
+
+<!-- Logo Frame (Comb & Scissors) -->
+<g transform="translate(295, 335) rotate(-30)">
+  <!-- Circles -->
+  <circle cx="0" cy="0" r="115" stroke="#ffffff" stroke-width="6" fill="none" />
+  <circle cx="0" cy="0" r="107" stroke="#ffffff" stroke-width="2" stroke-opacity="0.3" fill="none" />
+  
+  <!-- Comb -->
+  <g transform="rotate(15)">
+    <!-- Spine -->
+    <rect x="-27" y="-70" width="14" height="140" fill="#ffffff" />
+    <!-- Teeth (simplified render for SVG crispness) -->
+    ${Array.from({length: 16}).map((_, i) => `<rect x="-13" y="${-62 + i * 8}" width="30" height="3" fill="#ffffff" />`).join('\n    ')}
+  </g>
+
+  <!-- Scissors -->
+  <g transform="rotate(66)">
+    <!-- Screw -->
+    <circle cx="0" cy="-10" r="4" fill="${bgColor}" stroke="#ffffff" stroke-width="2" />
+    <!-- Blade 1 -->
+    <path d="M -3 -10 L -8 -80 C -5 -85 0 -80 Z" fill="#ffffff" />
+    <!-- Blade 2 -->
+    <path d="M 3 -10 L 8 -80 C 5 -85 0 -80 Z" fill="#ffffff" />
+    <!-- Shafts -->
+    <line x1="-2" y1="-5" x2="-12" y2="35" stroke="#ffffff" stroke-width="7" />
+    <line x1="2" y1="-5" x2="12" y2="35" stroke="#ffffff" stroke-width="7" />
+    <!-- Rings -->
+    <circle cx="-22" cy="50" r="18" stroke="#ffffff" stroke-width="6" fill="none" />
+    <circle cx="22" cy="50" r="18" stroke="#ffffff" stroke-width="6" fill="none" />
+    <!-- rest-pin -->
+    <path d="M -35 60 Q -45 68 -48 62" stroke="#ffffff" stroke-width="5" fill="none" />
+  </g>
+</g>
+
+<!-- Right column services -->
+<g>
+  ${svgLines}
+</g>
+</svg>`;
+
+      const blob = new Blob([svgContent], {type: 'image/svg+xml;charset=utf-8'});
+      const url = URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.download = `vizitka_marianna_vector.svg`;
+      link.href = url;
+      link.click();
+    }
+
+    // Initialize layout on window load
+    window.addEventListener('load', () => {
+      // Wait for fonts to load before drawing to ensure correct alignment
+      document.fonts.ready.then(() => {
+        updateCard();
+      });
+    });
+  </script>
+</body>
+</html>
