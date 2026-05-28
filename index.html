@@ -1201,10 +1201,25 @@
     <section id="devlogs" class="relative w-full overflow-hidden py-24 scroll-mt-20">
       <!-- Section 4 Container -->
       <div class="max-w-7xl mx-auto px-8 relative z-10">
-        <h2 class="text-4xl sm:text-5xl font-normal text-white mt-2">DevLogs</h2>
-        <p class="text-[#ababaf] text-sm mt-1 mb-12">Интегрированные разборы, демонстрации инструментов и видеоматериалы из выпусков.</p>
-        <div class="text-[10px] font-mono text-zinc-300 -mt-8 mb-12 select-none tracking-wider bg-white/5 border border-white/10 px-3.5 py-1.5 rounded-full inline-block">
-          ? "...and three feet in the evening?"
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4 border-b border-white/5 pb-6">
+          <div>
+            <h2 class="text-4xl sm:text-5xl font-normal text-white mt-2">DevLogs</h2>
+            <p class="text-[#ababaf] text-sm mt-1 mb-2">Интегрированные разборы, демонстрации инструментов и видеоматериалы из выпусков.</p>
+            <div class="text-[9px] font-mono text-zinc-400 select-none tracking-wider bg-white/5 border border-white/10 px-3.5 py-1 rounded-full inline-block">
+              ? "...and three feet in the evening?"
+            </div>
+          </div>
+          
+          <!-- Cyberpunk Mode Toggle -->
+          <div class="flex items-center bg-black/40 border border-white/10 rounded-xl p-1 font-mono text-[9px] select-none flex-shrink-0">
+            <button id="mode-btn-local" onclick="setDevlogsMode('local')" class="px-3.5 py-1.5 rounded-lg transition-all uppercase tracking-wider text-cyan-400 border border-cyan-400/20 bg-cyan-400/5 cursor-pointer">
+              [ 📂 LOCAL DB ]
+            </button>
+            <span class="text-zinc-600 px-1 select-none">⚡</span>
+            <button id="mode-btn-youtube" onclick="setDevlogsMode('youtube')" class="px-3.5 py-1.5 rounded-lg transition-all uppercase tracking-wider text-zinc-500 hover:text-white cursor-pointer">
+              [ 📡 YOUTUBE LIVE ]
+            </button>
+          </div>
         </div>
 
         <!-- Video & Custom Animated Poster Split-Grid -->
@@ -1233,6 +1248,14 @@
                   poster=""
                   class="w-full h-full object-cover"
                 ></video>
+                <iframe 
+                  id="devlogs-youtube-player"
+                  src="" 
+                  frameborder="0" 
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                  allowfullscreen
+                  class="w-full h-full absolute inset-0 hidden"
+                ></iframe>
               </div>
               
               <div class="flex justify-between items-center mt-4 pt-4 border-t border-white/5 font-mono text-[9px]">
@@ -2555,12 +2578,18 @@
     // --- JSON Export ---
     function exportProjectsJSON() {
       if (!_requireAdmin('exportProjectsJSON')) return;
-      const projects = getProjects();
-      const blob = new Blob([JSON.stringify(projects, null, 2)], { type: 'application/json' });
+      
+      const db = {
+        projects: getProjects(),
+        hacks: typeof getHacks === 'function' ? getHacks() : [],
+        devlogs: getDevlogs()
+      };
+      
+      const blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'projects.json';
+      a.download = 'neurostage_database.json';
       a.click();
       URL.revokeObjectURL(url);
     }
@@ -2766,8 +2795,13 @@ filesystem, browser-use, github-mcp`
     ];
 
     let activeDevlogId = 'devlog_1';
+    let devlogsMode = localStorage.getItem('neurostage_devlogs_mode') || 'local';
+    let youtubeFeedCache = null;
 
     function getDevlogs() {
+      if (devlogsMode === 'youtube' && youtubeFeedCache) {
+        return youtubeFeedCache;
+      }
       const stored = localStorage.getItem('neurostage_devlogs');
       if (stored) { try { return JSON.parse(stored); } catch(e) {} }
       return [...defaultDevlogs];
@@ -2777,12 +2811,217 @@ filesystem, browser-use, github-mcp`
       localStorage.setItem('neurostage_devlogs', JSON.stringify(data));
     }
 
+    async function fetchYouTubeFeed(channelId = 'UCxL1u12N_W5J7r0-3aJ8e2A') {
+      if (youtubeFeedCache && channelId === 'UCxL1u12N_W5J7r0-3aJ8e2A') return youtubeFeedCache;
+      
+      const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
+      const proxies = [
+        `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`,
+        `https://corsproxy.io/?${encodeURIComponent(rssUrl)}`
+      ];
+      
+      let xmlString = '';
+      let success = false;
+      
+      for (const proxy of proxies) {
+        try {
+          const res = await fetch(proxy);
+          if (res.ok) {
+            if (proxy.includes('allorigins')) {
+              const json = await res.json();
+              xmlString = json.contents;
+            } else {
+              xmlString = await res.text();
+            }
+            if (xmlString && xmlString.includes('<entry>')) {
+              success = true;
+              break;
+            }
+          }
+        } catch (e) {
+          console.warn(`Proxy ${proxy} failed:`, e);
+        }
+      }
+      
+      if (!success) {
+        throw new Error('CORS proxies failed to load feed');
+      }
+      
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(xmlString, 'text/xml');
+      const entries = xmlDoc.getElementsByTagName('entry');
+      const feedDevlogs = [];
+      
+      for (let i = 0; i < entries.length; i++) {
+        const entry = entries[i];
+        const videoId = entry.getElementsByTagName('yt:videoId')[0]?.textContent || '';
+        const title = entry.getElementsByTagName('title')[0]?.textContent || 'Без названия';
+        const published = entry.getElementsByTagName('published')[0]?.textContent || '';
+        const description = entry.getElementsByTagName('media:description')[0]?.textContent || '';
+        const thumbnail = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+        
+        const dateStr = published ? published.split('T')[0] : new Date().toISOString().split('T')[0];
+        const epIndex = entries.length - i;
+        const epNum = `EP_${String(epIndex).padStart(2, '0')}`;
+        
+        let materials = `// АВТО-ИМПОРТИРОВАНО С YOUTUBE (EP_${epIndex})\n// Ссылка на видео: https://youtu.be/${videoId}\n\n`;
+        
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        const urls = description.match(urlRegex) || [];
+        if (urls.length > 0) {
+          materials += `// НАЙДЕННЫЕ ССЫЛКИ В ОПИСАНИИ:\n`;
+          const uniqueUrls = [...new Set(urls)];
+          uniqueUrls.forEach((u, idx) => {
+            materials += `${idx + 1}. ${u}\n`;
+          });
+          materials += `\n`;
+        }
+        
+        materials += `// ПОЛНОЕ ОПИСАНИЕ ВИДЕО:\n${description}`;
+        
+        feedDevlogs.push({
+          id: `yt_${videoId}`,
+          episode: `${epNum} // ${dateStr}`,
+          title: title,
+          description: description.slice(0, 150) + (description.length > 150 ? '...' : ''),
+          videoUrl: `https://www.youtube.com/watch?v=${videoId}`,
+          posterUrl: thumbnail,
+          status: 'LIVE // YT',
+          duration: 'VIDEO',
+          materials: materials
+        });
+      }
+      
+      if (channelId === 'UCxL1u12N_W5J7r0-3aJ8e2A') {
+        youtubeFeedCache = feedDevlogs;
+      }
+      return feedDevlogs;
+    }
+
+    async function loadYouTubeDevlogs() {
+      const container = document.getElementById('devlogs-playlist');
+      if (container) {
+        container.innerHTML = `
+          <div class="flex flex-col items-center justify-center py-8 gap-2.5 font-mono text-xs text-cyan-400 animate-pulse">
+            <span class="w-4 h-4 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></span>
+            <span>📡 СИНХРОНИЗАЦИЯ С КАНАЛОМ...</span>
+          </div>
+        `;
+      }
+      
+      try {
+        const feed = await fetchYouTubeFeed();
+        if (devlogsMode !== 'youtube') return;
+        
+        if (feed && feed.length > 0) {
+          selectDevlog(feed[0].id);
+        } else {
+          throw new Error('Feed is empty');
+        }
+      } catch (err) {
+        console.error(err);
+        if (container) {
+          container.innerHTML = `
+            <div class="flex flex-col items-center justify-center py-6 text-center gap-2 font-mono text-[10px] text-red-400 border border-red-500/20 bg-red-500/5 rounded-xl p-3">
+              <span>⚠️ ОШИБКА ПОДКЛЮЧЕНИЯ К YOUTUBE</span>
+              <span class="text-zinc-500 text-[8px] leading-relaxed">Возврат к локальной БД...</span>
+            </div>
+          `;
+        }
+        setTimeout(() => {
+          if (devlogsMode === 'youtube') {
+            setDevlogsMode('local');
+          }
+        }, 3500);
+      }
+    }
+
+    function setDevlogsMode(mode) {
+      devlogsMode = mode;
+      localStorage.setItem('neurostage_devlogs_mode', mode);
+      
+      const localBtn = document.getElementById('mode-btn-local');
+      const ytBtn = document.getElementById('mode-btn-youtube');
+      
+      if (localBtn && ytBtn) {
+        if (mode === 'local') {
+          localBtn.className = "px-3.5 py-1.5 rounded-lg transition-all uppercase tracking-wider text-cyan-400 border border-cyan-400/20 bg-cyan-400/5 cursor-pointer";
+          ytBtn.className = "px-3.5 py-1.5 rounded-lg transition-all uppercase tracking-wider text-zinc-500 hover:text-white cursor-pointer";
+        } else {
+          ytBtn.className = "px-3.5 py-1.5 rounded-lg transition-all uppercase tracking-wider text-cyan-400 border border-cyan-400/20 bg-cyan-400/5 cursor-pointer";
+          localBtn.className = "px-3.5 py-1.5 rounded-lg transition-all uppercase tracking-wider text-zinc-500 hover:text-white cursor-pointer";
+        }
+      }
+      
+      if (mode === 'youtube') {
+        loadYouTubeDevlogs();
+      } else {
+        const localDevlogs = getDevlogs();
+        if (localDevlogs.length > 0) {
+          selectDevlog(localDevlogs[0].id);
+        } else {
+          renderDevlogsPlaylist();
+        }
+      }
+    }
+
+    async function syncDevlogsFromYouTube() {
+      if (!_requireAdmin('syncDevlogsFromYouTube')) return;
+      
+      const channelId = document.getElementById('sync-channel-id').value.trim();
+      if (!channelId) {
+        alert('Пожалуйста, введите корректный Channel ID.');
+        return;
+      }
+      
+      const btn = document.querySelector('button[onclick="syncDevlogsFromYouTube()"]');
+      const origText = btn.innerText;
+      btn.innerText = 'ЗАГРУЗКА...';
+      btn.disabled = true;
+      
+      try {
+        const feed = await fetchYouTubeFeed(channelId);
+        // We sync into the local database
+        const stored = localStorage.getItem('neurostage_devlogs');
+        let currentDevlogs = [];
+        if (stored) { try { currentDevlogs = JSON.parse(stored); } catch(e) {} }
+        if (currentDevlogs.length === 0) { currentDevlogs = [...defaultDevlogs]; }
+        
+        let newCount = 0;
+        
+        feed.forEach(item => {
+          const ytVideoId = item.id.replace('yt_', '');
+          const exists = currentDevlogs.some(d => d.videoUrl.includes(ytVideoId));
+          if (!exists) {
+            currentDevlogs.push(item);
+            newCount++;
+          }
+        });
+        
+        if (newCount > 0) {
+          saveDevlogsToStorage(currentDevlogs);
+          renderAdminDevlogsList();
+          renderDevlogsPlaylist();
+          alert(`Успешно импортировано ${newCount} новых выпусков с YouTube!`);
+        } else {
+          alert('Все видео с канала уже есть в вашей локальной базе данных.');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Не удалось синхронизировать видео: ' + err.message);
+      } finally {
+        btn.innerText = origText;
+        btn.disabled = false;
+      }
+    }
+
     function selectDevlog(id) {
       activeDevlogId = id;
       const devlogs = getDevlogs();
       const active = devlogs.find(d => d.id === id) || devlogs[0];
       
       const player = document.getElementById('devlogs-video-player');
+      const youtubePlayer = document.getElementById('devlogs-youtube-player');
       const title = document.getElementById('video-console-title');
       const desc = document.getElementById('video-console-description');
       const ep = document.getElementById('video-console-episode');
@@ -2791,10 +3030,30 @@ filesystem, browser-use, github-mcp`
       
       if (!active) return;
       
-      if (player) {
-        player.src = active.videoUrl;
-        player.poster = active.posterUrl;
-        player.load();
+      if (player && youtubePlayer) {
+        const isYoutube = active.videoUrl.includes('youtube.com') || active.videoUrl.includes('youtu.be') || active.videoUrl.includes('/embed/');
+        if (isYoutube) {
+          let ytId = '';
+          if (active.videoUrl.includes('embed/')) {
+            ytId = active.videoUrl.split('embed/')[1].split('?')[0];
+          } else if (active.videoUrl.includes('v=')) {
+            ytId = active.videoUrl.split('v=')[1].split('&')[0];
+          } else if (active.videoUrl.includes('youtu.be/')) {
+            ytId = active.videoUrl.split('youtu.be/')[1].split('?')[0];
+          }
+          
+          youtubePlayer.src = `https://www.youtube.com/embed/${ytId}?autoplay=0&rel=0`;
+          youtubePlayer.classList.remove('hidden');
+          player.classList.add('hidden');
+          player.pause();
+        } else {
+          player.src = active.videoUrl;
+          player.poster = active.posterUrl;
+          player.load();
+          player.classList.remove('hidden');
+          youtubePlayer.classList.add('hidden');
+          youtubePlayer.src = '';
+        }
       }
       
       if (title) title.innerText = active.title;
@@ -3124,7 +3383,149 @@ filesystem, browser-use, github-mcp`
     }
 
     // =========================================================================
-    // 12. ADMIN PORTAL TABS (ПРОЕКТЫ / ХАКИ)
+    // 11.5 DEVLOGS CRUD CONTROLLERS (ADMIN PORTAL)
+    // =========================================================================
+    function saveDevlog() {
+      if (!_requireAdmin('saveDevlog')) return;
+
+      const editId = document.getElementById('edit-devlog-id').value;
+      const title = document.getElementById('devlog-title').value.trim();
+      const epNum = document.getElementById('devlog-episode-num').value.trim();
+      const dateVal = document.getElementById('devlog-date').value.trim();
+      const duration = document.getElementById('devlog-duration').value.trim();
+      const status = document.getElementById('devlog-status').value.trim();
+      const videoUrl = document.getElementById('devlog-video-url').value.trim();
+      const posterPath = document.getElementById('devlog-poster-path').value.trim();
+      const description = document.getElementById('devlog-description').value.trim();
+      const materials = document.getElementById('devlog-materials-text').value;
+
+      if (!title) { document.getElementById('devlog-title').style.borderColor = '#ef4444'; return; }
+      if (!videoUrl) { document.getElementById('devlog-video-url').style.borderColor = '#ef4444'; return; }
+
+      const finalEpisode = `${epNum || 'EP_XX'} // ${dateVal || new Date().toISOString().split('T')[0]}`;
+
+      const devlogs = getDevlogs();
+      const devlogData = {
+        id: editId || 'devlog_' + Date.now(),
+        episode: finalEpisode,
+        title,
+        description,
+        videoUrl,
+        posterUrl: posterPath || 'cinematic_hero_bg.png',
+        status: status || 'HD 1080P',
+        duration: duration || '0:00',
+        materials: materials || '// ПОЛЕЗНЫЕ МАТЕРИАЛЫ К ВЫПУСКУ:\nНет материалов.'
+      };
+
+      if (editId) {
+        const idx = devlogs.findIndex(d => d.id === editId);
+        if (idx !== -1) devlogs[idx] = devlogData;
+      } else {
+        devlogs.push(devlogData);
+      }
+
+      saveDevlogsToStorage(devlogs);
+      resetDevlogForm();
+      renderAdminDevlogsList();
+      
+      if (activeDevlogId === devlogData.id || !editId) {
+        selectDevlog(devlogData.id);
+      } else {
+        renderDevlogsPlaylist();
+      }
+    }
+
+    function editDevlog(id) {
+      if (!_requireAdmin('editDevlog')) return;
+      const devlogs = getDevlogs();
+      const d = devlogs.find(x => x.id === id);
+      if (!d) return;
+
+      document.getElementById('edit-devlog-id').value = d.id;
+      document.getElementById('devlog-title').value = d.title;
+      
+      const epParts = d.episode.split(' // ');
+      document.getElementById('devlog-episode-num').value = epParts[0] || '';
+      document.getElementById('devlog-date').value = epParts[1] || '';
+      
+      document.getElementById('devlog-duration').value = d.duration;
+      document.getElementById('devlog-status').value = d.status;
+      document.getElementById('devlog-video-url').value = d.videoUrl;
+      document.getElementById('devlog-poster-path').value = d.posterUrl;
+      document.getElementById('devlog-description').value = d.description;
+      document.getElementById('devlog-materials-text').value = d.materials;
+
+      document.getElementById('devlog-form-title').innerText = 'Редактировать выпуск';
+      document.getElementById('reset-devlog-btn').classList.remove('hidden');
+      document.getElementById('save-devlog-btn').innerText = 'Сохранить изменения ➔';
+      
+      document.getElementById('devlog-title').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function deleteDevlog(id) {
+      if (!_requireAdmin('deleteDevlog')) return;
+      if (!confirm('Вы уверены, что хотите удалить этот выпуск?')) return;
+      
+      let devlogs = getDevlogs();
+      devlogs = devlogs.filter(d => d.id !== id);
+      saveDevlogsToStorage(devlogs);
+      
+      renderAdminDevlogsList();
+      
+      if (devlogs.length > 0) {
+        if (activeDevlogId === id) {
+          selectDevlog(devlogs[0].id);
+        } else {
+          renderDevlogsPlaylist();
+        }
+      } else {
+        renderDevlogsPlaylist();
+      }
+    }
+
+    function resetDevlogForm() {
+      ['edit-devlog-id','devlog-title','devlog-episode-num','devlog-date','devlog-duration','devlog-status','devlog-video-url','devlog-poster-path','devlog-description','devlog-materials-text'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.value = ''; el.style.borderColor = ''; }
+      });
+      document.getElementById('devlog-form-title').innerText = 'Добавить новый выпуск';
+      document.getElementById('reset-devlog-btn').classList.add('hidden');
+      document.getElementById('save-devlog-btn').innerText = 'Опубликовать выпуск ➔';
+    }
+
+    function handleDevlogPosterUpload(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('devlog-poster-path').value = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function renderAdminDevlogsList() {
+      const container = document.getElementById('admin-devlogs-list');
+      if (!container) return;
+      const devlogs = getDevlogs();
+      if (devlogs.length === 0) {
+        container.innerHTML = `<div class="text-center text-zinc-500 font-mono text-xs py-6">Нет выпусков.</div>`;
+        return;
+      }
+      container.innerHTML = devlogs.map(d => `
+        <div class="flex items-center justify-between bg-black/30 border border-white/5 rounded-lg px-4 py-3 hover:border-white/10 transition-colors">
+          <div class="flex flex-col min-w-0 flex-grow mr-3">
+            <span class="text-xs text-white font-medium truncate">${d.title}</span>
+            <span class="text-[9px] text-zinc-500 font-mono">${d.episode} // ${d.duration}</span>
+          </div>
+          <div class="flex gap-2 flex-shrink-0">
+            <button onclick="editDevlog('${d.id}')" class="text-[9px] font-mono text-[#ababaf] hover:text-cyan-400 bg-white/5 border border-white/5 hover:border-cyan-400/30 px-2 py-0.5 rounded transition-all">EDIT</button>
+            <button onclick="deleteDevlog('${d.id}')" class="text-[9px] font-mono text-[#ababaf] hover:text-red-400 bg-white/5 border border-white/5 hover:border-red-400/30 px-2 py-0.5 rounded transition-all">DEL</button>
+          </div>
+        </div>`).join('');
+    }
+
+    // =========================================================================
+    // 12. ADMIN PORTAL TABS (ПРОЕКТЫ / ХАКИ / DEVLOGS)
     // =========================================================================
     let activeAdminTab = 'projects';
 
@@ -3132,18 +3533,23 @@ filesystem, browser-use, github-mcp`
       activeAdminTab = tab;
       document.getElementById('tab-projects').classList.toggle('active-filter', tab === 'projects');
       document.getElementById('tab-hacks').classList.toggle('active-filter', tab === 'hacks');
+      document.getElementById('tab-devlogs').classList.toggle('active-filter', tab === 'devlogs');
+      
       document.getElementById('admin-tab-projects').classList.toggle('hidden', tab !== 'projects');
-      document.getElementById('admin-tab-hacks').classList.toggle('hidden', tab === 'projects');
+      document.getElementById('admin-tab-hacks').classList.toggle('hidden', tab !== 'hacks');
+      document.getElementById('admin-tab-devlogs').classList.toggle('hidden', tab !== 'devlogs');
+      
       if (tab === 'hacks') renderAdminHacksList();
+      else if (tab === 'devlogs') renderAdminDevlogsList();
       else renderAdminProjectsList();
     }
 
-    // Override openAdminPortal to also render hacks list
+    // Override openAdminPortal to also render hacks and devlogs list
     const _origOpenAdminPortal = openAdminPortal;
     openAdminPortal = function() {
       _origOpenAdminPortal();
       renderAdminHacksList();
-      // Reset to projects tab each time
+      renderAdminDevlogsList();
       switchAdminTab('projects');
     };
 
@@ -3257,8 +3663,8 @@ filesystem, browser-use, github-mcp`
     // --- Initialize all sections on page load ---
     renderSynergiesDashboard();
     renderHacksGrid('ALL');
-    renderDevlogsPlaylist();
-    selectDevlog('devlog_1');
+    // Initialize DevLogs retrieval mode and load initial videos
+    setDevlogsMode(devlogsMode);
     setupVideoPerformanceEngine();
 
     // --- Export interactive functions to global scope safely ---
@@ -3297,6 +3703,13 @@ filesystem, browser-use, github-mcp`
     window.copyPrompt = copyPrompt;
     window.checkSphinxAnswer = checkSphinxAnswer;
     window.handleHacksSearch = handleHacksSearch;
+    window.saveDevlog = saveDevlog;
+    window.editDevlog = editDevlog;
+    window.deleteDevlog = deleteDevlog;
+    window.resetDevlogForm = resetDevlogForm;
+    window.handleDevlogPosterUpload = handleDevlogPosterUpload;
+    window.setDevlogsMode = setDevlogsMode;
+    window.syncDevlogsFromYouTube = syncDevlogsFromYouTube;
 
   })();
   </script>
@@ -3351,6 +3764,9 @@ filesystem, browser-use, github-mcp`
         </button>
         <button id="tab-hacks" onclick="switchAdminTab('hacks')" class="hack-filter-btn px-4 py-2 text-xs font-mono tracking-widest uppercase transition-all border border-white/5">
           AI ABUSE (ХАКИ)
+        </button>
+        <button id="tab-devlogs" onclick="switchAdminTab('devlogs')" class="hack-filter-btn px-4 py-2 text-xs font-mono tracking-widest uppercase transition-all border border-white/5">
+          DEVLOGS (ВИДЕО)
         </button>
       </div>
 
@@ -3519,6 +3935,114 @@ filesystem, browser-use, github-mcp`
           
           <!-- Hacks List Container -->
           <div class="flex flex-col gap-3 max-h-[380px] overflow-y-auto pr-1" id="admin-hacks-list">
+            <!-- Populated dynamically via JS -->
+          </div>
+        </div>
+        
+      </div>
+
+      <!-- Tab: Devlogs -->
+      <div id="admin-tab-devlogs" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start select-none hidden">
+        
+        <!-- Column 1: Add/Edit DevLog Form (7 cols) -->
+        <div class="lg:col-span-7 flex flex-col gap-4">
+          
+          <!-- YouTube Channel Auto-Sync Tool -->
+          <div class="bg-cyan-500/5 border border-cyan-500/10 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-lg bg-red-600/10 border border-red-500/20 flex items-center justify-center text-red-500 flex-shrink-0">
+                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.517 3.545 12 3.545 12 3.545s-7.517 0-9.388.508a3.003 3.003 0 0 0-2.11 2.11C0 8.033 0 12 0 12s0 3.967.502 5.837a3.003 3.003 0 0 0 2.11 2.11C4.483 20.455 12 20.455 12 20.455s7.517 0 9.388-.508a3.003 3.003 0 0 0 2.11-2.11C24 15.967 24 12 24 12s0-3.967-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-[9px] font-mono text-cyan-400 uppercase tracking-widest">// YOUTUBE SYNCHRONIZER</span>
+                <span class="text-xs text-white">Авто-импорт видео с канала в базу</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+              <input type="text" id="sync-channel-id" value="UCxL1u12N_W5J7r0-3aJ8e2A" placeholder="YouTube Channel ID" class="bg-black/40 border border-white/10 rounded-lg px-2.5 py-1.5 text-[10px] font-mono text-white focus:border-cyan-400 focus:outline-none transition-colors w-full sm:w-44" />
+              <button onclick="syncDevlogsFromYouTube()" class="bg-red-500/10 border border-red-500/30 hover:border-red-500 text-red-500 hover:bg-red-500/20 font-bold rounded-lg px-3 py-1.5 text-[10px] font-mono transition-all flex-shrink-0 uppercase cursor-pointer">
+                СИНХРОНИЗИРОВАТЬ
+              </button>
+            </div>
+          </div>
+
+          <h3 class="text-lg text-white font-mono border-b border-white/5 pb-2 flex justify-between items-center select-none">
+            <span id="devlog-form-title">Добавить новый выпуск</span>
+            <button onclick="resetDevlogForm()" class="text-[9px] text-[#ababaf] hover:text-white font-mono bg-white/5 border border-white/5 px-2 py-0.5 rounded transition-all hidden" id="reset-devlog-btn">СБРОСИТЬ ФОРМУ</button>
+          </h3>
+          
+          <input type="hidden" id="edit-devlog-id" value="" />
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[10px] font-mono text-[#ababaf] uppercase">Название выпуска</label>
+              <input type="text" id="devlog-title" placeholder="Например: ИИ-Агенты: Революция в браузере" class="bg-black/35 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-600 focus:border-cyan-400 focus:outline-none transition-colors" />
+            </div>
+            
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[10px] font-mono text-[#ababaf] uppercase">Номер эпизода (e.g. EP_03)</label>
+              <input type="text" id="devlog-episode-num" placeholder="Например: EP_03" class="bg-black/35 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-600 focus:border-cyan-400 focus:outline-none transition-colors" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[10px] font-mono text-[#ababaf] uppercase">Дата публикации</label>
+              <input type="text" id="devlog-date" placeholder="ГГГГ-ММ-ДД" class="bg-black/35 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-600 focus:border-cyan-400 focus:outline-none transition-colors" />
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[10px] font-mono text-[#ababaf] uppercase">Продолжительность</label>
+              <input type="text" id="devlog-duration" placeholder="Например: 12:45" class="bg-black/35 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-600 focus:border-cyan-400 focus:outline-none transition-colors" />
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[10px] font-mono text-[#ababaf] uppercase">Статус / Разрешение</label>
+              <input type="text" id="devlog-status" placeholder="HD 1080P // NEW" class="bg-black/35 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-600 focus:border-cyan-400 focus:outline-none transition-colors" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[10px] font-mono text-[#ababaf] uppercase">Ссылка на видео (YouTube или MP4)</label>
+              <input type="text" id="devlog-video-url" placeholder="https://www.youtube.com/watch?v=..." class="bg-black/35 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-600 focus:border-cyan-400 focus:outline-none transition-colors" />
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[10px] font-mono text-[#ababaf] uppercase">Обложка / Постер (Ссылка или Загрузка)</label>
+              <div class="flex gap-2">
+                <input type="text" id="devlog-poster-path" placeholder="img/poster.png" class="bg-black/35 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-600 focus:border-cyan-400 focus:outline-none transition-colors flex-grow" />
+                <label class="bg-white/5 border border-white/10 hover:bg-white/10 hover:border-cyan-400 text-white rounded-lg px-3 py-2 text-xs transition-colors cursor-pointer font-mono select-none flex items-center justify-center">
+                  UPLOAD
+                  <input type="file" id="devlog-poster-file" class="hidden" accept="image/*" onchange="handleDevlogPosterUpload(this)" />
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label class="text-[10px] font-mono text-[#ababaf] uppercase">Описание выпуска</label>
+            <input type="text" id="devlog-description" placeholder="Краткое описание сути выпуска в 2 строки..." class="bg-black/35 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-600 focus:border-cyan-400 focus:outline-none transition-colors" />
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label class="text-[10px] font-mono text-[#ababaf] uppercase">Прикрепленные материалы (Промпты, ссылки, полезное)</label>
+            <textarea id="devlog-materials-text" rows="4" placeholder="// ПОЛЕЗНЫЕ МАТЕРИАЛЫ К ВЫПУСКУ:&#10;1. Промпт для агента:&#10;...&#10;2. Ссылка на исходный код:&#10;..." class="bg-black/35 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-600 focus:border-cyan-400 focus:outline-none transition-colors resize-none"></textarea>
+          </div>
+
+          <button onclick="saveDevlog()" class="w-full bg-cyan-400/20 border border-cyan-400/30 hover:border-cyan-400 text-cyan-400 font-semibold rounded-lg py-3 text-xs tracking-wider transition-all scale-100 active:scale-95 font-mono uppercase mt-2 shadow-[0_5px_15px_rgba(0,240,255,0.05)]" id="save-devlog-btn">
+            Опубликовать выпуск ➔
+          </button>
+        </div>
+
+        <!-- Column 2: Devlogs List Manager (5 cols) -->
+        <div class="lg:col-span-5 flex flex-col gap-4">
+          <h3 class="text-lg text-white font-mono border-b border-white/5 pb-2 flex justify-between items-center select-none">
+            <span>Управление выпусками</span>
+          </h3>
+          
+          <!-- Devlogs List Container -->
+          <div class="flex flex-col gap-3 max-h-[380px] overflow-y-auto pr-1" id="admin-devlogs-list">
             <!-- Populated dynamically via JS -->
           </div>
         </div>
