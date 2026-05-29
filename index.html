@@ -1704,6 +1704,13 @@
     <!-- Modal content container -->
     <div class="relative w-full max-w-6xl editorial-glass rounded-2xl p-6 sm:p-10 max-h-[85vh] overflow-y-auto flex flex-col justify-between transform scale-95 transition-all duration-500" id="category-modal-box">
       
+      <!-- Dynamic Ambient Glow Flares (Radial Gradients) -->
+      <div id="modal-ambient-flare-1" class="absolute top-0 left-0 w-[450px] h-[450px] rounded-full blur-[120px] pointer-events-none opacity-[0.12] transition-all duration-1000"></div>
+      <div id="modal-ambient-flare-2" class="absolute bottom-0 right-0 w-[450px] h-[450px] rounded-full blur-[120px] pointer-events-none opacity-[0.09] transition-all duration-1000"></div>
+
+      <!-- Dynamic Vector Watermark Background -->
+      <div id="modal-vector-watermark" class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03] transition-all duration-700 select-none z-0"></div>
+      
       <!-- Left Navigation Button -->
       <button onclick="navigateModalCategory(-1)" class="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-50 w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-white/5 bg-black/45 backdrop-blur-md text-white/70 hover:text-white hover:border-white/20 flex items-center justify-center transition-all active:scale-95 select-none" title="Previous Category">
         <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
@@ -1724,7 +1731,7 @@
       </button>
 
       <!-- Modal Header -->
-      <div class="mb-10 z-10 border-b border-white/5 pb-6">
+      <div class="mb-10 z-10 border-b border-white/5 pb-6" id="modal-main-header">
         <span class="text-xs font-mono text-white/40 tracking-widest uppercase" id="modal-category-subtitle">MODULE // LOADER</span>
         <h2 class="text-5xl font-normal text-white mt-2 font-display" id="modal-category-title">All Systems</h2>
       </div>
@@ -1732,6 +1739,108 @@
       <!-- Tools Grid (Dynamically Populated) -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 z-10 overflow-y-visible" id="modal-tools-grid">
         <!-- Rendered JS cards go here -->
+      </div>
+
+      <!-- Wiki Article Panel (Hidden by default, slides in) -->
+      <div id="modal-wiki-view" class="hidden flex flex-col gap-8 z-10 w-full animate-modal-card">
+        <!-- Back Button -->
+        <button onclick="closeWikiView()" class="self-start font-mono text-[10px] text-cyan-400 hover:text-white border border-cyan-400/20 hover:border-cyan-400 px-3.5 py-1.5 rounded-full transition-all bg-cyan-400/5 flex items-center gap-1 select-none cursor-pointer">
+          &lt; НАЗАД К СПИСКУ ИНСТРУМЕНТОВ
+        </button>
+
+        <!-- Article Content -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mt-4">
+          <!-- Left Column (8 cols): Description, Setup Guide, Use Cases -->
+          <div class="lg:col-span-8 flex flex-col gap-6 w-full">
+            <div>
+              <span class="text-[10px] font-mono text-cyan-400 uppercase tracking-widest" id="wiki-category-tag">#AI_AGENTS</span>
+              <h2 class="text-4xl sm:text-5xl font-normal text-white mt-1 font-display" id="wiki-title">Hermes & OpenClaude</h2>
+            </div>
+
+            <!-- USP (Уникальная фишка) -->
+            <div class="border border-cyan-400/30 bg-cyan-400/5 rounded-xl p-4 font-mono text-xs text-cyan-300 relative overflow-hidden">
+              <div class="absolute -right-4 -top-4 w-12 h-12 bg-cyan-400/10 rounded-full blur-md"></div>
+              <span class="text-cyan-400 font-bold block mb-1">⚡ УНИКАЛЬНАЯ ФИШКА:</span>
+              <span id="wiki-usp">Полная автономность и самокоррекция кода без участия человека.</span>
+            </div>
+
+            <!-- Short description -->
+            <p class="text-xs text-zinc-300 leading-relaxed font-normal border-l-2 border-white/10 pl-4" id="wiki-short-desc"></p>
+
+            <!-- Where to use (Где применять) -->
+            <div class="flex flex-col gap-2">
+              <h3 class="text-sm font-mono text-white border-b border-white/5 pb-1 select-none uppercase">// 🎯 Где применять</h3>
+              <ul class="flex flex-col gap-1.5 text-xs text-zinc-400 list-none pl-1" id="wiki-use-cases">
+                <!-- Populated dynamically -->
+              </ul>
+            </div>
+
+            <!-- Installation Guide -->
+            <div class="flex flex-col gap-3">
+              <h3 class="text-sm font-mono text-white border-b border-white/5 pb-1 select-none uppercase">// 🚀 Инструкция по установке</h3>
+              <div class="text-xs text-zinc-400 leading-relaxed space-y-3 font-normal" id="wiki-install-guide">
+                <!-- Populated dynamically with auto-parsed code blocks -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column (4 cols): Requirements, Pros/Cons, Hack Links, Score -->
+          <div class="lg:col-span-4 flex flex-col gap-6 w-full">
+            <!-- Score & Rating Bar (Variant B) -->
+            <div class="bg-white/5 border border-white/5 rounded-xl p-5 flex flex-col gap-3 select-none">
+              <span class="text-[9px] font-mono text-zinc-500 uppercase tracking-widest block">// NEUROSTAGE EVALUATION</span>
+              <div class="flex justify-between items-end">
+                <span class="text-2xl font-normal text-white font-display">Рейтинг</span>
+                <span class="text-xl font-mono text-cyan-400 font-semibold" id="wiki-score-text">9.8/10</span>
+              </div>
+              <!-- Glowing neon progress bar -->
+              <div class="w-full h-2 bg-zinc-900 rounded-full overflow-hidden border border-white/5 relative">
+                <div id="wiki-score-bar" class="h-full bg-gradient-to-r from-cyan-500 to-cyan-300 shadow-[0_0_12px_rgba(0,240,255,0.7)] transition-all duration-1000" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <!-- Requirements (Что понадобится) -->
+            <div class="bg-black/35 border border-white/5 rounded-xl p-5 flex flex-col gap-3">
+              <h4 class="text-xs font-mono text-white uppercase tracking-wider select-none border-b border-white/5 pb-1.5">// ТРЕБОВАНИЯ & СТЕК</h4>
+              <ul class="flex flex-col gap-1.5 text-xs text-zinc-400 list-none pl-1" id="wiki-requirements">
+                <!-- Populated dynamically -->
+              </ul>
+            </div>
+
+            <!-- Pros & Cons Bento -->
+            <div class="flex flex-col gap-4">
+              <!-- Pros -->
+              <div class="border border-emerald-500/20 bg-emerald-500/5 rounded-xl p-4 flex flex-col gap-2">
+                <span class="text-[9px] font-mono text-emerald-400 uppercase tracking-widest block select-none">🟢 ПЛЮСЫ (PROS)</span>
+                <ul class="flex flex-col gap-1 text-[11px] text-emerald-300/80 list-none pl-1" id="wiki-pros">
+                  <!-- Populated dynamically -->
+                </ul>
+              </div>
+
+              <!-- Cons -->
+              <div class="border border-red-500/20 bg-red-500/5 rounded-xl p-4 flex flex-col gap-2">
+                <span class="text-[9px] font-mono text-red-400 uppercase tracking-widest block select-none">🔴 МИНУСЫ (CONS)</span>
+                <ul class="flex flex-col gap-1 text-[11px] text-red-300/80 list-none pl-1" id="wiki-cons">
+                  <!-- Populated dynamically -->
+                </ul>
+              </div>
+            </div>
+
+            <!-- Associated Hack Link -->
+            <div id="wiki-hack-link-container" class="hidden">
+              <a id="wiki-hack-link" href="#" class="w-full bg-cyan-400/10 border border-cyan-400/20 hover:border-cyan-400/60 text-cyan-400 hover:text-white rounded-xl p-4 flex items-center justify-between transition-all duration-300 group scale-hover">
+                <div class="flex items-center gap-2.5">
+                  <span class="text-lg">💡</span>
+                  <div class="flex flex-col text-left font-mono">
+                    <span class="text-[9px] text-zinc-500 uppercase tracking-wider">// ИИ-ХАК К ЭТОМУ ПРОДУКТУ</span>
+                    <span class="text-[11px] font-medium tracking-tight mt-0.5 text-cyan-300" id="wiki-hack-title">Как получить бесплатно API</span>
+                  </div>
+                </div>
+                <span class="text-xs text-zinc-500 group-hover:text-cyan-400 group-hover:translate-x-1 transition-all">➔</span>
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
       
     </div>
@@ -1756,8 +1865,8 @@
       }
     });
 
-    // 2. aiToolsDatabase for Category Details Modal
-    const aiToolsDatabase = [
+    // 2. defaultTools for Category Details Modal
+    const defaultTools = [
       {
         id: "v0",
         name: "v0.dev",
@@ -1766,7 +1875,15 @@
         version: "v0 by Vercel",
         description: "ИИ-генератор от Vercel. Мгновенно собирает стильные компоненты веб-интерфейсов на React и Tailwind CSS по текстовым промптам.",
         verdict: "Главный локомотив вайбкодинга. Сокращает верстку премиальных интерфейсов с дней до секунд, позволяя сразу переносить готовый код Агентам.",
-        rating: "10/10"
+        rating: "10/10",
+        usp: "Генерация React-интерфейсов с Tailwind за секунды.",
+        shortDesc: "Инструмент искусственного интеллекта от компании Vercel, предназначенный для генерации фронтенд-кода на основе простых текстовых описаний. Использует React, Tailwind CSS и библиотеку shadcn/ui.",
+        useCases: "Быстрое прототипирование посадочных страниц и SaaS-интерфейсов\nСоздание адаптивных форм, кнопок и карточек товаров\nГенерация сложных интерактивных дашбордов и таблиц",
+        requirements: "Современный веб-браузер\nАккаунт GitHub или Vercel\nБазовое понимание компонентов React",
+        installGuide: "Шаг 1: Перейдите на официальный сайт:\nhttps://v0.dev\n\nШаг 2: Авторизуйтесь с помощью аккаунта GitHub.\n\nШаг 3: Введите текстовый промпт в поле ввода, описывая нужный интерфейс (например: 'Cyberpunk landing page with glowing neon buttons').\n\nШаг 4: Нажмите кнопку 'Generate', дождитесь рендеринга и скопируйте сгенерированный React-код.",
+        pros: "Сверхбыстрая скорость генерации\nИспользует современные стандарты shadcn/ui\nВозможность редактировать код прямо на лету",
+        cons: "Иногда генерирует лишние CSS классы\nЛимиты бесплатных генераций в месяц",
+        associatedHack: "HACK_003"
       },
       {
         id: "cursor",
@@ -1776,7 +1893,15 @@
         version: "v0.45+",
         description: "Продвинутый ИИ-редактор кода на базе VS Code с Composer режимом для мульти-файлового редактирования.",
         verdict: "Абсолютный game-changer для разработчиков. Интегрирует Claude и GPT прямо в контекст проекта, позволяя кодить «силой мысли» на ходу.",
-        rating: "9.8/10"
+        rating: "9.8/10",
+        usp: "Мультифайловое ИИ-программирование в режиме Composer.",
+        shortDesc: "Специализированный форк популярного редактора VS Code, разработанный с глубокой нативной интеграцией больших языковых моделей (Claude 3.5 Sonnet, GPT-4o, Cursor-Small) для полностью автоматизированного написания кода.",
+        useCases: "Написание кода на естественном языке с контекстом всего проекта\nМгновенный авто-рефакторинг и исправление синтаксических ошибок\nАвтоматическое покрытие проекта юнит-тестами",
+        requirements: "ОС Windows 10/11, macOS или Linux\nМинимум 8 ГБ оперативной памяти\nПодключение к интернету",
+        installGuide: "Шаг 1: Скачайте установочный файл с официального сайта:\nhttps://cursor.com\n\nШаг 2: Установите приложение на ПК и импортируйте все настройки и плагины из VS Code в один клик.\n\nШаг 3: Откройте любой репозиторий кода.\n\nШаг 4: Нажмите Ctrl+I (Cmd+I на Mac) для вызова режима Composer, опишите задачу и нажмите Enter. Cursor изменит несколько файлов одновременно.",
+        pros: "Идеальная интеграция с Claude 3.5 Sonnet\nПоддержка полного контекста репозитория (.cursorrules)\nУдобный импорт из VS Code",
+        cons: "Платная подписка при активном профессиональном использовании\nИногда подгружает устаревшие версии библиотек",
+        associatedHack: "HACK_002"
       },
       {
         id: "claude",
@@ -1786,7 +1911,15 @@
         version: "3.5 Sonnet",
         description: "Самая продвинутая языковая модель от Anthropic для написания и отладки кода, глубокого рефакторинга и логического анализа.",
         verdict: "Идеальный напарник для написания серверных скриптов на Python и автоматизации процессов. Допускает в разы меньше ошибок в коде, чем GPT-4.",
-        rating: "10/10"
+        rating: "10/10",
+        usp: "Лучшая модель по пониманию логики кода и сложных структур.",
+        shortDesc: "Флагманская языковая модель от компании Anthropic, занимающая лидирующие позиции по кодингу, рассуждениям и глубокому логическому анализу на момент 2026 года.",
+        useCases: "Сложное архитектурное планирование баз данных и микросервисов\nОтладка запутанных алгоритмов и глубокий рефакторинг кода\nГенерация системных промптов для автономных агентов",
+        requirements: "Аккаунт Anthropic Console (для API) или Claude.ai\nVPN (в случае географических ограничений)\nAPI-ключ или веб-подписка",
+        installGuide: "Шаг 1: Перейдите в консоль Anthropic Console:\nhttps://console.anthropic.com\n\nШаг 2: Зарегистрируйте аккаунт и перейдите во вкладку 'API Keys'.\n\nШаг 3: Создайте новый ключ и скопируйте его.\n\nШаг 4: Интегрируйте его в ваш софт или используйте наш хак-раздел для настройки бесплатного доступа к API!",
+        pros: "Невероятный уровень понимания контекста\nМинимум логических галлюцинаций\nВысокая скорость генерации через API",
+        cons: "Строгая система цензуры запросов\nВысокая цена за миллион токенов на рынке API",
+        associatedHack: "HACK_003"
       },
       {
         id: "gpt4o",
@@ -1796,7 +1929,15 @@
         version: "GPT-4o",
         description: "Флагманская модель от OpenAI для мультимодальных задач, быстрого брейншторма и генерации текстов.",
         verdict: "Отличный инструмент для генерации креативных концептов и базовых скриптов, но уступает Claude в сложных архитектурных задачах кодинга.",
-        rating: "9.0/10"
+        rating: "9.0/10",
+        usp: "Высочайшая мультимодальная скорость и креативный брейншторм.",
+        shortDesc: "Мультимодальная языковая модель от OpenAI, умеющая одинаково быстро работать с текстом, звуком и изображениями в режиме реального времени.",
+        useCases: "Быстрый брейншторм идей для YouTube-роликов\nНаписание креативных сценариев и рекламных текстов\nБазовое написание скриптов автоматизации на Bash/Python",
+        requirements: "Браузер или официальное приложение ChatGPT\nАккаунт OpenAI\nVPN при необходимости",
+        installGuide: "Шаг 1: Зайдите на официальный портал:\nhttps://chatgpt.com\n\nШаг 2: Пройдите простую авторизацию.\n\nШаг 3: Задайте системный промпт в настройках 'Custom Instructions' для улучшения ответов.\n\nШаг 4: Начните диалог или загрузите файл/картинку для мгновенного анализа.",
+        pros: "Сверхбыстрые ответы через веб-интерфейс\nОтличная генерация текстов и креатива\nОгромная бесплатная база знаний",
+        cons: "Слабее справляется с тяжелым программированием\nМожет давать ложные факты (галлюцинировать)",
+        associatedHack: "HACK_001"
       },
       {
         id: "runway",
@@ -1806,7 +1947,15 @@
         version: "Gen-3 Alpha",
         description: "Кинематографичная генерация высококачественного видео и сложных переходов из картинок и текстовых описаний.",
         verdict: "Основной инструмент для создания кинематографичных футажей, перебивок и заставок при монтаже роликов на моем YouTube-канале.",
-        rating: "9.0/10"
+        rating: "9.0/10",
+        usp: "Кинематографичное видео-поколение голливудского качества.",
+        shortDesc: "Инструмент генеративного искусственного интеллекта нового поколения для превращения текста или опорного изображения в плавные, реалистичные 5-секундные видеоролики.",
+        useCases: "Генерация зрелищных видео-вставок для YouTube\nСоздание плавных анимированных переходов между сценами\nОживление статичных концепт-артов для превью",
+        requirements: "Современный браузер\nАккаунт Runwayml\nВидеокарта не требуется (генерация идет в облаке)",
+        installGuide: "Шаг 1: Зарегистрируйтесь на сайте:\nhttps://runwayml.com\n\nШаг 2: Откройте инструмент 'Text/Image to Video (Gen-3 Alpha)'.\n\nШаг 3: Загрузите опорную картинку (например, сгенерированную в Midjourney) и напишите промпт движения.\n\nШаг 4: Нажмите 'Generate' и скачайте готовый MP4 ролик.",
+        pros: "Фотореалистичное качество кадров\nОтличная физика движения воды, огня и дыма\nШирокий набор настроек камеры (Zoom, Pan, Tilt)",
+        cons: "Высокая стоимость генераций в платных тарифах\nВремя ожидания в очереди рендеринга",
+        associatedHack: "HACK_004"
       },
       {
         id: "midjourney",
@@ -1816,7 +1965,15 @@
         version: "v6.0",
         description: "Лидер художественной генерации превью-картинок, артов и иллюстраций с высочайшей детализацией и реализмом.",
         verdict: "Все обложки и графические концепты для YouTube-видео создаются здесь с последующим апскейлом. Лучший художественный вкус на рынке.",
-        rating: "9.5/10"
+        rating: "9.5/10",
+        usp: "Безупречный художественный вкус и невероятный фотореализм.",
+        shortDesc: "Нейросеть, работающая внутри Discord (и через новый веб-интерфейс), генерирующая потрясающие графические концепты, логотипы и арты по текстовым описаниям.",
+        useCases: "Генерация ярких, кликабельных превью-обложек для YouTube\nРазработка уникального фирменного стиля и аватарок\nСоздание текстур и фонов для веб-дизайна",
+        requirements: "Аккаунт Discord (или доступ к веб-панели Midjourney)\nПлатная подписка (аккаунт в консоли)\nБраузер",
+        installGuide: "Шаг 1: Зарегистрируйте аккаунт Discord и зайдите на сервер Midjourney.\n\nШаг 2: В чате введите команду '/imagine prompt' и опишите арт.\n\nШаг 3: Дождитесь сетки из 4 вариантов картинок.\n\nШаг 4: Нажмите 'U1-U4' для увеличения нужного кадра или используйте инструмент апскейла для максимального качества обложки.",
+        pros: "Максимальный уровень детализации лиц и кожи\nПотрясающее понимание художественных стилей\nОтличная контрастность и цветопередача",
+        cons: "Неудобный интерфейс работы через Discord чаты\nОтсутствие бесплатной пробной версии",
+        associatedHack: "HACK_001"
       },
       {
         id: "stable-diffusion",
@@ -1826,7 +1983,15 @@
         version: "SDXL / WebUI",
         description: "Мощная open-source модель для локальной генерации изображений с полным контролем над позами (ControlNet) и стилями.",
         verdict: "Требует мощного железа и настройки, но дает абсолютную свободу в генерации конкретных персонажей и точной композиции кадров.",
-        rating: "8.8/10"
+        rating: "8.8/10",
+        usp: "100% бесплатная open-source генерация без цензуры.",
+        shortDesc: "Нейросеть с открытым исходным кодом от Stability AI, запускаемая локально на ПК пользователя. Позволяет полностью контролировать позы персонажей, ракурсы и композицию при помощи расширений типа ControlNet.",
+        useCases: "Локальная бесплатная генерация графики без ограничений\nТочный перенос позы персонажа с помощью ControlNet OpenPose\nОбучение ИИ-моделей под собственное лицо (LoRA)",
+        requirements: "ОС Windows/Linux\nВидеокарта Nvidia с объемом памяти VRAM от 8 ГБ (желательно 12 ГБ+)\nСвободное место на SSD диске (~30 ГБ)",
+        installGuide: "Шаг 1: Скачайте и установите веб-оболочку Automatic1111 или ComfyUI с GitHub.\n\nШаг 2: Загрузите файл базовой модели SDXL 1.0 (формат .safetensors) и поместите его в папку models/Stable-diffusion.\n\nШаг 3: Запустите `webui-user.bat` и откройте ссылку http://127.0.0.1:7860 в браузере.\n\nШаг 4: Введите промпт и нажмите 'Generate' для локальной генерации.",
+        pros: "Абсолютно бесплатное использование\nОтсутствие каких-либо фильтров безопасности и цензуры\nОгромное количество пользовательских расширений",
+        cons: "Сложная установка для новичков\nВысокие системные требования к видеокарте ПК",
+        associatedHack: "HACK_004"
       },
       {
         id: "make",
@@ -1836,7 +2001,15 @@
         version: "Visual API",
         description: "Визуальный no-code конструктор интеграций для автоматизации ботов в Telegram, таблиц Google Sheets и отправки вебхуков.",
         verdict: "Связующее звено всех моих ТГ-ботов. Позволяет мгновенно направить запросы пользователей из Telegram в API OpenAI или Claude без написания бэкенда.",
-        rating: "9.2/10"
+        rating: "9.2/10",
+        usp: "Визуальное проектирование логики ботов без кода.",
+        shortDesc: "Лидирующий no-code сервис облачной интеграции приложений, позволяющий связывать сотни сторонних API (Telegram, Google, Slack, OpenAI) в единые цепочки автоматизации.",
+        useCases: "Пересылка запросов из Telegram-бота в ИИ и отправка ответа назад\nАвтоматическое ведение базы данных пользователей в Google Таблицах\nОтправка уведомлений в закрытый Telegram-канал при подписке",
+        requirements: "Браузер\nАккаунт Make.com\nНаличие API ключей подключаемых сервисов",
+        installGuide: "Шаг 1: Зарегистрируйтесь на сайте Make.com.\n\nШаг 2: Создайте новый сценарий (Scenario).\n\nШаг 3: Добавьте триггерный модуль 'Telegram Watch Updates', чтобы ловить сообщения.\n\nШаг 4: Добавьте модуль 'HTTP-request' или 'OpenAI' для отправки запроса нейросети, а затем модуль 'Telegram Send Message' для отправки ответа пользователю.",
+        pros: "Суперудобный интерфейс drag-and-drop\nОгромная библиотека готовых интеграций\nЛегкий мониторинг ошибок в сценариях",
+        cons: "Ограничение на количество бесплатных операций (1000/мес)\nОблачное хранение данных",
+        associatedHack: "HACK_003"
       },
       {
         id: "n8n",
@@ -1846,7 +2019,15 @@
         version: "AI Node V2",
         description: "Расширяемая open-source альтернатива Make с нативной поддержкой JavaScript кода, LangChain нод и self-hosted развертыванием.",
         verdict: "Идеально подходит для создания сложных мультишаговых ИИ-агентов с локальным хранением данных и без ограничений на количество шагов.",
-        rating: "9.6/10"
+        rating: "9.6/10",
+        usp: "Self-hosted no-code ИИ-автоматизация на собственном сервере.",
+        shortDesc: "Продвинутая open-source система автоматизации рабочих процессов, ориентированная на локальный запуск. Содержит встроенные расширенные ноды для работы с векторными базами данных, ИИ-агентами и LangChain.",
+        useCases: "Создание локальных автономных ИИ-агентов\nИнтеграция ИИ с векторными базами данных (Pinecone, Chroma)\nПарсинг и обработка данных из локальных файлов без облаков",
+        requirements: "Локальный ПК или VPS-сервер (Ubuntu)\nУстановленный Docker\nБазовое знание Javascript (при необходимости тонких настроек)",
+        installGuide: "Шаг 1: Подключитесь к вашему VPS по SSH.\n\nШаг 2: Запустите n8n в один клик через Docker:\ndocker run -it --rm --name n8n -p 5678:5678 n8nio/n8n\n\nШаг 3: Откройте в браузере http://your_server_ip:5678.\n\nШаг 4: Начните проектировать ИИ-сценарий, используя специальный модуль 'Advanced AI' для подключения локальных моделей.",
+        pros: "Абсолютно бесплатное развертывание на собственном VPS\nНативная поддержка ИИ-нод, агентов и промптов\nБезопасность (данные не уходят к посредникам)",
+        cons: "Требует администрирования сервера\nМеньше встроенных no-code модулей, чем в Make",
+        associatedHack: "HACK_004"
       },
       {
         id: "hermes",
@@ -1856,7 +2037,15 @@
         version: "Agent Engine",
         description: "Автономные агентные системы для автоматической отладки кода, терминального выполнения задач и мульти-агентных рассуждений.",
         verdict: "Будущее разработки. Агенты сами декомпозируют сложную цель на подзадачи, запускают локальный терминал, тестируют код и устраняют баги до идеального результата.",
-        rating: "9.8/10"
+        rating: "9.8/10",
+        usp: "Полная автономность и самокоррекция кода без участия человека.",
+        shortDesc: "Передовая агентная система с открытым исходным кодом. Декомпозирует сложные архитектурные задачи, генерирует код, тестирует его в локальной песочнице и исправляет баги в цикле.",
+        useCases: "Автономный рефакторинг устаревшего легаси-кода\nАвтоматическое написание сложных юнит-тестов для баз данных\nРазработка бэкенд микросервисов с нуля по текстовому ТЗ",
+        requirements: "Внешний Linux VPS (рекомендуется Ubuntu 22.04, 4 Core CPU, 8GB RAM)\nNode.js v20+ и Python 3.10+\nAPI-ключ Anthropic Claude 3.5 Sonnet\nGit",
+        installGuide: "Шаг 1: Подключитесь к вашему серверу через SSH:\nssh root@your_server_ip\n\nШаг 2: Склонируйте официальный репозиторий Hermes:\ngit clone https://github.com/neurostage/hermes-agent && cd hermes-agent\n\nШаг 3: Установите системные зависимости и Node модули:\nnpm install\n\nШаг 4: Настройте ключи окружения в файле `.env`:\ncp .env.example .env && nano .env\n# Пропишите ANTHROPIC_API_KEY=ваш_ключ\n# Для получения бесплатного API ключа, обратитесь к разделу Хаков!\n\nШаг 5: Запустите фоновую службу через PM2, чтобы агент работал 24/7:\nnpm install pm2 -g && pm2 start index.js --name hermes",
+        pros: "Полная 100% автономность выполнения\nПревосходный уровень самокоррекции кода\nИнтегрируется с любым терминалом VPS",
+        cons: "Очень быстро расходует токены API\nТребует отдельный VPS-сервер для безопасности\nМожет зависнуть в цикле бесконечных правок",
+        associatedHack: "HACK_003"
       },
       {
         id: "crewai",
@@ -1866,18 +2055,39 @@
         version: "v0.32+",
         description: "Мощный фреймворк для оркестрации ролевых автономных ИИ-агентов, работающих в единой «команде» для достижения общей бизнес-цели.",
         verdict: "Превосходно справляется с разделением обязанностей: один агент ищет информацию, второй пишет черновик, третий рецензирует код.",
-        rating: "9.4/10"
+        rating: "9.4/10",
+        usp: "Оркестрация ролевых агентных групп для решения бизнес-задач.",
+        shortDesc: "Фреймворк для программирования ролевых автономных агентов на языке Python. Позволяет создавать сложные команды ИИ-агентов, которые могут общаться друг с другом и использовать инструменты.",
+        useCases: "Автоматическое ведение и анализ рынка конкурентов агентом-аналитиком\nСоздание ИИ-команды поддержки, отвечающей на сложные технические тикеты\nРазработка многоуровневого контент-плана и написание статей ИИ-редактором",
+        requirements: "ОС Windows, macOS или Linux\nУстановленный Python v3.10 - v3.12\nКлюч API OpenAI или Claude (можно использовать локальные модели через Ollama)\nGit",
+        installGuide: "Шаг 1: Установите библиотеку CrewAI через терминал:\npip install crewai crewai-tools\n\nШаг 2: Создайте файл `crew.py` и импортируйте агентов:\nfrom crewai import Agent, Task, Crew, Process\n\nШаг 3: Опишите роли агентов, задачи (Tasks) и привяжите нужные ИИ-модели.\n\nШаг 4: Запустите выполнение скрипта:\npython crew.py\nИИ-агенты начнут автоматически передавать результаты работы друг другу.",
+        pros: "Наглядная архитектура ролевой игры агентов\nПростая интеграция с локальными моделями через Ollama\nОгромное количество готовых инструментов (Search, Scrape, Write)",
+        cons: "Требует базовых навыков программирования на Python\nОтладка сложных мульти-агентных связей занимает много времени",
+        associatedHack: "HACK_004"
       }
     ];
 
+    // --- Load tools from localStorage or use defaults ---
+    function getTools() {
+      const stored = localStorage.getItem('neurostage_tools');
+      if (stored) {
+        try { return JSON.parse(stored); } catch(e) { return [...defaultTools]; }
+      }
+      return [...defaultTools];
+    }
+    
+    function saveToolsToStorage(tools) {
+      localStorage.setItem('neurostage_tools', JSON.stringify(tools));
+    }
+
     const categoryMeta = {
-      all: { title: 'All <em class="italic font-serif text-white/60">Systems</em>', subtitle: "MODULE_01 // ALL COMPILATION" },
-      vibe: { title: 'Vibe <em class="italic font-serif text-white/60">Coding</em>', subtitle: "MODULE_02 // SYSTEM_DEV" },
-      video: { title: 'Video <em class="italic font-serif text-white/60">Gen</em>', subtitle: "MODULE_03 // RENDERING" },
-      photo: { title: 'Photo <em class="italic font-serif text-white/60">Gen</em>', subtitle: "MODULE_04 // GRAPHICS" },
-      text: { title: 'Text <em class="italic font-serif text-white/60">Chat</em>', subtitle: "MODULE_05 // CORE_LLM" },
-      bots: { title: 'TG <em class="italic font-serif text-white/60">Bots</em>', subtitle: "MODULE_06 // CONNECTORS" },
-      agents: { title: 'AI <em class="italic font-serif text-white/60">Agents</em>', subtitle: "MODULE_07 // SYNAPSES" }
+      all: { title: 'All <em class="italic font-serif text-white/60">Systems</em>', subtitle: "MODULE_01 // ALL SYSTEMS" },
+      vibe: { title: 'Vibe <em class="italic font-serif text-white/60">Coding</em>', subtitle: "MODULE_02 // VIBE CODING" },
+      video: { title: 'Video <em class="italic font-serif text-white/60">Gen</em>', subtitle: "MODULE_03 // VIDEO GEN" },
+      photo: { title: 'Photo <em class="italic font-serif text-white/60">Gen</em>', subtitle: "MODULE_04 // PHOTO GEN" },
+      text: { title: 'Text <em class="italic font-serif text-white/60">Chat</em>', subtitle: "MODULE_05 // TEXT CHAT" },
+      bots: { title: 'TG <em class="italic font-serif text-white/60">Bots</em>', subtitle: "MODULE_06 // TG BOTS" },
+      agents: { title: 'AI <em class="italic font-serif text-white/60">Agents</em>', subtitle: "MODULE_07 // AI AGENTS" }
     };
 
 
@@ -1900,6 +2110,9 @@
 
     function openCategoryModal(category) {
       activeModalCategory = category;
+      // Close wiki view if it was left open
+      closeWikiView();
+
       // Set headers
       const meta = categoryMeta[category] || { title: "Loader", subtitle: "MODULE // LOADER" };
       modalTitle.innerHTML = meta.title;
@@ -1911,8 +2124,59 @@
         modalBox.className = 'relative w-full max-w-6xl editorial-glass rounded-2xl p-6 sm:p-10 max-h-[85vh] overflow-y-auto flex flex-col justify-between transform scale-95 transition-all duration-500 theme-' + category;
       }
 
+      // Set Ambient Flares Colors and SVG Watermarks based on category
+      const flare1 = document.getElementById('modal-ambient-flare-1');
+      const flare2 = document.getElementById('modal-ambient-flare-2');
+      const watermark = document.getElementById('modal-vector-watermark');
+      
+      let color1 = 'rgba(0, 240, 255, 0.12)'; 
+      let color2 = 'rgba(0, 240, 255, 0.07)';
+      let svgHtml = '';
+      
+      switch(category) {
+        case 'vibe':
+          color1 = 'rgba(245, 158, 11, 0.15)'; 
+          color2 = 'rgba(245, 158, 11, 0.09)';
+          svgHtml = `<svg class="w-[280px] h-[280px] sm:w-[350px] sm:h-[350px] md:w-[450px] md:h-[450px] text-amber-500/10" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="0.5"><text x="5" y="15" font-family="monospace" font-size="5" fill="currentColor">01010110 01001001 01000010 01000101</text><text x="5" y="27" font-family="monospace" font-size="5" fill="currentColor">01000011 01001111 01000100 01001001 01001110 01000111</text><text x="5" y="42" font-family="monospace" font-size="5" fill="currentColor">&gt; VIBE_CODING_INITIALIZED</text><text x="5" y="55" font-family="monospace" font-size="5" fill="currentColor">&gt; CORE_LLM_CONNECTED</text><text x="5" y="68" font-family="monospace" font-size="5" fill="currentColor">&gt; BUILD_COMPILER_ONLINE</text><line x1="5" y1="80" x2="95" y2="80" stroke-dasharray="2,2"/></svg>`;
+          break;
+        case 'bots':
+          color1 = 'rgba(6, 182, 212, 0.15)'; 
+          color2 = 'rgba(6, 182, 212, 0.09)';
+          svgHtml = `<svg class="w-[280px] h-[280px] sm:w-[350px] sm:h-[350px] md:w-[450px] md:h-[450px] text-cyan-400/10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.5"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke-linejoin="round"/></svg>`;
+          break;
+        case 'agents':
+          color1 = 'rgba(16, 185, 129, 0.15)'; 
+          color2 = 'rgba(16, 185, 129, 0.09)';
+          svgHtml = `<svg class="w-[280px] h-[280px] sm:w-[350px] sm:h-[350px] md:w-[450px] md:h-[450px] text-emerald-400/10" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="0.5"><circle cx="50" cy="50" r="8"/><circle cx="20" cy="30" r="5"/><circle cx="20" cy="70" r="5"/><circle cx="80" cy="30" r="5"/><circle cx="80" cy="70" r="5"/><line x1="50" y1="50" x2="20" y2="30"/><line x1="50" y1="50" x2="20" y2="70"/><line x1="50" y1="50" x2="80" y2="30"/><line x1="50" y1="50" x2="80" y2="70"/><line x1="20" y1="30" x2="20" y2="70" stroke-dasharray="1,1"/><line x1="80" y1="30" x2="80" y2="70" stroke-dasharray="1,1"/><circle cx="50" cy="15" r="4"/><circle cx="50" cy="85" r="4"/><line x1="50" y1="50" x2="50" y2="15"/><line x1="50" y1="50" x2="50" y2="85"/></svg>`;
+          break;
+        case 'video':
+          color1 = 'rgba(239, 68, 68, 0.15)'; 
+          color2 = 'rgba(239, 68, 68, 0.09)';
+          svgHtml = `<svg class="w-[280px] h-[280px] sm:w-[350px] sm:h-[350px] md:w-[450px] md:h-[450px] text-red-500/10" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="0.5"><path d="M10 20 H 25 M 10 20 V 35" /><path d="M90 20 H 75 M 90 20 V 35" /><path d="M10 80 H 25 M 10 80 V 65" /><path d="M90 80 H 75 M 90 80 V 65" /><circle cx="50" cy="50" r="15" stroke-dasharray="2,2"/><circle cx="50" cy="50" r="2"/><rect x="35" y="35" width="30" height="30" rx="3"/></svg>`;
+          break;
+        case 'photo':
+          color1 = 'rgba(168, 85, 247, 0.15)'; 
+          color2 = 'rgba(168, 85, 247, 0.09)';
+          svgHtml = `<svg class="w-[280px] h-[280px] sm:w-[350px] sm:h-[350px] md:w-[450px] md:h-[450px] text-purple-500/10" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="0.5"><path d="M10 20 H 25 M 10 20 V 35" /><path d="M90 20 H 75 M 90 20 V 35" /><path d="M10 80 H 25 M 10 80 V 65" /><path d="M90 80 H 75 M 90 80 V 65" /><circle cx="50" cy="50" r="15" stroke-dasharray="2,2"/><circle cx="50" cy="50" r="2"/><rect x="35" y="35" width="30" height="30" rx="3"/></svg>`;
+          break;
+        case 'text':
+          color1 = 'rgba(59, 130, 246, 0.15)'; 
+          color2 = 'rgba(59, 130, 246, 0.09)';
+          svgHtml = `<svg class="w-[280px] h-[280px] sm:w-[350px] sm:h-[350px] md:w-[450px] md:h-[450px] text-blue-500/10" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="0.5"><path d="M20 25 h 50 a 5 5 0 0 1 5 5 v 20 a 5 5 0 0 1 -5 5 h -40 l -10 10 v -10 h -5 a 5 5 0 0 1 -5 -5 v -20 a 5 5 0 0 1 5 -5 z" /><line x1="30" y1="35" x2="60" y2="35"/><line x1="30" y1="45" x2="50" y2="45"/><path d="M80 75 h -30 a 3 3 0 0 1 -3 -3 v -10 a 3 3 0 0 1 3 -3 h 20 l 10 10 v -10 h 3 a 3 3 0 0 1 3 3 v 10 a 3 3 0 0 1 -3 3 z" opacity="0.6"/></svg>`;
+          break;
+        default:
+          color1 = 'rgba(0, 240, 255, 0.12)'; 
+          color2 = 'rgba(0, 240, 255, 0.07)';
+          svgHtml = `<svg class="w-[280px] h-[280px] sm:w-[350px] sm:h-[350px] md:w-[450px] md:h-[450px] text-cyan-400/10" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="0.5"><rect x="5" y="5" width="90" height="90" stroke-dasharray="1,2"/><line x1="50" y1="5" x2="50" y2="95" stroke-dasharray="2,2"/><line x1="5" y1="50" x2="95" y2="50" stroke-dasharray="2,2"/><circle cx="50" cy="50" r="35"/><circle cx="50" cy="50" r="20" stroke-dasharray="1,1"/><path d="M15 15 L 85 85 M 85 15 L 15 85" stroke-dasharray="2,2" opacity="0.5" /></svg>`;
+          break;
+      }
+      
+      if (flare1) flare1.style.background = `radial-gradient(circle, ${color1} 0%, transparent 70%)`;
+      if (flare2) flare2.style.background = `radial-gradient(circle, ${color2} 0%, transparent 70%)`;
+      if (watermark) watermark.innerHTML = svgHtml;
+
       // Filter database tools
-      const tools = aiToolsDatabase.filter(t => category === 'all' || t.category === category);
+      const tools = getTools().filter(t => category === 'all' || t.category === category);
       
       // Populate tools grid
       modalToolsGrid.innerHTML = '';
@@ -1922,7 +2186,6 @@
       } else {
         tools.forEach((tool, idx) => {
           const card = document.createElement('div');
-          // Add micro-animation with staggered delays
           card.className = 'editorial-glass rounded-xl p-6 flex flex-col justify-between min-h-[220px] animate-modal-card relative overflow-hidden';
           card.style.animationDelay = `${idx * 0.08}s`;
           
@@ -1938,10 +2201,15 @@
             
             <div class="mt-4 pt-4 border-t border-white/5 flex flex-col gap-3">
               <div class="flex justify-between items-center">
-                <span class="text-xs theme-text-color font-mono font-medium">NEUROSTAGE SCORE // ${tool.rating}</span>
-                <button onclick="toggleVerdictInline(this)" class="text-[10px] text-[#ababaf] hover:text-white font-mono flex items-center gap-1 select-none">
-                  VERDICT <span class="arrow-indicator text-[8px] transition-transform duration-300">▼</span>
-                </button>
+                <span class="text-xs theme-text-color font-mono font-medium">SCORE // ${tool.rating}</span>
+                <div class="flex gap-3">
+                  <button onclick="toggleVerdictInline(this)" class="text-[10px] text-[#ababaf] hover:text-white font-mono flex items-center gap-1 select-none cursor-pointer">
+                    VERDICT <span class="arrow-indicator text-[8px] transition-transform duration-300">▼</span>
+                  </button>
+                  <button onclick="openWikiView('${tool.id}')" class="text-[10px] text-cyan-400 hover:text-white font-semibold font-mono flex items-center gap-0.5 select-none cursor-pointer">
+                    ВИКИ ➔
+                  </button>
+                </div>
               </div>
               
               <!-- Smooth expandable verdict -->
@@ -1956,12 +2224,12 @@
 
       // Show modal
       modalEl.classList.add('modal-active');
-      document.body.style.overflow = 'hidden'; // Lock main scrolling
+      document.body.style.overflow = 'hidden'; 
     }
 
     function closeCategoryModal() {
       modalEl.classList.remove('modal-active');
-      document.body.style.overflow = ''; // Unlock main scrolling
+      document.body.style.overflow = ''; 
     }
 
     function toggleVerdictInline(btn) {
@@ -1976,6 +2244,204 @@
         box.classList.add('hidden');
         arrow.style.transform = 'rotate(0deg)';
       }
+    }
+
+    // --- Wiki View Controller ---
+    function openWikiView(toolId) {
+      const tools = getTools();
+      const tool = tools.find(t => t.id === toolId);
+      if (!tool) return;
+
+      // Hide list grid and main headers
+      document.getElementById('modal-main-header').classList.add('hidden');
+      modalToolsGrid.classList.add('hidden');
+
+      // Show wiki view
+      const wikiView = document.getElementById('modal-wiki-view');
+      wikiView.classList.remove('hidden');
+
+      // Populate text
+      document.getElementById('wiki-category-tag').innerText = tool.tag;
+      document.getElementById('wiki-title').innerText = tool.name;
+      document.getElementById('wiki-usp').innerText = tool.usp || 'Полная автономность и оптимизация.';
+      document.getElementById('wiki-short-desc').innerText = tool.shortDesc || tool.description;
+
+      // Populate use cases
+      const casesContainer = document.getElementById('wiki-use-cases');
+      casesContainer.innerHTML = '';
+      if (tool.useCases) {
+        tool.useCases.split('\n').forEach(c => {
+          if (c.trim()) {
+            const li = document.createElement('li');
+            li.className = 'flex items-start gap-2 leading-relaxed mt-1';
+            li.innerHTML = `<span class="text-cyan-400 text-[10px] mt-0.5">🔹</span> <span>${c.trim()}</span>`;
+            casesContainer.appendChild(li);
+          }
+        });
+      } else {
+        casesContainer.innerHTML = '<li class="text-zinc-600 font-mono text-[10px]">NO_USE_CASES_SPECIFIED</li>';
+      }
+
+      // Populate requirements
+      const reqContainer = document.getElementById('wiki-requirements');
+      reqContainer.innerHTML = '';
+      if (tool.requirements) {
+        tool.requirements.split('\n').forEach(r => {
+          if (r.trim()) {
+            const li = document.createElement('li');
+            li.className = 'flex items-start gap-2 leading-relaxed mt-1';
+            li.innerHTML = `<span class="text-zinc-500 text-[9px] mt-1">▪</span> <span>${r.trim()}</span>`;
+            reqContainer.appendChild(li);
+          }
+        });
+      } else {
+        reqContainer.innerHTML = '<li class="text-zinc-600 font-mono text-[10px]">NO_REQUIREMENTS_SPECIFIED</li>';
+      }
+
+      // Populate pros
+      const prosContainer = document.getElementById('wiki-pros');
+      prosContainer.innerHTML = '';
+      if (tool.pros) {
+        const prosList = tool.pros.includes('\n') ? tool.pros.split('\n') : tool.pros.split(',');
+        prosList.forEach(p => {
+          if (p.trim()) {
+            const li = document.createElement('li');
+            li.className = 'flex items-start gap-1.5 leading-relaxed mt-1';
+            li.innerHTML = `<span class="text-[10px] mt-0.5">➕</span> <span>${p.trim()}</span>`;
+            prosContainer.appendChild(li);
+          }
+        });
+      }
+
+      // Populate cons
+      const consContainer = document.getElementById('wiki-cons');
+      consContainer.innerHTML = '';
+      if (tool.cons) {
+        const consList = tool.cons.includes('\n') ? tool.cons.split('\n') : tool.cons.split(',');
+        consList.forEach(c => {
+          if (c.trim()) {
+            const li = document.createElement('li');
+            li.className = 'flex items-start gap-1.5 leading-relaxed mt-1';
+            li.innerHTML = `<span class="text-[10px] mt-0.5">➖</span> <span>${c.trim()}</span>`;
+            consContainer.appendChild(li);
+          }
+        });
+      }
+
+      // Populate score text & progress bar
+      document.getElementById('wiki-score-text').innerText = tool.rating;
+      let scoreNum = parseFloat(tool.rating);
+      if (isNaN(scoreNum)) scoreNum = 10;
+      if (scoreNum > 10) scoreNum = 10;
+      const pct = (scoreNum * 10).toFixed(0);
+      const scoreBar = document.getElementById('wiki-score-bar');
+      if (scoreBar) {
+        scoreBar.style.width = '0%';
+        setTimeout(() => {
+          scoreBar.style.width = pct + '%';
+        }, 120);
+      }
+
+      // Populate installation guide (Option A)
+      const guideContainer = document.getElementById('wiki-install-guide');
+      guideContainer.innerHTML = '';
+      if (tool.installGuide) {
+        const lines = tool.installGuide.split('\n');
+        lines.forEach(line => {
+          const isCommandLine = line.trim().startsWith('git ') || line.trim().startsWith('npm ') || line.trim().startsWith('pip ') || line.trim().startsWith('ssh ') || line.trim().startsWith('python ') || line.trim().startsWith('docker ') || line.trim().startsWith('cp ') || line.trim().startsWith('pm2 ');
+          
+          if (isCommandLine) {
+            const termId = 'term_' + Math.random().toString(36).substr(2, 9);
+            const codeDiv = document.createElement('div');
+            codeDiv.className = 'relative bg-black/50 theme-border-soft rounded-lg p-3 font-mono text-[10px] text-cyan-300 flex items-center justify-between gap-4 mt-1.5 mb-2';
+            codeDiv.innerHTML = `
+              <span id="${termId}" class="select-all block truncate">${line.trim()}</span>
+              <button onclick="copyWikiConsole('${termId}', this)" class="text-[8px] font-mono text-zinc-500 hover:text-cyan-400 border border-zinc-800 hover:border-cyan-400/25 px-1.5 py-0.5 rounded transition-all flex-shrink-0 cursor-pointer select-none">COPY</button>
+            `;
+            guideContainer.appendChild(codeDiv);
+          } else if (line.trim().startsWith('http://') || line.trim().startsWith('https://')) {
+            const aDiv = document.createElement('div');
+            aDiv.innerHTML = `<a href="${line.trim()}" target="_blank" class="text-cyan-400 hover:underline break-all block py-1 font-mono text-[10px]">${line.trim()} ➔</a>`;
+            guideContainer.appendChild(aDiv);
+          } else {
+            const p = document.createElement('p');
+            p.className = 'leading-relaxed text-zinc-300 mt-1';
+            p.innerText = line;
+            guideContainer.appendChild(p);
+          }
+        });
+      } else {
+        guideContainer.innerHTML = '<p class="text-zinc-600 font-mono text-[10px]">NO_INSTALLATION_GUIDE_SPECIFIED</p>';
+      }
+
+      // Populate Associated Hack Link
+      const hackLinkContainer = document.getElementById('wiki-hack-link-container');
+      if (tool.associatedHack) {
+        hackLinkContainer.classList.remove('hidden');
+        const hacks = typeof getHacks === 'function' ? getHacks() : [];
+        const hack = hacks.find(h => h.id === tool.associatedHack || h.hackId === tool.associatedHack);
+        
+        const hackTitleEl = document.getElementById('wiki-hack-title');
+        if (hack && hackTitleEl) {
+          hackTitleEl.innerText = hack.title;
+        } else if (hackTitleEl) {
+          hackTitleEl.innerText = 'Как получить бесплатно API ключи';
+        }
+        
+        const hackLinkEl = document.getElementById('wiki-hack-link');
+        if (hackLinkEl) {
+          hackLinkEl.onclick = function(e) {
+            e.preventDefault();
+            closeCategoryModal();
+            closeWikiView();
+            
+            const targetId = hack ? hack.id : 'ai-abuse';
+            const targetEl = document.getElementById(targetId) || document.getElementById('ai-abuse');
+            if (targetEl) {
+              targetEl.scrollIntoView({ behavior: 'smooth' });
+              targetEl.classList.add('shadow-[0_0_30px_rgba(0,240,255,0.2)]');
+              setTimeout(() => {
+                targetEl.classList.remove('shadow-[0_0_30px_rgba(0,240,255,0.2)]');
+              }, 2000);
+            }
+          };
+        }
+      } else {
+        hackLinkContainer.classList.add('hidden');
+      }
+      
+      // Scroll modal box back to top
+      const modalBox = document.getElementById('category-modal-box');
+      if (modalBox) modalBox.scrollTop = 0;
+    }
+
+    function closeWikiView() {
+      // Hide wiki view
+      const wikiView = document.getElementById('modal-wiki-view');
+      if (wikiView) wikiView.classList.add('hidden');
+
+      // Show list grid and main headers
+      const mainHeader = document.getElementById('modal-main-header');
+      if (mainHeader) mainHeader.classList.remove('hidden');
+      if (modalToolsGrid) modalToolsGrid.classList.remove('hidden');
+      
+      // Scroll modal box back to top
+      const modalBox = document.getElementById('category-modal-box');
+      if (modalBox) modalBox.scrollTop = 0;
+    }
+
+    function copyWikiConsole(textId, btn) {
+      const el = document.getElementById(textId);
+      if (!el) return;
+      navigator.clipboard.writeText(el.innerText).then(() => {
+        const orig = btn.innerText;
+        btn.innerText = 'DONE!';
+        btn.classList.add('text-emerald-400', 'border-emerald-500/30');
+        setTimeout(() => {
+          btn.innerText = orig;
+          btn.classList.remove('text-emerald-400', 'border-emerald-500/30');
+        }, 1500);
+      });
     }
 
     // 4. Clipboard copy helper with feedback
@@ -2559,6 +3025,7 @@
       modal.classList.remove('modal-active');
       document.body.style.overflow = '';
       resetAdminForm();
+      if (typeof resetToolForm === 'function') resetToolForm();
       // Invalidate session token on close — require re-auth next time
       _adminAuthToken = null;
     }
@@ -2697,7 +3164,8 @@
       const db = {
         projects: getProjects(),
         hacks: typeof getHacks === 'function' ? getHacks() : [],
-        devlogs: getDevlogs()
+        devlogs: getDevlogs(),
+        tools: typeof getTools === 'function' ? getTools() : []
       };
       
       const blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' });
@@ -2742,6 +3210,12 @@
             localStorage.setItem('neurostage_devlogs', JSON.stringify(db.devlogs));
             importCount++;
           }
+
+          // Import tools
+          if (Array.isArray(db.tools)) {
+            localStorage.setItem('neurostage_tools', JSON.stringify(db.tools));
+            importCount++;
+          }
           
           if (importCount > 0) {
             // Trigger dynamic re-renders of all sections
@@ -2760,10 +3234,14 @@
             if (typeof renderAdminDevlogsList === 'function') {
               renderAdminDevlogsList();
             }
+
+            if (typeof renderAdminToolsList === 'function') {
+              renderAdminToolsList();
+            }
             
             alert('База данных успешно импортирована и применена!');
           } else {
-            alert('В файле не обнаружено валидных данных для импорта (projects, hacks или devlogs).');
+            alert('В файле не обнаружено валидных данных для импорта (projects, hacks, devlogs или tools).');
           }
         } catch (err) {
           console.error(err);
@@ -3568,6 +4046,182 @@ filesystem, browser-use, github-mcp`
     }
 
     // =========================================================================
+    // 11.4 WIKI TOOLS CRUD CONTROLLERS (ADMIN PORTAL)
+    // =========================================================================
+    function populateAssociatedHacksSelect() {
+      const select = document.getElementById('tool-associated-hack');
+      if (!select) return;
+      const hacks = getHacks();
+      let html = '<option value="" class="bg-[#0c0c11]">Нет связанного хака</option>';
+      hacks.forEach(h => {
+        const id = h.hackId || h.id;
+        html += `<option value="${id}" class="bg-[#0c0c11]">${id} // ${h.title}</option>`;
+      });
+      select.innerHTML = html;
+    }
+
+    function saveTool() {
+      if (!_requireAdmin('saveTool')) return;
+
+      const editId = document.getElementById('edit-tool-id').value;
+      const name = document.getElementById('tool-name').value.trim();
+      const category = document.getElementById('tool-category').value;
+      
+      if (!name) { 
+        document.getElementById('tool-name').style.borderColor = '#ef4444'; 
+        return; 
+      }
+
+      // Auto-generate clean slug-like id if empty
+      let toolIdVal = document.getElementById('tool-tool-id').value.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '-');
+      if (!toolIdVal) {
+        toolIdVal = name.toLowerCase().replace(/[^a-z0-9_-]/g, '-');
+      }
+      if (!toolIdVal) {
+        toolIdVal = 'tool_' + Date.now();
+      }
+
+      const tool = {
+        id: editId || toolIdVal,
+        name: name,
+        category: category,
+        tag: document.getElementById('tool-tag').value.trim() || ('#' + category.toUpperCase() + '_GEN'),
+        version: document.getElementById('tool-version').value.trim(),
+        rating: document.getElementById('tool-rating').value.trim() || '9.0/10',
+        associatedHack: document.getElementById('tool-associated-hack').value,
+        usp: document.getElementById('tool-usp').value.trim(),
+        description: document.getElementById('tool-description').value.trim(),
+        verdict: document.getElementById('tool-verdict').value.trim(),
+        shortDesc: document.getElementById('tool-short-desc').value.trim(),
+        useCases: document.getElementById('tool-use-cases').value.trim(),
+        requirements: document.getElementById('tool-requirements').value.trim(),
+        installGuide: document.getElementById('tool-install-guide').value.trim(),
+        pros: document.getElementById('tool-pros').value.trim(),
+        cons: document.getElementById('tool-cons').value.trim()
+      };
+
+      let tools = getTools();
+
+      if (editId) {
+        if (editId !== tool.id) {
+          tools = tools.filter(t => t.id !== editId);
+          tools.push(tool);
+        } else {
+          tools = tools.map(t => t.id === editId ? tool : t);
+        }
+      } else {
+        if (tools.some(t => t.id === tool.id)) {
+          tool.id = tool.id + '_' + Date.now();
+        }
+        tools.push(tool);
+      }
+
+      saveToolsToStorage(tools);
+      
+      if (typeof renderLabsDashboard === 'function') {
+        renderLabsDashboard();
+      }
+
+      renderAdminToolsList();
+      resetToolForm();
+
+      // Flash success on button
+      const btn = document.getElementById('save-tool-btn');
+      btn.innerText = editId ? 'ОБНОВЛЕНО ✓' : 'ОПУБЛИКОВАНО ✓';
+      btn.classList.add('bg-emerald-500/20', 'border-emerald-500/30', 'text-emerald-400');
+      setTimeout(() => {
+        btn.innerText = 'Сохранить статью ➔';
+        btn.classList.remove('bg-emerald-500/20', 'border-emerald-500/30', 'text-emerald-400');
+      }, 1500);
+    }
+
+    function editTool(id) {
+      if (!_requireAdmin('editTool')) return;
+      const tools = getTools();
+      const t = tools.find(x => x.id === id);
+      if (!t) return;
+
+      populateAssociatedHacksSelect();
+
+      document.getElementById('edit-tool-id').value = t.id;
+      document.getElementById('tool-name').value = t.name;
+      document.getElementById('tool-tool-id').value = t.id;
+      document.getElementById('tool-category').value = t.category || 'vibe';
+      document.getElementById('tool-tag').value = t.tag || '';
+      document.getElementById('tool-version').value = t.version || '';
+      document.getElementById('tool-rating').value = t.rating || '9.0/10';
+      document.getElementById('tool-associated-hack').value = t.associatedHack || '';
+      document.getElementById('tool-usp').value = t.usp || '';
+      document.getElementById('tool-description').value = t.description || '';
+      document.getElementById('tool-verdict').value = t.verdict || '';
+      document.getElementById('tool-short-desc').value = t.shortDesc || '';
+      document.getElementById('tool-use-cases').value = t.useCases || '';
+      document.getElementById('tool-requirements').value = t.requirements || '';
+      document.getElementById('tool-install-guide').value = t.installGuide || '';
+      document.getElementById('tool-pros').value = t.pros || '';
+      document.getElementById('tool-cons').value = t.cons || '';
+
+      document.getElementById('tool-form-title').innerText = 'Редактирование: ' + t.name;
+      document.getElementById('reset-tool-btn').classList.remove('hidden');
+      document.getElementById('save-tool-btn').innerText = 'Сохранить изменения ➔';
+    }
+
+    function deleteTool(id) {
+      if (!_requireAdmin('deleteTool')) return;
+      if (!confirm('Вы уверены, что хотите удалить эту статью Вики?')) return;
+      let tools = getTools().filter(t => t.id !== id);
+      saveToolsToStorage(tools);
+      
+      if (typeof renderLabsDashboard === 'function') {
+        renderLabsDashboard();
+      }
+      renderAdminToolsList();
+    }
+
+    function resetToolForm() {
+      document.getElementById('edit-tool-id').value = '';
+      const ids = [
+        'tool-name', 'tool-tool-id', 'tool-tag', 'tool-version', 
+        'tool-rating', 'tool-associated-hack', 'tool-usp', 'tool-description', 
+        'tool-verdict', 'tool-short-desc', 'tool-use-cases', 'tool-requirements', 
+        'tool-install-guide', 'tool-pros', 'tool-cons'
+      ];
+      ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.value = '';
+          el.style.borderColor = '';
+        }
+      });
+      document.getElementById('tool-category').value = 'vibe';
+      document.getElementById('tool-form-title').innerText = 'Добавить новую статью ВИКИ';
+      document.getElementById('reset-tool-btn').classList.add('hidden');
+      document.getElementById('save-tool-btn').innerText = 'Сохранить статью ➔';
+      populateAssociatedHacksSelect();
+    }
+
+    function renderAdminToolsList() {
+      const container = document.getElementById('admin-tools-list');
+      if (!container) return;
+      const tools = getTools();
+      if (tools.length === 0) {
+        container.innerHTML = `<div class="text-center text-zinc-500 font-mono text-xs py-6">Нет статей.</div>`;
+        return;
+      }
+      container.innerHTML = tools.map(t => `
+        <div class="flex items-center justify-between bg-black/30 border border-white/5 rounded-lg px-4 py-3 hover:border-white/10 transition-colors">
+          <div class="flex flex-col min-w-0 flex-grow mr-3">
+            <span class="text-xs text-white font-medium truncate">${t.name}</span>
+            <span class="text-[9px] text-zinc-500 font-mono">${t.id} // ${t.category} // ${t.rating}</span>
+          </div>
+          <div class="flex gap-2 flex-shrink-0">
+            <button onclick="editTool('${t.id}')" class="text-[9px] font-mono text-[#ababaf] hover:text-cyan-400 bg-white/5 border border-white/5 hover:border-cyan-400/30 px-2 py-0.5 rounded transition-all">EDIT</button>
+            <button onclick="deleteTool('${t.id}')" class="text-[9px] font-mono text-[#ababaf] hover:text-red-400 bg-white/5 border border-white/5 hover:border-red-400/30 px-2 py-0.5 rounded transition-all">DEL</button>
+          </div>
+        </div>`).join('');
+    }
+
+    // =========================================================================
     // 11.5 DEVLOGS CRUD CONTROLLERS (ADMIN PORTAL)
     // =========================================================================
     function saveDevlog() {
@@ -3719,13 +4373,19 @@ filesystem, browser-use, github-mcp`
       document.getElementById('tab-projects').classList.toggle('active-filter', tab === 'projects');
       document.getElementById('tab-hacks').classList.toggle('active-filter', tab === 'hacks');
       document.getElementById('tab-devlogs').classList.toggle('active-filter', tab === 'devlogs');
+      document.getElementById('tab-tools').classList.toggle('active-filter', tab === 'tools');
       
       document.getElementById('admin-tab-projects').classList.toggle('hidden', tab !== 'projects');
       document.getElementById('admin-tab-hacks').classList.toggle('hidden', tab !== 'hacks');
       document.getElementById('admin-tab-devlogs').classList.toggle('hidden', tab !== 'devlogs');
+      document.getElementById('admin-tab-tools').classList.toggle('hidden', tab !== 'tools');
       
       if (tab === 'hacks') renderAdminHacksList();
       else if (tab === 'devlogs') renderAdminDevlogsList();
+      else if (tab === 'tools') {
+        populateAssociatedHacksSelect();
+        renderAdminToolsList();
+      }
       else renderAdminProjectsList();
     }
 
@@ -3735,6 +4395,8 @@ filesystem, browser-use, github-mcp`
       _origOpenAdminPortal();
       renderAdminHacksList();
       renderAdminDevlogsList();
+      populateAssociatedHacksSelect();
+      renderAdminToolsList();
       switchAdminTab('projects');
     };
 
@@ -3896,6 +4558,13 @@ filesystem, browser-use, github-mcp`
     window.handleDevlogPosterUpload = handleDevlogPosterUpload;
     window.setDevlogsMode = setDevlogsMode;
     window.syncDevlogsFromYouTube = syncDevlogsFromYouTube;
+    
+    window.saveTool = saveTool;
+    window.editTool = editTool;
+    window.deleteTool = deleteTool;
+    window.resetToolForm = resetToolForm;
+    window.renderAdminToolsList = renderAdminToolsList;
+    window.populateAssociatedHacksSelect = populateAssociatedHacksSelect;
 
   })();
   </script>
@@ -3953,6 +4622,9 @@ filesystem, browser-use, github-mcp`
         </button>
         <button id="tab-devlogs" onclick="switchAdminTab('devlogs')" class="hack-filter-btn px-4 py-2 text-xs font-mono tracking-widest uppercase transition-all border border-white/5">
           DEVLOGS (ВИДЕО)
+        </button>
+        <button id="tab-tools" onclick="switchAdminTab('tools')" class="hack-filter-btn px-4 py-2 text-xs font-mono tracking-widest uppercase transition-all border border-white/5">
+          БАЗА ЗНАНИЙ (ВИКИ)
         </button>
       </div>
 
@@ -4233,6 +4905,135 @@ filesystem, browser-use, github-mcp`
           
           <!-- Devlogs List Container -->
           <div class="flex flex-col gap-3 max-h-[380px] overflow-y-auto pr-1" id="admin-devlogs-list">
+            <!-- Populated dynamically via JS -->
+          </div>
+        </div>
+        
+      </div>
+
+      <!-- Tab: Wiki Tools -->
+      <div id="admin-tab-tools" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start select-none hidden">
+        
+        <!-- Column 1: Add/Edit Wiki Tool Form (7 cols) -->
+        <div class="lg:col-span-7 flex flex-col gap-4">
+          <h3 class="text-lg text-white font-mono border-b border-white/5 pb-2 flex justify-between items-center select-none">
+            <span id="tool-form-title">Добавить новую статью ВИКИ</span>
+            <button onclick="resetToolForm()" class="text-[9px] text-[#ababaf] hover:text-white font-mono bg-white/5 border border-white/5 px-2 py-0.5 rounded transition-all hidden" id="reset-tool-btn">СБРОСИТЬ ФОРМУ</button>
+          </h3>
+          
+          <input type="hidden" id="edit-tool-id" value="" />
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[10px] font-mono text-[#ababaf] uppercase">Название инструмента</label>
+              <input type="text" id="tool-name" placeholder="Например: Cursor AI" class="bg-black/35 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-600 focus:border-cyan-400 focus:outline-none transition-colors" />
+            </div>
+            
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[10px] font-mono text-[#ababaf] uppercase">Уникальный ID (e.g. cursor)</label>
+              <input type="text" id="tool-tool-id" placeholder="Оставьте пустым для автогенерации" class="bg-black/35 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-600 focus:border-cyan-400 focus:outline-none transition-colors" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[10px] font-mono text-[#ababaf] uppercase">Категория</label>
+              <select id="tool-category" class="bg-black/35 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-cyan-400 focus:outline-none transition-colors cursor-pointer animate-none">
+                <option value="vibe" class="bg-[#0c0c11]">Vibe Coding</option>
+                <option value="video" class="bg-[#0c0c11]">Video Gen</option>
+                <option value="photo" class="bg-[#0c0c11]">Photo Gen</option>
+                <option value="text" class="bg-[#0c0c11]">Text Chat</option>
+                <option value="bots" class="bg-[#0c0c11]">TG Bots</option>
+                <option value="agents" class="bg-[#0c0c11]">AI Agents</option>
+              </select>
+            </div>
+            
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[10px] font-mono text-[#ababaf] uppercase">Тег (e.g. #VIBE_CODING)</label>
+              <input type="text" id="tool-tag" placeholder="Например: #VIBE_CODING" class="bg-black/35 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-600 focus:border-cyan-400 focus:outline-none transition-colors" />
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[10px] font-mono text-[#ababaf] uppercase">Версия (e.g. v0.45+)</label>
+              <input type="text" id="tool-version" placeholder="Например: v0.45+" class="bg-black/35 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-600 focus:border-cyan-400 focus:outline-none transition-colors" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[10px] font-mono text-[#ababaf] uppercase">Оценка (e.g. 9.8/10)</label>
+              <input type="text" id="tool-rating" placeholder="Например: 9.8/10" class="bg-black/35 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-600 focus:border-cyan-400 focus:outline-none transition-colors" />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[10px] font-mono text-[#ababaf] uppercase">Связанный Хак</label>
+              <select id="tool-associated-hack" class="bg-black/35 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-cyan-400 focus:outline-none transition-colors cursor-pointer animate-none">
+                <!-- Populated dynamically via JS -->
+              </select>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label class="text-[10px] font-mono text-[#ababaf] uppercase">⚡ Уникальная фишка (USP)</label>
+            <input type="text" id="tool-usp" placeholder="Например: Полная автономность и самокоррекция кода без участия человека." class="bg-black/35 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-600 focus:border-cyan-400 focus:outline-none transition-colors" />
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label class="text-[10px] font-mono text-[#ababaf] uppercase">ℹ️ Краткое описание (1-3 строки)</label>
+            <textarea id="tool-description" rows="2" placeholder="Краткое описание сути инструмента..." class="bg-black/35 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-600 focus:border-cyan-400 focus:outline-none transition-colors resize-none"></textarea>
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label class="text-[10px] font-mono text-[#ababaf] uppercase">🎯 Краткий вердикт (Wiki-карточка)</label>
+            <textarea id="tool-verdict" rows="2" placeholder="Финальный вердикт..." class="bg-black/35 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-600 focus:border-cyan-400 focus:outline-none transition-colors resize-none"></textarea>
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label class="text-[10px] font-mono text-[#ababaf] uppercase">ℹ️ Полное описание (Wiki-статья)</label>
+            <textarea id="tool-short-desc" rows="2" placeholder="Полное детальное описание инструмента..." class="bg-black/35 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-600 focus:border-cyan-400 focus:outline-none transition-colors resize-none"></textarea>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[10px] font-mono text-[#ababaf] uppercase">🎯 Где применять (по одной строке)</label>
+              <textarea id="tool-use-cases" rows="3" placeholder="Быстрое прототипирование&#10;Создание адаптивных форм" class="bg-black/35 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-600 focus:border-cyan-400 focus:outline-none transition-colors resize-none"></textarea>
+            </div>
+            
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[10px] font-mono text-[#ababaf] uppercase">💻 Системные требования (по одной строке)</label>
+              <textarea id="tool-requirements" rows="3" placeholder="Современный веб-браузер&#10;Аккаунт GitHub" class="bg-black/35 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-600 focus:border-cyan-400 focus:outline-none transition-colors resize-none"></textarea>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label class="text-[10px] font-mono text-[#ababaf] uppercase">🚀 Пошаговый гайд по установке (С копируемыми командами в pre/code)</label>
+            <textarea id="tool-install-guide" rows="4" placeholder="Шаг 1: Склонируйте репозиторий:&#10;git clone https://github.com/...&#10;&#10;Шаг 2: Установите зависимости:&#10;npm install" class="bg-black/35 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-600 focus:border-cyan-400 focus:outline-none transition-colors resize-none"></textarea>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[10px] font-mono text-[#ababaf] uppercase">🟢 Плюсы (по одной строке)</label>
+              <textarea id="tool-pros" rows="3" placeholder="Сверхбыстрая скорость генерации&#10;Использование современных стандартов" class="bg-black/35 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-600 focus:border-cyan-400 focus:outline-none transition-colors resize-none"></textarea>
+            </div>
+            
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[10px] font-mono text-[#ababaf] uppercase">🔴 Минусы (по одной строке)</label>
+              <textarea id="tool-cons" rows="3" placeholder="Иногда генерирует лишние CSS классы&#10;Лимиты бесплатных генераций" class="bg-black/35 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-600 focus:border-cyan-400 focus:outline-none transition-colors resize-none"></textarea>
+            </div>
+          </div>
+
+          <button onclick="saveTool()" class="w-full bg-cyan-400/20 border border-cyan-400/30 hover:border-cyan-400 text-cyan-400 font-semibold rounded-lg py-3 text-xs tracking-wider transition-all scale-100 active:scale-95 font-mono uppercase mt-2 shadow-[0_5px_15px_rgba(0,240,255,0.05)]" id="save-tool-btn">
+            Сохранить статью ➔
+          </button>
+        </div>
+
+        <!-- Column 2: Wiki Tools List Manager (5 cols) -->
+        <div class="lg:col-span-5 flex flex-col gap-4">
+          <h3 class="text-lg text-white font-mono border-b border-white/5 pb-2 flex justify-between items-center select-none">
+            <span>Управление базой ВИКИ</span>
+          </h3>
+          
+          <!-- Wiki Tools List Container -->
+          <div class="flex flex-col gap-3 max-h-[500px] overflow-y-auto pr-1" id="admin-tools-list">
             <!-- Populated dynamically via JS -->
           </div>
         </div>
