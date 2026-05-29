@@ -1,9 +1,47 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="ru" class="scroll-smooth">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Neurostage // AI Hub</title>
+  <title>Neurostage // Cyberpunk AI Hub & DevLogs</title>
+  <meta name="description" content="Neurostage — интерактивный ИИ-хаб и видео-блог разработчика. Проекты нашей Лаборатории (Labs), синхронизированные DevLogs, ИИ-сборки (Synergies) и библиотека фич обхода лимитов нейросетей (Neural Hacks).">
+  <meta name="keywords" content="Neurostage, ИИ, ИИ-агенты, нейросети, программирование, AI Hub, Vibe Coding, Claude Code CLI, Neural Hacks, ИИ-сборки, веб-разработка, киберпанк">
+  <meta name="author" content="Neurostage">
+  
+  <!-- OpenGraph Meta Tags (Facebook, Telegram, Discord, VK) -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Neurostage // Cyberpunk AI Hub & DevLogs">
+  <meta property="og:description" content="Интерактивный научно-фантастический ИИ-хаб. Разработки Лаборатории, YouTube DevLogs с автосинхронизацией, ИИ-сборки и Neural Hacks.">
+  <meta property="og:image" content="https://neurostage.vercel.app/human_robot_synergy.png">
+  <meta property="og:url" content="https://neurostage.vercel.app">
+  <meta property="og:site_name" content="Neurostage">
+
+  <!-- Twitter Meta Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Neurostage // Cyberpunk AI Hub & DevLogs">
+  <meta name="twitter:description" content="Интерактивный научно-фантастический ИИ-хаб. Разработки Лаборатории, YouTube DevLogs с автосинхронизацией, ИИ-сборки и Neural Hacks.">
+  <meta name="twitter:image" content="https://neurostage.vercel.app/human_robot_synergy.png">
+
+  <!-- Schema.org Structured Data (Google Rich Snippets) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Neurostage",
+    "url": "https://neurostage.vercel.app",
+    "description": "Cyberpunk AI Hub and DevLogs for advanced AI tools, agents, vibe coding hacks.",
+    "genre": "Artificial Intelligence & Software Development",
+    "publisher": {
+      "@type": "Organization",
+      "name": "Neurostage",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://neurostage.vercel.app/favicon.png"
+      }
+    }
+  }
+  </script>
+
   <link rel="icon" href="favicon.png" type="image/png">
   
   <!-- Tailwind CSS CDN -->
@@ -1568,11 +1606,88 @@
       </div>
     </section>
 
-    <!-- Footer copyright -->
-    <footer class="py-12 px-8 max-w-7xl mx-auto border-t border-white/5">
-      <div class="flex flex-col sm:flex-row items-center justify-between text-zinc-600 font-mono text-[10px] gap-4">
-        <span>© 2026 NEUROSTAGE. ALL RIGHTS RESERVED.</span>
-        <span>DESIGN // SCI-FI AI LAB SPA</span>
+    <!-- Footer copyright & Social links -->
+    <footer class="py-16 px-8 max-w-7xl mx-auto border-t border-white/5 relative overflow-hidden select-none">
+      <!-- Background Cyber Grid Flare -->
+      <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-96 h-32 bg-cyan-500/5 rounded-full blur-[80px] pointer-events-none"></div>
+      
+      <div class="flex flex-col gap-10">
+        <!-- Social Networks grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+          <!-- YouTube Link -->
+          <a href="https://youtube.com/@neurostage" target="_blank" class="liquid-glass rounded-xl p-5 flex items-center justify-between group border border-white/5 hover:border-red-500/30 hover:shadow-[0_0_20px_rgba(239,68,68,0.1)] transition-all duration-300 scale-hover">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500 group-hover:bg-red-500 group-hover:text-white transition-all duration-300 shadow-[0_0_10px_rgba(239,68,68,0.1)] group-hover:shadow-[0_0_15px_rgba(239,68,68,0.4)]">
+                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                  <path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.517 3.545 12 3.545 12 3.545s-7.516 0-9.387.507a3.003 3.003 0 0 0-2.11 2.11C0 8.033 0 12 0 12s0 3.967.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.871.507 9.387.507 9.387.507s7.517 0 9.387-.507a3.003 3.003 0 0 0 2.11-2.11C24 15.967 24 12 24 12s0-3.967-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                </svg>
+              </div>
+              <div class="flex flex-col font-mono text-left">
+                <span class="text-[10px] text-zinc-500 uppercase tracking-wider">// YOUTUBE</span>
+                <span class="text-xs text-white font-medium tracking-tight mt-0.5">@neurostage</span>
+              </div>
+            </div>
+            <span class="text-xs text-zinc-600 group-hover:text-red-400 group-hover:translate-x-1 transition-all">➔</span>
+          </a>
+
+          <!-- Telegram Link -->
+          <a href="https://t.me/neurostage" target="_blank" class="liquid-glass rounded-xl p-5 flex items-center justify-between group border border-white/5 hover:border-cyan-400/30 hover:shadow-[0_0_20px_rgba(0,240,255,0.1)] transition-all duration-300 scale-hover">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-cyan-400/10 border border-cyan-400/20 flex items-center justify-center text-cyan-400 group-hover:bg-cyan-400 group-hover:text-black transition-all duration-300 shadow-[0_0_10px_rgba(0,240,255,0.1)] group-hover:shadow-[0_0_15px_rgba(0,240,255,0.4)]">
+                <svg class="w-5 h-5 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
+                </svg>
+              </div>
+              <div class="flex flex-col font-mono text-left">
+                <span class="text-[10px] text-zinc-500 uppercase tracking-wider">// TELEGRAM</span>
+                <span class="text-xs text-white font-medium tracking-tight mt-0.5">Связь & Чат</span>
+              </div>
+            </div>
+            <span class="text-xs text-zinc-600 group-hover:text-cyan-400 group-hover:translate-x-1 transition-all">➔</span>
+          </a>
+
+          <!-- GitHub Link -->
+          <a href="https://github.com/VajV/NeuroStage" target="_blank" class="liquid-glass rounded-xl p-5 flex items-center justify-between group border border-white/5 hover:border-purple-400/30 hover:shadow-[0_0_20px_rgba(167,139,250,0.1)] transition-all duration-300 scale-hover">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 group-hover:bg-purple-400 group-hover:text-black transition-all duration-300 shadow-[0_0_10px_rgba(167,139,250,0.1)] group-hover:shadow-[0_0_15px_rgba(167,139,250,0.4)]">
+                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                  <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z" />
+                </svg>
+              </div>
+              <div class="flex flex-col font-mono text-left">
+                <span class="text-[10px] text-zinc-500 uppercase tracking-wider">// GITHUB</span>
+                <span class="text-xs text-white font-medium tracking-tight mt-0.5">Исходный код</span>
+              </div>
+            </div>
+            <span class="text-xs text-zinc-600 group-hover:text-purple-400 group-hover:translate-x-1 transition-all">➔</span>
+          </a>
+
+          <!-- Discord Link -->
+          <a href="https://discord.gg/neurostage" target="_blank" class="liquid-glass rounded-xl p-5 flex items-center justify-between group border border-white/5 hover:border-indigo-400/30 hover:shadow-[0_0_20px_rgba(99,102,241,0.1)] transition-all duration-300 scale-hover">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 group-hover:bg-indigo-400 group-hover:text-white transition-all duration-300 shadow-[0_0_10px_rgba(99,102,241,0.1)] group-hover:shadow-[0_0_15px_rgba(99,102,241,0.4)]">
+                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                  <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.094 13.094 0 0 1-1.873-.894.077.077 0 0 1-.008-.128c.126-.093.252-.19.372-.287a.075.075 0 0 1 .077-.011c3.92 1.793 8.18 1.793 12.061 0a.073.073 0 0 1 .078.009c.12.099.246.195.373.289a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.156-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.156 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.156-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.156 2.418z"/>
+                </svg>
+              </div>
+              <div class="flex flex-col font-mono text-left">
+                <span class="text-[10px] text-zinc-500 uppercase tracking-wider">// DISCORD</span>
+                <span class="text-xs text-white font-medium tracking-tight mt-0.5">ИИ-Сообщество</span>
+              </div>
+            </div>
+            <span class="text-xs text-zinc-600 group-hover:text-indigo-400 group-hover:translate-x-1 transition-all">➔</span>
+          </a>
+        </div>
+        
+        <!-- Bottom Info row -->
+        <div class="flex flex-col md:flex-row items-center justify-between text-zinc-600 font-mono text-[9px] gap-4 border-t border-white/5 pt-8 select-none">
+          <div class="flex items-center gap-2">
+            <span class="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-pulse"></span>
+            <span>NEUROSTAGE // ВЕРСИЯ ЯДРА 3.2.0</span>
+          </div>
+          <span>© 2026 NEUROSTAGE. ВСЕ ПРАВА ЗАЩИЩЕНЫ.</span>
+          <span class="hover:text-cyan-400 transition-colors duration-300">DESIGN // SCI-FI AI LAB SPA</span>
+        </div>
       </div>
     </footer>
 
@@ -2594,6 +2709,73 @@
       URL.revokeObjectURL(url);
     }
 
+    // --- JSON Import ---
+    function importProjectsJSON(input) {
+      if (!_requireAdmin('importProjectsJSON')) return;
+      const file = input.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const db = JSON.parse(e.target.result);
+          if (!db || (typeof db !== 'object')) {
+            throw new Error('Некорректная структура файла.');
+          }
+          
+          let importCount = 0;
+          
+          // Import projects
+          if (Array.isArray(db.projects)) {
+            localStorage.setItem('neurostage_projects', JSON.stringify(db.projects));
+            importCount++;
+          }
+          
+          // Import hacks
+          if (Array.isArray(db.hacks)) {
+            localStorage.setItem('neurostage_hacks', JSON.stringify(db.hacks));
+            importCount++;
+          }
+          
+          // Import devlogs
+          if (Array.isArray(db.devlogs)) {
+            localStorage.setItem('neurostage_devlogs', JSON.stringify(db.devlogs));
+            importCount++;
+          }
+          
+          if (importCount > 0) {
+            // Trigger dynamic re-renders of all sections
+            renderLabsDashboard();
+            renderAdminProjectsList();
+            
+            if (typeof renderHacksGrid === 'function') {
+              renderHacksGrid('ALL');
+            }
+            if (typeof renderAdminHacksList === 'function') {
+              renderAdminHacksList();
+            }
+            
+            // Re-sync devlogs mode & render
+            setDevlogsMode(devlogsMode);
+            if (typeof renderAdminDevlogsList === 'function') {
+              renderAdminDevlogsList();
+            }
+            
+            alert('База данных успешно импортирована и применена!');
+          } else {
+            alert('В файле не обнаружено валидных данных для импорта (projects, hacks или devlogs).');
+          }
+        } catch (err) {
+          console.error(err);
+          alert('Ошибка при импорте JSON: ' + err.message);
+        } finally {
+          // Reset file input so same file can be uploaded again
+          input.value = '';
+        }
+      };
+      reader.readAsText(file);
+    }
+
     // --- Initialize Labs Dashboard on page load ---
     renderLabsDashboard();
 
@@ -2902,9 +3084,12 @@ filesystem, browser-use, github-mcp`
       const container = document.getElementById('devlogs-playlist');
       if (container) {
         container.innerHTML = `
-          <div class="flex flex-col items-center justify-center py-8 gap-2.5 font-mono text-xs text-cyan-400 animate-pulse">
+          <div class="flex flex-col items-center justify-center py-8 gap-2.5 font-mono text-xs text-cyan-400">
             <span class="w-4 h-4 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></span>
-            <span>📡 СИНХРОНИЗАЦИЯ С КАНАЛОМ...</span>
+            <span class="animate-pulse">📡 СИНХРОНИЗАЦИЯ С КАНАЛОМ...</span>
+            <button onclick="setDevlogsMode('local')" class="mt-2 text-[9px] text-zinc-500 hover:text-cyan-400 border border-zinc-700 hover:border-cyan-400/30 bg-black/40 px-2 py-0.5 rounded transition-all cursor-pointer select-none">
+              [Форсировать локальную БД]
+            </button>
           </div>
         `;
       }
@@ -3695,6 +3880,7 @@ filesystem, browser-use, github-mcp`
     window.deleteProject = deleteProject;
     window.saveProject = saveProject;
     window.exportProjectsJSON = exportProjectsJSON;
+    window.importProjectsJSON = importProjectsJSON;
     window.editHack = editHack;
     window.deleteHack = deleteHack;
     window.saveHack = saveHack;
@@ -3851,7 +4037,11 @@ filesystem, browser-use, github-mcp`
         <div class="lg:col-span-5 flex flex-col gap-4">
           <h3 class="text-lg text-white font-mono border-b border-white/5 pb-2 flex justify-between items-center select-none">
             <span>Управление проектами</span>
-            <button onclick="exportProjectsJSON()" class="text-[9px] text-cyan-400 hover:text-white font-mono bg-cyan-400/10 border border-cyan-400/30 hover:border-cyan-400 px-2 py-0.5 rounded transition-all">ЭКСПОРТ JSON</button>
+            <div class="flex gap-2">
+              <button onclick="exportProjectsJSON()" class="text-[9px] text-cyan-400 hover:text-white font-mono bg-cyan-400/10 border border-cyan-400/30 hover:border-cyan-400 px-2 py-0.5 rounded transition-all select-none">ЭКСПОРТ JSON</button>
+              <button onclick="document.getElementById('admin-import-file').click()" class="text-[9px] text-emerald-400 hover:text-white font-mono bg-emerald-400/10 border border-emerald-400/30 hover:border-emerald-400 px-2 py-0.5 rounded transition-all select-none">ИМПОРТ JSON</button>
+              <input type="file" id="admin-import-file" class="hidden" accept=".json" onchange="importProjectsJSON(this)" />
+            </div>
           </h3>
           
           <!-- Projects List Container -->
