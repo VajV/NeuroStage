@@ -2993,8 +2993,8 @@ filesystem, browser-use, github-mcp`
       localStorage.setItem('neurostage_devlogs', JSON.stringify(data));
     }
 
-    async function fetchYouTubeFeed(channelId = 'UCxL1u12N_W5J7r0-3aJ8e2A') {
-      if (youtubeFeedCache && channelId === 'UCxL1u12N_W5J7r0-3aJ8e2A') return youtubeFeedCache;
+    async function fetchYouTubeFeed(channelId = 'UCkACqx1Ej0_aGtu4_XRe4mg') {
+      if (youtubeFeedCache && channelId === 'UCkACqx1Ej0_aGtu4_XRe4mg') return youtubeFeedCache;
       
       const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
       const proxies = [
@@ -3074,7 +3074,7 @@ filesystem, browser-use, github-mcp`
         });
       }
       
-      if (channelId === 'UCxL1u12N_W5J7r0-3aJ8e2A') {
+      if (channelId === 'UCkACqx1Ej0_aGtu4_XRe4mg') {
         youtubeFeedCache = feedDevlogs;
       }
       return feedDevlogs;
@@ -4149,7 +4149,7 @@ filesystem, browser-use, github-mcp`
               </div>
             </div>
             <div class="flex items-center gap-2 w-full sm:w-auto">
-              <input type="text" id="sync-channel-id" value="UCxL1u12N_W5J7r0-3aJ8e2A" placeholder="YouTube Channel ID" class="bg-black/40 border border-white/10 rounded-lg px-2.5 py-1.5 text-[10px] font-mono text-white focus:border-cyan-400 focus:outline-none transition-colors w-full sm:w-44" />
+              <input type="text" id="sync-channel-id" value="UCkACqx1Ej0_aGtu4_XRe4mg" placeholder="YouTube Channel ID" class="bg-black/40 border border-white/10 rounded-lg px-2.5 py-1.5 text-[10px] font-mono text-white focus:border-cyan-400 focus:outline-none transition-colors w-full sm:w-44" />
               <button onclick="syncDevlogsFromYouTube()" class="bg-red-500/10 border border-red-500/30 hover:border-red-500 text-red-500 hover:bg-red-500/20 font-bold rounded-lg px-3 py-1.5 text-[10px] font-mono transition-all flex-shrink-0 uppercase cursor-pointer">
                 СИНХРОНИЗИРОВАТЬ
               </button>
